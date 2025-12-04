@@ -670,14 +670,6 @@
             <div class="card">
                 <h3 style="margin-bottom: 16px; font-size: 16px;">Settings</h3>
 
-                <!-- <div class="settings-item">
-                    <div>
-                        <div class="settings-label">Export Data</div>
-                        <div class="settings-value">Download as JSON</div>
-                    </div>
-                    <button class="btn btn-secondary" style="width: auto; padding: 8px 12px;" onclick="exportData()">Export</button>
-                </div> -->
-
                 <div class="settings-item">
                     <div>
                         <div class="settings-label">Clear All Data</div>
@@ -1202,6 +1194,18 @@
                 transactions = parsed.transactions || [];
                 monthlyBudget = parsed.monthlyBudget || 0;
             }
+        }
+
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify({ transactions, monthlyBudget }, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `spending-tracker-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
         }
 
         // Export data as PDF
