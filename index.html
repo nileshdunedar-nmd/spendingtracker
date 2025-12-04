@@ -1116,6 +1116,28 @@
                 alert('All data has been cleared');
             }
         }
+
+            <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // TODO: is config ko Firebase console se apne project ke hisaab se replace karo
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLnj8vRLLjgfWFlu9wU0gK8ZccmpA67GI",
+            authDomain: "spendingtracker-a3e9a.firebaseapp.com",
+            projectId: "spendingtracker-a3e9a",
+            storageBucket: "spendingtracker-a3e9a.firebasestorage.app",
+            messagingSenderId: "948139369692",
+            appId: "1:948139369692:web:7df339d507716a22864019",
+            measurementId: "G-8BL9ETTJ3T"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+
+        
     </script>
 </body>
 </html>
