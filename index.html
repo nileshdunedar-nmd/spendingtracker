@@ -484,32 +484,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        #toast {
-            visibility: hidden;
-            min-width: 200px;
-            background: #333;
-            color: #fff;
-            text-align: center;
-            padding: 12px 20px;
-            border-radius: 10px;
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 18px;
-            opacity: 0;
-            transition: opacity 0.4s, bottom 0.4s;
-            z-index: 9999;
-        }
-
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
-        }
-
-
     </style>
 </head>
 <body>
@@ -913,8 +887,7 @@
             const description = document.getElementById('description').value;
 
             if (!amount || !category || !date) {
-                // alert('Please fill in all required fields');
-                showToast("Please fill in all required fields");
+                alert('Please fill in all required fields');
                 return;
             }
 
@@ -932,22 +905,8 @@
             saveToLocalStorage();
             updateDashboard();
             resetForm();
-            // alert('Transaction added successfully!');
-            showToast('Transaction added successfully!');
+            alert('Transaction added successfully!');
         }
-
-        function showToast(msg) {
-            const toast = document.getElementById("toast");
-            toast.innerText = msg;
-            toast.style.display = "block";
-            toast.style.opacity = "1";
-
-            setTimeout(() => {
-                toast.style.opacity = "0";
-                setTimeout(() => toast.style.display = "none", 400);
-            }, 2000);
-        }
-
 
         // Reset form
         function resetForm() {
@@ -965,15 +924,13 @@
         function setBudget() {
             const budget = parseFloat(document.getElementById('budgetAmount').value);
             if (!budget || budget <= 0) {
-                // alert('Please enter a valid budget amount');
-                showToast('Please enter a valid budget amount');
+                alert('Please enter a valid budget amount');
                 return;
             }
             monthlyBudget = budget;
             saveToLocalStorage();
             updateBudgetView();
-            // alert('Monthly budget set to ₹' + budget.toFixed(2));
-            showToast('Monthly budget set to ₹' + budget.toFixed(2));
+            alert('Monthly budget set to ₹' + budget.toFixed(2));
         }
 
         // Update dashboard
@@ -1292,8 +1249,7 @@
             link.download = `spending-tracker-${new Date().toISOString().split('T')[0]}.pdf.txt`;
             link.click();
             URL.revokeObjectURL(url);
-            // alert('📄 Report downloaded as PDF!');
-            showToast("Report downloaded as PDF!");
+            alert('📄 Report downloaded as PDF!');
         }
 
         // Export data as Excel
@@ -1313,8 +1269,7 @@
             link.download = `spending-tracker-${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
             URL.revokeObjectURL(url);
-            // alert('📊 Data exported as Excel!');
-            showToast("Data exported as Excel!");
+            alert('📊 Data exported as Excel!');
         }
 
         // Clear all data
@@ -1331,8 +1286,7 @@
                         snapshot.forEach(doc => doc.ref.delete());
                     });
                 }
-                // alert('All data has been cleared');
-                showToast("All data has been cleared");
+                alert('All data has been cleared');
             }
         }
 
@@ -1347,6 +1301,5 @@
             if (modal) modal.style.display = 'none';
         }
     </script>
-    <div id="toast"></div>
 </body>
 </html>
