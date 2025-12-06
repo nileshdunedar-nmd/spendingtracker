@@ -1,217 +1,334 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spending Tracker Pro</title>
-  <meta name="theme-color" content="#2196F3">
-  <meta name="description" content="Track your expenses with ease">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spending Tracker Pro</title>
+    <meta name="theme-color" content="#2196F3">
+    <meta name="description" content="Track your expenses with ease">
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
-  <div class="container">
-    <!-- Header -->
-    <div class="header">
-      <h1>Spending Tracker</h1>
-      <div class="header-date" id="currentDate"></div>
-    </div>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💰 Spending Tracker</h1>
+            <div class="header-date" id="currentDate"></div>
+        </div>
 
-    <!-- Ad Container -->
-    <div class="ad-container">
-      <ins class="adsbygoogle" style="display:block" 
-           data-ad-client="ca-pub-4018280178767791" 
-           data-ad-slot="7919063294" 
-           data-ad-format="horizontal" 
-           data-full-width-responsive="true"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
+        <!-- Ad Container -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4018280178767791"
+                 data-ad-slot="7919063294"
+                 data-ad-format="horizontal"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
 
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-      <button class="tab-btn" onclick="switchTab('add')">Add Expense</button>
-      <button class="tab-btn" onclick="switchTab('budget')">Budget</button>
-      <button class="tab-btn" onclick="switchTab('history')">History</button>
-      <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
-    </div>
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('add')">Add Expense</button>
+            <button class="tab-btn" onclick="switchTab('budget')">Budget</button>
+            <button class="tab-btn" onclick="switchTab('history')">History</button>
+            <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
+            
+        </div>
 
-    <!-- Dashboard Tab -->
-    <div id="dashboard" class="tab-content active">
-      <div class="card">
-        <div class="stat-box">
-          <div class="stat-label">Total Balance</div>
-          <div class="stat-value" id="totalBalance">0.00</div>
-        </div>
-        <div class="stat-row">
-          <div class="stat-small">
-            <div class="stat-small-label">Income</div>
-            <div class="stat-small-value" id="totalIncome">0.00</div>
-          </div>
-          <div class="stat-small">
-            <div class="stat-small-label">Expenses</div>
-            <div class="stat-small-value" id="totalExpenses">0.00</div>
-          </div>
-        </div>
-        <div class="stat-row">
-          <div class="stat-small">
-            <div class="stat-small-label">This Month</div>
-            <div class="stat-small-value" id="monthlyExpense">0.00</div>
-          </div>
-          <div class="stat-small">
-            <div class="stat-small-label">Budget Left</div>
-            <div class="stat-small-value" id="budgetLeft">0.00</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <h3 style="margin-bottom: 12px; font-size: 16px;">Recent Transactions</h3>
-        <div id="recentTransactions">
-          <div class="empty-state">
-            <div class="empty-icon">📊</div>
-            <div class="empty-text">No transactions yet</div>
-            <div class="empty-subtext">Start by adding your first expense or income</div>
-          </div>
-        </div>
-      </div>
-    </div>
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="card">
+                <div class="stat-box">
+                    <div class="stat-label">Total Balance</div>
+                    <div class="stat-value" id="totalBalance">₹0.00</div>
+                </div>
 
-    <!-- Add Expense Tab -->
-    <div id="add" class="tab-content">
-      <div class="card">
-        <h3 style="margin-bottom: 16px; font-size: 16px;">Add Transaction</h3>
-        <div class="form-group">
-          <label>Type</label>
-          <div class="category-badges" style="gap: 12px; margin-top: 0;">
-            <button class="category-badge selected" onclick="setType('expense')" data-type="expense">Expense</button>
-            <button class="category-badge" onclick="setType('income')" data-type="income">Income</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Category</label>
-          <select id="category" required>
-            <option value="">Select Category</option>
-            <optgroup label="Expenses">
-              <option value="food">Food & Dining</option>
-              <option value="transport">Transport</option>
-              <option value="shopping">Shopping</option>
-              <option value="utilities">Utilities</option>
-              <option value="health">Health & Medical</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="education">Education</option>
-              <option value="other">Other</option>
-            </optgroup>
-            <optgroup label="Income">
-              <option value="salary">Salary</option>
-              <option value="freelance">Freelance</option>
-              <option value="investment">Investment</option>
-              <option value="bonus">Bonus</option>
-              <option value="other-income">Other Income</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Amount</label>
-            <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" required>
-          </div>
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="date" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea id="description" placeholder="Add notes..." rows="2" maxlength="100"></textarea>
-        </div>
-        <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
-        <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
-      </div>
-    </div>
+                <div class="stat-row">
+                    <div class="stat-small">
+                        <div class="stat-small-label">Income</div>
+                        <div class="stat-small-value" id="totalIncome">₹0.00</div>
+                    </div>
+                    <div class="stat-small">
+                        <div class="stat-small-label">Expenses</div>
+                        <div class="stat-small-value" id="totalExpenses">₹0.00</div>
+                    </div>
+                </div>
 
-    <!-- Budget Tab -->
-    <div id="budget" class="tab-content">
-      <div class="card">
-        <h3 style="margin-bottom: 16px; font-size: 16px;">Set Monthly Budget</h3>
-        <div class="form-group">
-          <label>Monthly Budget Limit</label>
-          <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0">
-        </div>
-        <button class="btn btn-primary" onclick="setBudget()">Set Budget</button>
-      </div>
-      <div class="card">
-        <h3 style="margin-bottom: 12px; font-size: 16px;">Budget Overview</h3>
-        <div id="budgetOverview">
-          <div class="empty-state">
-            <div class="empty-icon">💰</div>
-            <div class="empty-text">No budget set</div>
-            <div class="empty-subtext">Set a monthly budget to track your spending</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <h3 style="margin-bottom: 12px; font-size: 16px;">Category Breakdown</h3>
-        <div id="categoryBreakdown">
-          <div class="empty-state">
-            <div class="empty-icon">📈</div>
-            <div class="empty-text">No expenses yet</div>
-          </div>
-        </div>
-      </div>
-    </div>
+                <div class="stat-row">
+                    <div class="stat-small">
+                        <div class="stat-small-label">This Month</div>
+                        <div class="stat-small-value" id="monthlyExpense">₹0.00</div>
+                    </div>
+                    <div class="stat-small">
+                        <div class="stat-small-label">Budget Left</div>
+                        <div class="stat-small-value" id="budgetLeft">₹0.00</div>
+                    </div>
+                </div>
+            </div>
 
-    <!-- History Tab -->
-    <div id="history" class="tab-content">
-      <div class="card">
-        <h3 style="margin-bottom: 16px; font-size: 16px;">All Transactions</h3>
-        <div class="form-group">
-          <label>Filter by Month</label>
-          <input type="month" id="filterMonth">
+            <div class="card">
+                <h3 style="margin-bottom: 12px; font-size: 16px;">Recent Transactions</h3>
+                <div id="recentTransactions">
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <div class="empty-text">No transactions yet</div>
+                        <div class="empty-subtext">Start by adding your first expense or income</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="allTransactions">
-          <div class="empty-state">
-            <div class="empty-icon">📊</div>
-            <div class="empty-text">No transactions</div>
-            <div class="empty-subtext">Add your first transaction to see history</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Settings Tab -->
-    <div id="settings" class="tab-content">
-      <div class="card">
-        <h3 style="margin-bottom: 16px; font-size: 16px;">Settings</h3>
-        <div class="settings-item">
-          <div class="settings-label">Clear All Data</div>
-          <div class="settings-value">Delete all transactions</div>
-          <button class="btn btn-danger" onclick="clearAllData()">Clear</button>
+        <!-- Add Expense Tab -->
+        <div id="add" class="tab-content">
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 16px;">Add Transaction</h3>
+
+                <div class="form-group">
+                    <label>Type</label>
+                    <div class="category-badges" style="gap: 12px; margin-top: 0;">
+                        <button class="category-badge selected" onclick="setType('expense')" data-type="expense">Expense</button>
+                        <button class="category-badge" onclick="setType('income')" data-type="income">Income</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category" required>
+                        <option value="">Select Category</option>
+                        <optgroup label="Expenses">
+                            <option value="food">🍕 Food & Dining</option>
+                            <option value="transport">🚗 Transport</option>
+                            <option value="shopping">🛍️ Shopping</option>
+                            <option value="utilities">💡 Utilities</option>
+                            <option value="health">🏥 Health & Medical</option>
+                            <option value="entertainment">🎬 Entertainment</option>
+                            <option value="education">📚 Education</option>
+                            <option value="other">📌 Other</option>
+                        </optgroup>
+                        <optgroup label="Income">
+                            <option value="salary">💼 Salary</option>
+                            <option value="freelance">💻 Freelance</option>
+                            <option value="investment">📈 Investment</option>
+                            <option value="bonus">🎁 Bonus</option>
+                            <option value="other-income">➕ Other Income</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Amount (₹)</label>
+                        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" placeholder="Add notes..." rows="2" maxlength="100"></textarea>
+                </div>
+
+                <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
+                <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+            </div>
         </div>
-        <div class="settings-item">
-          <div class="settings-label">Data Storage</div>
-          <div class="settings-value">Using Browser LocalStorage</div>
+
+        <!-- Budget Tab -->
+        <div id="budget" class="tab-content">
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 16px;">Set Monthly Budget</h3>
+
+                <div class="form-group">
+                    <label>Monthly Budget Limit (₹)</label>
+                    <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0">
+                </div>
+
+                <button class="btn btn-primary" onclick="setBudget()">Set Budget</button>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 12px; font-size: 16px;">Budget Overview</h3>
+                <div id="budgetOverview">
+                    <div class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <div class="empty-text">No budget set</div>
+                        <div class="empty-subtext">Set a monthly budget to track your spending</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 12px; font-size: 16px;">Category Breakdown</h3>
+                <div id="categoryBreakdown">
+                    <div class="empty-state">
+                        <div class="empty-icon">📈</div>
+                        <div class="empty-text">No expenses yet</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="settings-item">
-          <div class="settings-label">Export Data</div>
-          <div class="settings-value">Download as PDF or Excel</div>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportDataAsPDF()">PDF</button>
-            <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportDataAsExcel()">Excel</button>
-          </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 16px;">All Transactions</h3>
+
+                <div class="form-group">
+                    <label>Filter by Month</label>
+                    <input type="month" id="filterMonth">
+                </div>
+
+                <div id="allTransactions">
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-text">No transactions</div>
+                        <div class="empty-subtext">Add your first transaction to see history</div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-        <h3 style="color: white; margin-bottom: 12px;">About Spending Tracker</h3>
-        <p style="font-size: 13px; line-height: 1.6; margin: 0;">
-          <strong>Version 1.0</strong><br>
-          Track your expenses efficiently with a beautiful, intuitive interface.<br><br>
-          ✓ Budget Management<br>
-          ✓ Category Tracking<br>
-          ✓ Transaction History<br>
-          ✓ Data Export<br><br>
-          Made by SharweenSoft with ❤️ for smart spenders
-        </p>
-      </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h3 style="margin-bottom: 16px; font-size: 16px;">Settings</h3>
+
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-label">Clear All Data</div>
+                        <div class="settings-value">Delete all transactions</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="clearAllData()">Clear</button>
+                </div>
+
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-label">Data Storage</div>
+                        <div class="settings-value">Using Browser LocalStorage</div>
+                    </div>
+                </div>
+
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-label">Export Data</div>
+                        <div class="settings-value">Download as PDF or Excel</div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportDataAsPDF()">PDF</button>
+                        <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportDataAsExcel()">Excel</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h3 style="color: white; margin-bottom: 12px;">About Spending Tracker</h3>
+                <p style="font-size: 13px; line-height: 1.6; margin: 0;">
+                    <strong>Version 1.0</strong><br>
+                    Track your expenses efficiently with a beautiful, intuitive interface.<br><br>
+                    ✓ Budget Management<br>
+                    ✓ Category Tracking<br>
+                    ✓ Transaction History<br>
+                    ✓ Data Export<br><br>
+                    Made by SharweenSoft with ❤️ for smart spenders
+                </p>
+            </div>
+
+            <div id="firebaseGuideModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; padding: 16px;">
+                <div style="background: white; border-radius: 8px; padding: 20px; max-width: 500px; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h2 style="margin: 0; font-size: 18px; color: #2196F3;">Firebase Setup</h2>
+                        <button onclick="closeFirebaseGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+                    </div>
+                    
+                    <div style="font-size: 13px; line-height: 1.8; color: #212121;">
+                        <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 14px;">Step 1: Go to Firebase Console</h3>
+                        <p style="margin: 0 0 8px 0;">Visit <strong>console.firebase.google.com</strong> with Google account</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 2: Create New Project</h3>
+                        <p style="margin: 0 0 4px 0;">• Click <strong>Create Project</strong></p>
+                        <p style="margin: 0 0 4px 0;">• Project name: <strong>Spending Tracker</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Select region & create</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 3: Add Web App</h3>
+                        <p style="margin: 0 0 4px 0;">• Click <strong>&lt;/&gt;</strong> icon to add web app</p>
+                        <p style="margin: 0 0 4px 0;">• App nickname: <strong>Spending Tracker Web</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Copy the config object (apiKey, projectId, etc.)</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 4: Get Firebase Config</h3>
+                        <p style="margin: 0 0 4px 0;">Config keys needed:</p>
+                        <p style="margin: 0 0 4px 0;">✓ apiKey</p>
+                        <p style="margin: 0 0 4px 0;">✓ authDomain</p>
+                        <p style="margin: 0 0 4px 0;">✓ projectId</p>
+                        <p style="margin: 0 0 8px 0;">✓ storageBucket</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 5: Setup Firestore Database</h3>
+                        <p style="margin: 0 0 4px 0;">• Go to <strong>Firestore Database</strong></p>
+                        <p style="margin: 0 0 4px 0;">• Click <strong>Create Database</strong></p>
+                        <p style="margin: 0 0 4px 0;">• Start in <strong>Test Mode</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Select region & enable</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 6: Update App Code</h3>
+                        <p style="margin: 0;">Replace YOUR_API_KEY, YOUR_PROJECT_ID etc. in the app's script section with values from Step 4</p>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="closeFirebaseGuide()" style="margin-top: 16px;">Understood!</button>
+                </div>
+            </div>
+
+            <div id="githubGuideModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; padding: 16px;">
+                <div style="background: white; border-radius: 8px; padding: 20px; max-width: 500px; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h2 style="margin: 0; font-size: 18px; color: #2196F3;">GitHub Pages Setup</h2>
+                        <button onclick="closeGitHubGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+                    </div>
+                    
+                    <div style="font-size: 13px; line-height: 1.8; color: #212121;">
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 1: Create GitHub Account</h3>
+                        <p style="margin: 0 0 8px 0;">Go to <strong>github.com</strong> and create a free account</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 2: Create New Repository</h3>
+                        <p style="margin: 0 0 4px 0;">• Click <strong>+</strong> icon → <strong>New repository</strong></p>
+                        <p style="margin: 0 0 4px 0;">• Repository name: <strong>spending-tracker</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Check: <strong>Add a README file</strong></p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 3: Upload HTML File</h3>
+                        <p style="margin: 0 0 4px 0;">• Click <strong>Add file</strong> → <strong>Upload files</strong></p>
+                        <p style="margin: 0 0 4px 0;">• Rename to: <strong>index.html</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Paste the entire app code</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 4: Enable GitHub Pages</h3>
+                        <p style="margin: 0 0 4px 0;">• Go to <strong>Settings</strong> tab</p>
+                        <p style="margin: 0 0 4px 0;">• Scroll to <strong>Pages</strong> section</p>
+                        <p style="margin: 0 0 4px 0;">• Source: Select <strong>main branch</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Save ✓</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 5: Get Your Link!</h3>
+                        <p style="margin: 0 0 4px 0;">Link format:</p>
+                        <p style="margin: 0; padding: 8px; background: #F5F5F5; border-radius: 4px; font-family: monospace; font-size: 12px; word-break: break-all;">
+                            https://yourusername.github.io/spending-tracker
+                        </p>
+                        <p style="margin: 8px 0 0 0; font-size: 12px; color: #757575;">⏱️ Takes 5-10 minutes to go live</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">💡 Share With Anyone!</h3>
+                        <p style="margin: 0;">Once live, share the link with friends/family. They can use it directly without installing anything.</p>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="closeGitHubGuide()" style="margin-top: 16px;">Got it!</button>
+                </div>
+            </div>
+        </div>
     </div>
+    <!-- Budget Tab, History Tab, Settings Tab, Modals - Complete HTML from your file -->
+    <!-- Copy all remaining HTML sections from index.html -->
 
     <!-- Custom Confirm Dialog -->
     <div id="confirmDialog" class="dialog-overlay" style="display: none;">
@@ -230,9 +347,8 @@
     <!-- Toast container -->
     <div id="toast"></div>
   </div>
-
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
+
+  <script src="https://www.gstatic.com/firebasejs/

@@ -1,7 +1,7 @@
 /* ROOT VARIABLES */
 :root {
-  --primary: #2196F3;
-  --primary-dark: #1976D2;
+  --primary-dark: #055c55;
+  --primary: #7a04bead;
   --success: #4CAF50;
   --danger: #f44336;
   --warning: #FF9800;
@@ -42,13 +42,13 @@ body {
 /* HEADER */
 .header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   color: white;
 }
 
 .header h1 {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 500;
   margin-bottom: 8px;
   text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
@@ -56,7 +56,7 @@ body {
 .header-date {
   font-size: 14px;
   opacity: 0.9;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 /* AD CONTAINER */
@@ -81,7 +81,7 @@ body {
   padding: 14px 12px;
   border: none;
   background: none;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--gray-500);
   border-radius: 8px;
@@ -117,9 +117,9 @@ body {
 /* CARDS */
 .card {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
   box-shadow: var(--shadow);
 }
 
@@ -128,30 +128,30 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: 24px;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
-  border-radius: 16px;
-  margin-bottom: 20px;
+  border-radius: 20px;
+  margin-bottom: 24px;
   text-align: center;
 }
 
 .stat-label {
-  font-size: 12px;
+  font-size: 14px;
   opacity: 0.9;
   margin-bottom: 8px;
   font-weight: 500;
 }
 
 .stat-value {
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 600;
   margin-bottom: 4px;
 }
 
 .stat-row {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   margin-top: 20px;
 }
 
@@ -166,20 +166,20 @@ body {
 }
 
 .stat-small-value {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 /* FORM STYLES */
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 label {
   display: block;
   font-weight: 600;
   margin-bottom: 8px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--gray-700);
 }
 
@@ -188,7 +188,7 @@ input, select, textarea {
   padding: 12px 16px;
   border: 2px solid var(--gray-200);
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 16px;
   transition: all 0.2s;
   background: white;
 }
@@ -235,7 +235,7 @@ input:focus, select:focus, textarea:focus {
   padding: 12px 24px;
   border: none;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -263,21 +263,20 @@ input:focus, select:focus, textarea:focus {
 }
 
 .btn-danger {
-   font-size: 18px;
-  /*background: var(--danger);
-  color: white;*/
+  font-size: 14px;
 }
 
 .btn-danger:hover {
-  background: #d32f2f;
+  font-size: 16px;
 }
+
 
 /* EXPENSE ITEMS */
 .expense-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px;
+  padding: 16px;
   border: 1px solid var(--gray-200);
   border-radius: 12px;
   margin-bottom: 12px;
@@ -291,23 +290,23 @@ input:focus, select:focus, textarea:focus {
 }
 
 .expense-category {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 .expense-description {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--gray-500);
 }
 
 .expense-date {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--gray-500);
 }
 
 .expense-amount {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 /* EMPTY STATES */
@@ -332,7 +331,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .empty-subtext {
-  font-size: 12px;
+  font-size: 14px;
   opacity: 0.8;
 }
 
@@ -393,8 +392,8 @@ input:focus, select:focus, textarea:focus {
   opacity: 1;
   transform: translateX(-50%) translateY(-6px);
 }
-
-/*#toast.success { background: #28a745; }
+/*
+#toast.success { background: #28a745; }
 #toast.error { background: #dc3545; }
 #toast.info { background: #323232; }*/
 
@@ -405,7 +404,7 @@ input:focus, select:focus, textarea:focus {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.7);
+  background: rgba(61, 56, 56, 0.7);
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -443,7 +442,7 @@ input:focus, select:focus, textarea:focus {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -497,7 +496,7 @@ input:focus, select:focus, textarea:focus {
   }
   
   .header h1 {
-    font-size: 20px;
+    font-size: 24px;
   }
   
   .stat-row {
@@ -509,7 +508,6 @@ input:focus, select:focus, textarea:focus {
     grid-template-columns: 1fr;
   }
 }
-
 
 
 /* HAR JAGAH COLORS KAAM KARE */

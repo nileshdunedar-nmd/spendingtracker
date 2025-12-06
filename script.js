@@ -1,34 +1,31 @@
-// Currency functions (top pe)
+// Currency functions (TOP PE - FIXED)
 let currencySymbol = getCurrencySymbol();
 
 function getCurrencySymbol() {
-    // Indian locale ke liye ₹, US ke liye $, UK ke liye £
-    const locale = navigator.language || 'en-IN';
-    const currencyMap = {
-        'en-IN': '₹',
-        'hi-IN': '₹',
-        'en-US': '$',
-        'en-GB': '£',
-        'de-DE': '€',
-        'fr-FR': '€',
-        'ja-JP': '¥',
-        'ko-KR': '₩'
-    };
+    // Method 1: Check if India timezone/location
+    const isIndia = Intl.DateTimeFormat().resolvedOptions().timeZone.includes('Asia/Kolkata') ||
+                    navigator.language?.includes('IN');
     
-    // Agar map me hai to use karo, nahi to Intl se try karo
-    if (currencyMap[locale]) return currencyMap[locale];
+    if (isIndia) return '₹';
     
-    // Default: Intl se symbol nikalo
+    // Method 2: Intl automatic detection
     try {
-        return (0).toLocaleString(locale, { style: 'currency', currency: 'USD' }).replace(/d/g, '').trim();
+        // Try INR first (India), fallback to USD
+        return new Intl.NumberFormat('default', { 
+            style: 'currency', 
+            currency: 'INR' 
+        }).formatToParts(1)[0].value;
     } catch (e) {
-        return '₹'; // Fallback
+        return '$'; // Final fallback
     }
 }
 
+
 function formatMoney(amount) {
-    const sign = amount < 0 ? '-' : '';
-    return sign + currencySymbol + ' ' + Math.abs(amount).toFixed(2);
+    const absAmount = Math.abs(amount).toFixed(2);
+    return amount >= 0 
+        ? `${currencySymbol} ${absAmount}`
+        : `${currencySymbol} -${absAmount}`;
 }
 
 
@@ -61,7 +58,7 @@ function customConfirm(message) {
 
 // Dialog event listeners
 document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('confirmYes').onclick = () => {
+  document.getElementById('confirmYes').onclick = () =>{
     document.getElementById('confirmDialog').style.display = 'none';
     if (confirmResolve) confirmResolve(true);
   };
@@ -121,12 +118,15 @@ function updateDashboard() {
     updateRecentTransactions();
 }
 
-// Initialize app
-const defaultCategory = 'expense';
-let currentType = 'expense';
-let transactions = [];
-let monthlyBudget = 0;
-let isSyncingToFirebase = false;
+// ✅ INITIALIZE APP (combined)
+    setDefaultDate();
+    loadFromLocalStorage();
+    updateDashboard();
+    setFilterMonth();
+
+    // Currency check har 2 sec
+    setInterval(detectAndUpdateCurrency, 2000);
+
 // Load data on startup
 window.addEventListener('DOMContentLoaded', () => {
     setDefaultDate();
@@ -236,19 +236,18 @@ function resetForm() {
     document.querySelector('[data-type="expense"]').classList.add('selected');
     updateCategoryOptions();
 }
-// Set budget
+
+// ✅ FIXED: setBudget (no hardcoded ₹)
 function setBudget() {
     const budget = parseFloat(document.getElementById('budgetAmount').value);
     if (!budget || budget <= 0) {
-        // alert('Please enter a valid budget amount');
-        showToast('Please enter a valid budget amount');  // ✅ Actual function call
+        showToast('Please enter a valid budget amount', 'error');
         return;
     }
     monthlyBudget = budget;
     saveToLocalStorage();
     updateBudgetView();
-    // alert('Monthly budget set to ₹' + budget.toFixed(2));
-    showToast('Monthly budget set to ₹' + budget.toFixed(2));  // ✅ Actual function call
+    showToast('Monthly budget set to ' + formatMoney(budget));  // ✅ DYNAMIC CURRENCY
 }
 
 // Update recent transactions
@@ -279,7 +278,7 @@ function updateRecentTransactions() {
                 <div class="expense-amount ${amountClass}">
                     ${formatMoney(t.amount)}
                 </div>
-                <button class="btn btn-danger" onclick="deleteTransaction(${t.id})">Delete</button>
+                <button class="btn btn-danger" onclick="deleteTransaction(${t.id})">🗑️</button>
             </div>
         `.trim().replace(/\s+/g, ' ');
     }).join('');
@@ -385,7 +384,7 @@ function filterByMonth() {
                 <div class="expense-amount ${amountClass}">
                     ${formatMoney(t.amount)}
                 </div>
-                <button class="btn btn-danger" onclick="deleteTransaction(${t.id})">Delete</button>
+                <button class="btn btn-danger" onclick="deleteTransaction(${t.id})">🗑️</button>
             </div>
         `.trim().replace(/\s+/g, ' ');
     }).join('');
@@ -583,18 +582,18 @@ async function clearAllData() {
     }
 }
 
-// Currency LIVE detect + update
+// ✅ FIXED: Currency LIVE detect
 function detectAndUpdateCurrency() {
     const newSymbol = getCurrencySymbol();
     if (newSymbol !== currencySymbol) {
         currencySymbol = newSymbol;
-        // HAR TAB refresh karo
         updateDashboard();
         updateBudgetView();
         filterByMonth();
         updateRecentTransactions();
     }
 }
+
 
 // Har 2 second me check karo (user location change ho sakti hai)
 setInterval(detectAndUpdateCurrency, 2000);
