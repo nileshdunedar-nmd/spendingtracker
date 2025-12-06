@@ -263,7 +263,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 .btn-danger {
-  background: var(--danger);
+   font-size: 16px;
+  /*background: var(--danger);*/
   color: white;
 }
 
