@@ -263,9 +263,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 .btn-danger {
-   font-size: 16px;
-  /*background: var(--danger);*/
-  color: white;
+   font-size: 18px;
+  /*background: var(--danger);
+  color: white;*/
 }
 
 .btn-danger:hover {
@@ -394,9 +394,9 @@ input:focus, select:focus, textarea:focus {
   transform: translateX(-50%) translateY(-6px);
 }
 
-#toast.success { background: #28a745; }
+/*#toast.success { background: #28a745; }
 #toast.error { background: #dc3545; }
-#toast.info { background: #323232; }
+#toast.info { background: #323232; }*/
 
 /* DIALOG */
 .dialog-overlay {
