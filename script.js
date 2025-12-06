@@ -2,13 +2,28 @@
 let currencySymbol = getCurrencySymbol();
 
 function getCurrencySymbol() {
-    const locale = navigator.language || navigator.userLanguage || 'en-IN';
-    const currencies = {
-        'en-IN': '₹', 'hi-IN': '₹', 'en-US': '$', 'en-GB': '£', 
-        'en-AU': 'A$', 'de-DE': '€', 'fr-FR': '€', 'es-ES': '€',
-        'ja-JP': '¥', 'ko-KR': '₩'
+    // Indian locale ke liye ₹, US ke liye $, UK ke liye £
+    const locale = navigator.language || 'en-IN';
+    const currencyMap = {
+        'en-IN': '₹',
+        'hi-IN': '₹',
+        'en-US': '$',
+        'en-GB': '£',
+        'de-DE': '€',
+        'fr-FR': '€',
+        'ja-JP': '¥',
+        'ko-KR': '₩'
     };
-    return currencies[locale] || '₹';
+    
+    // Agar map me hai to use karo, nahi to Intl se try karo
+    if (currencyMap[locale]) return currencyMap[locale];
+    
+    // Default: Intl se symbol nikalo
+    try {
+        return (0).toLocaleString(locale, { style: 'currency', currency: 'USD' }).replace(/d/g, '').trim();
+    } catch (e) {
+        return '₹'; // Fallback
+    }
 }
 
 function formatMoney(amount) {
