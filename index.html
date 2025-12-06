@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container" style="max-width: 600px; margin: 0 auto; padding: 8px;">
+  <div class="container">
     <!-- Header -->
     <div class="header">
       <h1>Spending Tracker</h1>
@@ -40,14 +40,37 @@
       <div class="card">
         <div class="stat-box">
           <div class="stat-label">Total Balance</div>
-          <div class="stat-value" style="font-size: 18px;" id="totalBalance">0.00</div>
+          <div class="stat-value" id="totalBalance">0.00</div>
         </div>
-        <!-- Other stats -->
+        <div class="stat-row">
+          <div class="stat-small">
+            <div class="stat-small-label">Income</div>
+            <div class="stat-small-value" id="totalIncome">0.00</div>
+          </div>
+          <div class="stat-small">
+            <div class="stat-small-label">Expenses</div>
+            <div class="stat-small-value" id="totalExpenses">0.00</div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-small">
+            <div class="stat-small-label">This Month</div>
+            <div class="stat-small-value" id="monthlyExpense">0.00</div>
+          </div>
+          <div class="stat-small">
+            <div class="stat-small-label">Budget Left</div>
+            <div class="stat-small-value" id="budgetLeft">0.00</div>
+          </div>
+        </div>
       </div>
       <div class="card">
         <h3 style="margin-bottom: 12px; font-size: 16px;">Recent Transactions</h3>
         <div id="recentTransactions">
-          <!-- Transactions -->
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <div class="empty-text">No transactions yet</div>
+            <div class="empty-subtext">Start by adding your first expense or income</div>
+          </div>
         </div>
       </div>
     </div>
@@ -56,7 +79,52 @@
     <div id="add" class="tab-content">
       <div class="card">
         <h3 style="margin-bottom: 16px; font-size: 16px;">Add Transaction</h3>
-        <!-- Form -->
+        <div class="form-group">
+          <label>Type</label>
+          <div class="category-badges" style="gap: 12px; margin-top: 0;">
+            <button class="category-badge selected" onclick="setType('expense')" data-type="expense">Expense</button>
+            <button class="category-badge" onclick="setType('income')" data-type="income">Income</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="category" required>
+            <option value="">Select Category</option>
+            <optgroup label="Expenses">
+              <option value="food">Food & Dining</option>
+              <option value="transport">Transport</option>
+              <option value="shopping">Shopping</option>
+              <option value="utilities">Utilities</option>
+              <option value="health">Health & Medical</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="education">Education</option>
+              <option value="other">Other</option>
+            </optgroup>
+            <optgroup label="Income">
+              <option value="salary">Salary</option>
+              <option value="freelance">Freelance</option>
+              <option value="investment">Investment</option>
+              <option value="bonus">Bonus</option>
+              <option value="other-income">Other Income</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Amount</label>
+            <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="date" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="description" placeholder="Add notes..." rows="2" maxlength="100"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
+        <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
       </div>
     </div>
 
@@ -64,18 +132,29 @@
     <div id="budget" class="tab-content">
       <div class="card">
         <h3 style="margin-bottom: 16px; font-size: 16px;">Set Monthly Budget</h3>
-        <!-- Budget form -->
+        <div class="form-group">
+          <label>Monthly Budget Limit</label>
+          <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0">
+        </div>
+        <button class="btn btn-primary" onclick="setBudget()">Set Budget</button>
       </div>
       <div class="card">
         <h3 style="margin-bottom: 12px; font-size: 16px;">Budget Overview</h3>
         <div id="budgetOverview">
-          <!-- Budget details -->
+          <div class="empty-state">
+            <div class="empty-icon">💰</div>
+            <div class="empty-text">No budget set</div>
+            <div class="empty-subtext">Set a monthly budget to track your spending</div>
+          </div>
         </div>
       </div>
       <div class="card">
         <h3 style="margin-bottom: 12px; font-size: 16px;">Category Breakdown</h3>
         <div id="categoryBreakdown">
-          <!-- Breakdown -->
+          <div class="empty-state">
+            <div class="empty-icon">📈</div>
+            <div class="empty-text">No expenses yet</div>
+          </div>
         </div>
       </div>
     </div>
@@ -84,8 +163,16 @@
     <div id="history" class="tab-content">
       <div class="card">
         <h3 style="margin-bottom: 16px; font-size: 16px;">All Transactions</h3>
+        <div class="form-group">
+          <label>Filter by Month</label>
+          <input type="month" id="filterMonth">
+        </div>
         <div id="allTransactions">
-          <!-- All transactions -->
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <div class="empty-text">No transactions</div>
+            <div class="empty-subtext">Add your first transaction to see history</div>
+          </div>
         </div>
       </div>
     </div>
@@ -97,9 +184,32 @@
         <div class="settings-item">
           <div class="settings-label">Clear All Data</div>
           <div class="settings-value">Delete all transactions</div>
-          <button class="btn btn-danger" style="padding: 4px 8px; font-size: 16px; font-weight: bold;" onclick="clearAllData()">×</button>
+          <button class="btn btn-danger" onclick="clearAllData()">Clear</button>
         </div>
-        <!-- Other settings -->
+        <div class="settings-item">
+          <div class="settings-label">Data Storage</div>
+          <div class="settings-value">Using Browser LocalStorage</div>
+        </div>
+        <div class="settings-item">
+          <div class="settings-label">Export Data</div>
+          <div class="settings-value">Download as PDF or Excel</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportDataAsPDF()">PDF</button>
+            <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportDataAsExcel()">Excel</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <h3 style="color: white; margin-bottom: 12px;">About Spending Tracker</h3>
+        <p style="font-size: 13px; line-height: 1.6; margin: 0;">
+          <strong>Version 1.0</strong><br>
+          Track your expenses efficiently with a beautiful, intuitive interface.<br><br>
+          ✓ Budget Management<br>
+          ✓ Category Tracking<br>
+          ✓ Transaction History<br>
+          ✓ Data Export<br><br>
+          Made with ❤️ for smart spenders
+        </p>
       </div>
     </div>
 
