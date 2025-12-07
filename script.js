@@ -272,6 +272,7 @@ function updateRecentTransactions() {
         return;
     }
     
+    // Recent Transactions
     container.innerHTML = recent.map(t => {
         const amountClass = t.type === 'income' ? 'positive' : 'negative';
         return `
@@ -281,13 +282,18 @@ function updateRecentTransactions() {
                     <div class="expense-description">${t.description || 'No description'}</div>
                     <div class="expense-date">${new Date(t.date).toLocaleDateString('en-IN')}</div>
                 </div>
-                <div class="expense-amount ${amountClass}">
-                    ${formatMoney(t.amount)}
+                
+                <!-- ✅ RIGHT SECTION: Amount + Delete -->
+                <div class="expense-right">
+                    <div class="expense-amount ${amountClass}">
+                        ${formatMoney(t.amount)}
+                    </div>
+                    <button class="btn btn-danger delete-btn" onclick="deleteTransaction(${t.id})">🗑️</button>
                 </div>
-                <button class="btn btn-danger" onclick="deleteTransaction(${t.id})">🗑️</button>
             </div>
-        `.trim().replace(/\s+/g, ' ');
+        `;
     }).join('');
+
 }
 
 // Update budget view
