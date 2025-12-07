@@ -22,11 +22,17 @@ function getCurrencySymbol() {
 
 
 function formatMoney(amount) {
-    const absAmount = Math.abs(amount).toFixed(2);
-    return amount >= 0 
-        ? `${currencySymbol} ${absAmount}`
-        : `${currencySymbol} -${absAmount}`;
+    const absAmount = Math.abs(amount);
+    
+    // Agar integer hai (.00) to sirf whole number dikhao
+    const formattedAmount = absAmount % 1 === 0 
+        ? Math.round(absAmount).toString() 
+        : absAmount.toFixed(2);
+    
+    const sign = amount < 0 ? '-' : '';
+    return sign + currencySymbol + ' ' + formattedAmount;
 }
+
 
 
 // Toast function
