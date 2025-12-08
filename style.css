@@ -61,7 +61,7 @@ body {
 
 /* AD CONTAINER */
 .ad-container {
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   text-align: center;
 }
 
@@ -164,7 +164,7 @@ body {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
   border-radius: 16px;  /* Rounded corners */
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   text-align: center;
   
   /* ✅ BOX SHADOW EFFECT */
@@ -192,7 +192,7 @@ body {
 .stat-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 5px;
   width: 100%;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -251,16 +251,16 @@ body {
 }
 
 .stat-small-value { 
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   color: white;
   text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-@media (max-width: 240px) {
+@media (max-width: 480px) {
   .stat-row {
     grid-template-columns: 1fr;  /* Single column mobile */
-    gap: 12px;
+    gap: 5px;
   }
   
   .stat-small {
@@ -634,7 +634,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* Mobile me aur chhota */
-@media (max-width: 480px) {
+@media (max-width: 240px) {
   .expense-category,
   .category-breakdown-title {
     font-size: 11px !important;
@@ -769,3 +769,4 @@ input:focus, select:focus, textarea:focus {
 /* Budget text colors */
 .budget-text .positive { color: #00c853 !important; }
 .budget-text .negative { color: #d50000 !important; }
+
