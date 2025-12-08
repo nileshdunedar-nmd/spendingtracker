@@ -1,3 +1,32 @@
+// ✅ Global state
+let transactions = [];
+let monthlyBudget = 0;
+// let categoryBudgets = {};  // Empty initially, loaded from storage
+
+// ✅ Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
+    loadFromLocalStorage();  // Load ALL data first
+    setDefaultDate();
+    updateDashboard();
+    setFilterMonth();
+    updateBudgetView();      // Refresh budgets
+    updateCategoryBudgetUI(); // Show category inputs
+    // ✅ Search events
+    const searchInput = document.getElementById('transactionSearch');
+    const monthFilter = document.getElementById('filterMonth');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterTransactions);
+    }
+    if (monthFilter) {
+        monthFilter.addEventListener('change', filterTransactions);
+    }
+    
+    // Initial load
+    setFilterMonth();
+    filterTransactions();
+});
+
 // Currency functions (TOP PE - FIXED)
 let currencySymbol = getCurrencySymbol();
 
@@ -19,7 +48,6 @@ function getCurrencySymbol() {
         return '$'; // Final fallback
     }
 }
-
 
 function formatMoney(amount) {
     const absAmount = Math.abs(amount);
@@ -80,7 +108,19 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('confirmNo').click();
     }
   });
+
+  // ✅ SEARCH LISTENERS
+    document.getElementById('transactionSearch').addEventListener('input', function() {
+        filterTransactions();
+    });
+    
+    document.getElementById('filterMonth').addEventListener('change', filterTransactions);
+    
+    // Initial load
+    setFilterMonth();
+    filterTransactions();
 });
+
 
 // updateDashboard me ye add karo:
 function updateDashboard() {
@@ -159,23 +199,82 @@ function setFilterMonth() {
 
 // Switch tabs
 function switchTab(tabName) {
+    // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
+    
+    // Remove active from all buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
+    // Show selected tab
     document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');
+    event.target.classList.add('active');  // Active button
     
-    // ✅ CURRENCY REFRESH EVERY TAB
-    detectAndUpdateCurrency();
-    
-    if (tabName === 'budget') updateBudgetView();
-    else if (tabName === 'history') filterByMonth();
+    // Refresh content
+    if (tabName === 'dashboard') updateDashboard();
+    else if (tabName === 'budget') updateBudgetView();
+    else if (tabName === 'history') filterTransactions();  // ✅ History
+    else if (tabName === 'add') resetForm();
 }
 
+function filterTransactions() {
+    const searchTerm = document.getElementById('transactionSearch').value.toLowerCase();
+    const monthFilter = document.getElementById('filterMonth').value;
+    
+    const filtered = transactions.filter(t => {
+        // Month filter
+        const monthMatch = !monthFilter || t.date.substring(0, 7) === monthFilter;
+        
+        // Search filter ✅ FIXED
+        const description = (t.description || '').toLowerCase();
+        const searchMatch = !searchTerm || 
+            t.category.toLowerCase().includes(searchTerm) ||
+            description.includes(searchTerm) ||  // ✅ Safe check
+            t.amount.toString().includes(searchTerm);
+        
+        return monthMatch && searchMatch;
+    }).slice().reverse();
+    
+    showTransactions(filtered);
+}
+
+function showTransactions(transactions) {
+    const container = document.getElementById('allTransactions');
+    
+    if (!container) return;  // ✅ Container check
+    
+    if (transactions.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:40px;color:#666;">
+                <div style="font-size:24px;margin-bottom:12px;">🔍</div>
+                <div style="font-weight:600;margin-bottom:8px;">No transactions found</div>
+                <div>Try different keywords or clear filters</div>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = transactions.map(t => {
+        const amountClass = t.type === 'income' ? 'positive' : 'negative';
+        return `
+            <div class="expense-item">
+                <div class="expense-info">
+                    <div class="expense-category">${getCategoryEmoji(t.category)} ${t.category}</div>
+                    <div class="expense-description">${t.description || 'No description'}</div>
+                    <div class="expense-date">${new Date(t.date).toLocaleDateString('en-IN')}</div>
+                </div>
+                <div class="expense-right">
+                    <div class="expense-amount ${amountClass}">${formatMoney(t.amount)}</div>
+                    <button class="btn btn-danger" onclick="deleteTransaction(${t.id})" 
+                            style="padding:6px 10px;font-size:14px;min-width:36px;">🗑️</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
 
 // Set transaction type
 function setType(type) {
@@ -243,17 +342,17 @@ function resetForm() {
     updateCategoryOptions();
 }
 
-// ✅ FIXED: setBudget (no hardcoded ₹)
+// Total Budget
 function setBudget() {
     const budget = parseFloat(document.getElementById('budgetAmount').value);
     if (!budget || budget <= 0) {
-        showToast('Please enter a valid budget amount', 'error');
+        showToast('Please enter valid budget', 'error');
         return;
     }
     monthlyBudget = budget;
-    saveToLocalStorage();
+    saveToLocalStorage();  // ✅ Save immediately
     updateBudgetView();
-    showToast('Monthly budget set to ' + formatMoney(budget));  // ✅ DYNAMIC CURRENCY
+    showToast(`Budget set: ${formatMoney(budget)}`, 'success');
 }
 
 // Update recent transactions
@@ -296,7 +395,155 @@ function updateRecentTransactions() {
 
 }
 
+const categoryEmojis = {
+    food: '🍔',
+    groceries: '🛒', 
+    transport: '🚗',
+    clothing: '👗',
+    debt: '💳',
+    savings: '💰',
+    shopping: '🛍️',
+    utilities: '💡',
+    health: '🏥',
+    travel: '✈️',
+    housing: '🏠',
+    entertainment: '🎬',
+    education: '📚',
+    other: '📌'
+};
+
+function getCategoryEmoji(category) {
+    const emojis = {
+        food: '🍔',
+        groceries: '🛒',
+        transport: '🚗',
+        clothing: '👗',
+        debt: '💳',
+        savings: '💰',
+        shopping: '🛍️',
+        utilities: '💡',
+        health: '🏥',
+        travel: '✈️',
+        housing: '🏠',
+        entertainment: '🎬',
+        education: '📚',
+        other: '📌',
+        salary: '💼',
+        freelance: '💻'
+    };
+    return emojis[category] || '📌';
+}
+
+// ✅ 1. Global variables (TOP PE add karo)
+let categoryBudgets = {
+    food: 0, groceries: 0, transport: 0, clothing: 0, 
+    debt: 0, savings: 0, shopping: 0, utilities: 0,
+    health: 0, travel: 0, housing: 0, entertainment: 0, 
+    education: 0, other: 0
+};
+
+// 2. Load on startup
+loadCategoryBudgets();
+updateCategoryBudgetUI(); // Show UI
+
+function loadCategoryBudgets() {
+    const data = JSON.parse(localStorage.getItem('spendingTrackerData') || '{}');
+    categoryBudgets = data.categoryBudgets || categoryBudgets;
+}
+
+function updateCategoryBudgetUI() {
+    const container = document.getElementById('categoryBudgetList');
+    if (!container) return;
+    
+    container.innerHTML = Object.entries(categoryBudgets).map(([cat, budget]) => `
+        <div class="category-budget-row">
+            <div class="category-name">${getCategoryEmoji(cat)} ${cat}</div>
+            <div class="budget-input-wrapper">
+                <input type="number" value="${budget}" min="0" step="100" 
+                       onchange="setCategoryBudget('${cat}', parseFloat(this.value) || 0)"
+                       class="budget-input">
+                <span class="currency-symbol">${currencySymbol}</span>
+            </div>
+        </div>
+    `).join('') + 
+    `<div class="total-budget-row">
+        <div class="category-name"><strong>Total Budget</strong></div>
+        <div class="budget-input-wrapper">
+            <strong>${formatMoney(monthlyBudget)}</strong>
+        </div>
+    </div>`;
+}
+
+function setCategoryBudget(category, budget) {
+    categoryBudgets[category] = budget;
+    updateTotalBudgetDisplay();
+}
+
+function updateCategoryBudget(category, value) {
+    categoryBudgets[category] = parseFloat(value) || 0;
+    updateTotalBudgetDisplay();
+}
+
+// Category Budgets Save
+function saveCategoryBudgets() {
+    updateTotalBudgetFromCategories();
+    saveToLocalStorage();  // ✅ Save everything
+    showToast('✅ All budgets saved!', 'success');
+}
+
+// ✅ 4. Category Breakdown (separate function)
+function updateCategoryBreakdown() {
+    const container = document.getElementById('categoryBreakdown');
+    if (!container) return;
+    
+    container.innerHTML = Object.entries(categoryBudgets)
+        .filter(([cat]) => categoryBudgets[cat] > 0)
+        .sort((a, b) => categoryBudgets[b[0]] - categoryBudgets[a[0]])
+        .map(([cat, budget]) => {
+            const spent = getCategoryMonthlySpent(cat);
+            const percentage = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+            const status = percentage > 100 ? 'danger' : percentage > 80 ? 'warning' : '';
+            
+            return `
+                <div style="margin-bottom: 5px; border: 1px solid var(--primary); padding: 8px; border-radius: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-weight: 500;">${getCategoryEmoji(cat)} ${cat}</span>
+                        <div style="text-align: right;">
+                            <div style="font-size: 12px;">${formatMoney(spent)} / ${formatMoney(budget)}</div>
+                            <div style="font-size: 10px; color: ${status === 'danger' ? '#f44336' : status === 'warning' ? '#ff9800' : '#4caf50'};">
+                                ${percentage.toFixed(0)}%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="budget-bar" style="height: 6px;">
+                        <div class="budget-fill ${status}" style="width: ${percentage}%"></div>
+                    </div>
+                </div>
+            `;
+        }).join('') || 
+        '<div class="empty-state"><span>Set category budgets to see breakdown</span></div>';
+}
+
+// Auto-calculate total budget from categories
+function updateTotalBudgetFromCategories() {
+    const total = Object.values(categoryBudgets).reduce((sum, budget) => sum + budget, 0);
+    monthlyBudget = total;
+    document.getElementById('budgetAmount').value = total.toFixed(0);
+    saveCategoryBudgets();
+    updateBudgetView();
+}
+
+// ✅ 2. Helper function
+function getCategoryMonthlySpent(category) {
+    const currentMonth = new Date().toISOString().substring(0, 7);
+    return transactions
+        .filter(t => t.date.substring(0, 7) === currentMonth && 
+                    t.type === 'expense' && t.category === category)
+        .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+}
+
 // Update budget view
+// ✅ 3. FIXED updateBudgetView()
 function updateBudgetView() {
     const currentMonth = new Date().toISOString().substring(0, 7);
     let monthlyExpenses = 0;
@@ -308,7 +555,6 @@ function updateBudgetView() {
     });
     
     const budgetOverview = document.getElementById('budgetOverview');
-    const categoryBreakdown = document.getElementById('categoryBreakdown');
     
     if (monthlyBudget === 0) {
         budgetOverview.innerHTML = `
@@ -321,17 +567,17 @@ function updateBudgetView() {
     } else {
         const percentage = Math.min((monthlyExpenses / monthlyBudget) * 100, 100);
         budgetOverview.innerHTML = `
-            <div style="padding: 20px; background: var(--md-sys-color-surface-variant); border-radius: 16px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                    <span style="font-weight: 600;">Monthly Budget</span>
-                    <span style="font-weight: 600; color: var(--md-sys-color-on-surface);">
+            <div style="padding: 5px; background: var(--md-sys-color-surface-variant); border-radius: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1px;">
+                    <span style="font-weight: 500; font-size: 12px">Monthly Budget</span>
+                    <span style="font-weight: 500;">
                         <span class="negative">${formatMoney(monthlyExpenses)}</span> / ${formatMoney(monthlyBudget)}
                     </span>
                 </div>
                 <div class="budget-bar">
                     <div class="budget-fill" style="width: ${percentage}%"></div>
                 </div>
-                <div class="budget-text" style="display: flex; justify-content: space-between; margin-top: 12px;">
+                <div style="display: flex; justify-content: space-between; margin-top: 1px;">
                     <span>${percentage.toFixed(1)}% spent</span>
                     <span class="${percentage > 100 ? 'negative' : percentage > 80 ? 'negative' : 'positive'}">
                         ${monthlyBudget - monthlyExpenses >= 0 ? formatMoney(monthlyBudget - monthlyExpenses) + ' left' : 'over budget'}
@@ -341,32 +587,17 @@ function updateBudgetView() {
         `;
     }
     
-    // Category breakdown ✅ CURRENCY FIX
-    const categoryTotals = {};
-    transactions.forEach(t => {
-        if (t.date.substring(0, 7) === currentMonth && t.type === 'expense') {
-            categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
-        }
-    });
-    
-    if (Object.keys(categoryTotals).length === 0) {
-        categoryBreakdown.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">📈</div>
-                <div class="empty-text">No expenses yet</div>
-            </div>
-        `;
-    } else {
-        categoryBreakdown.innerHTML = Object.entries(categoryTotals)
-            .sort((a, b) => b[1] - a[1])
-            .map(([cat, amount]) => `
-                <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--md-sys-color-outline);">
-                    <span>${getCategoryEmoji(cat)} ${cat}</span>
-                    <strong class="negative">${formatMoney(amount)}</strong>
-                </div>
-            `).join('');
-    }
+    // ✅ FIXED: Sirf breakdown update
+    updateCategoryBreakdown();
 }
+
+// 4. Update button handler
+function updateCategoryBudgets() {
+    updateTotalBudgetFromCategories();
+    saveCategoryBudgets();
+    showToast('✅ Category budgets saved!', 'success');
+}
+
 
 // Filter by month
 function filterByMonth() {
@@ -485,28 +716,36 @@ function getTotalMonthlyExpenses() {
         .filter(t => t.date.substring(0, 7) === currentMonth && t.type === 'expense')
         .reduce((sum, t) => sum + t.amount, 0);
 }
-// Category emoji mapping
-function getCategoryEmoji(category) {
-    const emojis = {
-        'food': '🍕', 'transport': '🚗', 'shopping': '🛍️', 'utilities': '💡',
-        'health': '🏥', 'entertainment': '🎬', 'education': '📚', 'other': '📌',
-        'salary': '💼', 'freelance': '💻', 'investment': '📈', 'bonus': '🎁', 'other-income': '➕'
-    };
-    return emojis[category] || '📌';
-}
+
 // LocalStorage functions
 function saveToLocalStorage() {
-    const data = { transactions, monthlyBudget };
+    const data = {
+        transactions: transactions,
+        monthlyBudget: monthlyBudget,
+        categoryBudgets: categoryBudgets  // ✅ Category budgets bhi save
+    };
     localStorage.setItem('spendingTrackerData', JSON.stringify(data));
 }
+
 function loadFromLocalStorage() {
-    const data = localStorage.getItem('spendingTrackerData');
-    if (data) {
-        const parsed = JSON.parse(data);
-        transactions = parsed.transactions || [];
-        monthlyBudget = parsed.monthlyBudget || 0;
+    try {
+        const dataStr = localStorage.getItem('spendingTrackerData');
+        if (dataStr) {
+            const data = JSON.parse(dataStr);
+            transactions = data.transactions || [];
+            monthlyBudget = data.monthlyBudget || 0;
+            categoryBudgets = data.categoryBudgets || {
+                food: 0, groceries: 0, transport: 0, clothing: 0,
+                debt: 0, savings: 0, shopping: 0, utilities: 0,
+                health: 0, travel: 0, housing: 0, entertainment: 0,
+                education: 0, other: 0
+            };  // ✅ Default categories
+        }
+    } catch (e) {
+        console.error('Load error:', e);
     }
 }
+
 // Export data
 function exportData() {
     const dataStr = JSON.stringify({ transactions, monthlyBudget }, null, 2);

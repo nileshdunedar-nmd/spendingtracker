@@ -21,11 +21,11 @@
         <!-- Ad Container -->
         <div class="ad-container">
             <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-4018280178767791"
-                 data-ad-slot="7919063294"
-                 data-ad-format="horizontal"
-                 data-full-width-responsive="true"></ins>
+                style="display:block"
+                data-ad-client="ca-pub-4018280178767791"
+                data-ad-slot="7919063294"
+                data-ad-format="horizontal"
+                data-full-width-responsive="true"></ins>
             <script>
                 (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
@@ -70,28 +70,41 @@
                         <div class="stat-small-value" id="budgetLeft">₹0.00</div>
                     </div>
                 </div>
+                
+                <div class="card-comman">
+                    <h3 style="margin-bottom: 5px; font-size: 14px;">Budget Overview</h3>
+                    <div id="budgetOverview">
+                        <div class="empty-state">
+                            <div class="empty-icon">📊</div>
+                            <div class="empty-text">No budget set</div>
+                            <div class="empty-subtext">Set a monthly budget to track your spending</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="card">
-                <h3 style="margin-bottom: 12px; font-size: 16px;">Recent Transactions</h3>
-                <div id="recentTransactions">
+            <div class="card-comman">
+                <h3 style="margin-bottom: 5px; font-size: 14px;">Category Breakdown</h3>
+                <div id="categoryBreakdown">
                     <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <div class="empty-text">No transactions yet</div>
-                        <div class="empty-subtext">Start by adding your first expense or income</div>
+                        <div class="empty-icon">📈</div>
+                        <div class="empty-text">No expenses yet</div>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
 
         <!-- Add Expense Tab -->
         <div id="add" class="tab-content">
             <div class="card">
-                <h3 style="margin-bottom: 16px; font-size: 16px;">Add Transaction</h3>
+                <div class="card-comman">
+                <h3 style="margin-bottom: 5px; font-size: 14px;">Add Transaction</h3>
 
                 <div class="form-group">
                     <label>Type</label>
-                    <div class="category-badges" style="gap: 12px; margin-top: 0;">
+                    <div class="category-badges" style="gap: 12px; font-size: 10; margin-top: 0;">
                         <button class="category-badge selected" onclick="setType('expense')" data-type="expense">Expense</button>
                         <button class="category-badge" onclick="setType('income')" data-type="income">Income</button>
                     </div>
@@ -102,11 +115,17 @@
                     <select id="category" required>
                         <option value="">Select Category</option>
                         <optgroup label="Expenses">
-                            <option value="food">🍕 Food & Dining</option>
+                            <option value="food">🍔 Food & Dining</option>
+                            <option value="groceries">🛒 Groceries</option>
                             <option value="transport">🚗 Transport</option>
+                            <option value="clothing">👗 Clothing</option>
+                            <option value="debt">💳 Debt</option>
+                            <option value="savings">💰 Savings</option>
                             <option value="shopping">🛍️ Shopping</option>
                             <option value="utilities">💡 Utilities</option>
                             <option value="health">🏥 Health & Medical</option>
+                            <option value="travel">✈️ Travel & Medical</option>
+                            <option value="housing">🏠 housing & Medical</option>
                             <option value="entertainment">🎬 Entertainment</option>
                             <option value="education">📚 Education</option>
                             <option value="other">📌 Other</option>
@@ -123,7 +142,7 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Amount (₹)</label>
+                        <label>Amount</label>
                         <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" required>
                     </div>
                     <div class="form-group">
@@ -136,71 +155,78 @@
                     <label>Description</label>
                     <textarea id="description" placeholder="Add notes..." rows="2" maxlength="100"></textarea>
                 </div>
+                <div>
+                    <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
+                    <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                </div>
+                </div>
+            </div>
 
-                <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
-                <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+            <div class="card">
+                <div class="card-comman">
+                <h3 style="margin-bottom: 5px; font-size: 14px;">Recent Transactions</h3>
+                <div id="recentTransactions">
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <div class="empty-text">No transactions yet</div>
+                        <div class="empty-subtext">Start by adding your first expense or income</div>
+                    </div>
+                </div>
+                </div>
             </div>
         </div>
 
-        <!-- Budget Tab -->
-        <div id="budget" class="tab-content">
+        <!-- Category Budget Tab -->
+            <div id="budget" class="tab-content">
+            <!-- Existing Total Budget -->
             <div class="card">
-                <h3 style="margin-bottom: 16px; font-size: 16px;">Set Monthly Budget</h3>
-
+                <div class="card-comman">
+                <h3 style="margin-bottom: 5px; font-size: 14px;">Set Monthly Budget</h3>
                 <div class="form-group">
-                    <label>Monthly Budget Limit (₹)</label>
-                    <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0">
+                    <label style="font-size: 12px;">Total Monthly Budget Limit</label>
+                    <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0"
+                    style="width: 100%; padding: 4px 12px 4px 20px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;">
                 </div>
-
-                <button class="btn btn-primary" onclick="setBudget()">Set Budget</button>
+                <button class="btn btn-primary" onclick="setBudget()">Set Total Budget</button>
+                <div>
             </div>
 
+            <!-- Category Budgets - Sirf Budget Input -->
             <div class="card">
-                <h3 style="margin-bottom: 12px; font-size: 16px;">Budget Overview</h3>
-                <div id="budgetOverview">
-                    <div class="empty-state">
-                        <div class="empty-icon">📊</div>
-                        <div class="empty-text">No budget set</div>
-                        <div class="empty-subtext">Set a monthly budget to track your spending</div>
-                    </div>
+                <h3 style='margin-bottom: 5px; font-size: 14px;'>Category Budgets</h3>
+                    <div id="categoryBudgetList">
+                    <!-- Dynamic inputs here -->
                 </div>
-            </div>
-
-            <div class="card">
-                <h3 style="margin-bottom: 12px; font-size: 16px;">Category Breakdown</h3>
-                <div id="categoryBreakdown">
-                    <div class="empty-state">
-                        <div class="empty-icon">📈</div>
-                        <div class="empty-text">No expenses yet</div>
-                    </div>
-                </div>
+                <button class="btn btn-primary" onclick="saveCategoryBudgets()">Set All Budgets</button>
             </div>
         </div>
 
-        <!-- History Tab -->
+        <!-- History Tab - sirf SEARCH INPUT add karo -->
         <div id="history" class="tab-content">
             <div class="card">
-                <h3 style="margin-bottom: 16px; font-size: 16px;">All Transactions</h3>
-
+                <h3 style='margin-bottom: 5px; font-size: 14px;'>All Transactions</h3>
+                
+                <!-- ✅ NEW SEARCH BAR -->
+                <div class="form-group">
+                    <input type="text" id="transactionSearch" placeholder="🔍 Search category, description, amount..." 
+                        style="width: 100%; padding: 8px 12px 8px 20px; border: 2px solid #ddd; border-radius: 10px; font-size: 12px;">
+                </div>
+                
+                <!-- Existing month filter -->
                 <div class="form-group">
                     <label>Filter by Month</label>
                     <input type="month" id="filterMonth">
                 </div>
-
-                <div id="allTransactions">
-                    <div class="empty-state">
-                        <div class="empty-icon">📋</div>
-                        <div class="empty-text">No transactions</div>
-                        <div class="empty-subtext">Add your first transaction to see history</div>
-                    </div>
-                </div>
+                
+                <div id="allTransactions"></div>
             </div>
         </div>
+
 
         <!-- Settings Tab -->
         <div id="settings" class="tab-content">
             <div class="card">
-                <h3 style="margin-bottom: 16px; font-size: 16px;">Settings</h3>
+                <h3 style="margin-bottom: 5px; font-size: 14px;">Settings</h3>
 
                 <div class="settings-item">
                     <div>
