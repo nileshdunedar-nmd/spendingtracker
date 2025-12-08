@@ -182,13 +182,13 @@
             <div class="card">
                 <div class="card-comman">
                 <h3 style="margin-bottom: 5px; font-size: 14px;">Set Monthly Budget</h3>
-                <div class="form-group">
+                  <div class="form-group">
                     <label style="font-size: 12px;">Total Monthly Budget Limit</label>
                     <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0"
                     style="width: 100%; padding: 4px 12px 4px 20px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;">
+                  </div>
+                    <button class="btn btn-primary" onclick="setBudget()">Set Total Budget</button>
                 </div>
-                <button class="btn btn-primary" onclick="setBudget()">Set Total Budget</button>
-                <div>
             </div>
 
             <!-- Category Budgets - Sirf Budget Input -->
@@ -199,6 +199,7 @@
                 </div>
                 <button class="btn btn-primary" onclick="saveCategoryBudgets()">Set All Budgets</button>
             </div>
+        
         </div>
 
         <!-- History Tab - sirf SEARCH INPUT add karo -->
