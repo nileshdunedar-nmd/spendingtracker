@@ -258,7 +258,7 @@ body {
   text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 240px) {
   .stat-row {
     grid-template-columns: 1fr;  /* Single column mobile */
     gap: 5px;
@@ -696,7 +696,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* Mobile responsive */
-@media (max-width: 480px) {
+@media (max-width: 240px) {
     .category-budget-row {
         flex-direction: column;
         align-items: flex-start;
@@ -770,5 +770,6 @@ input:focus, select:focus, textarea:focus {
 /* Budget text colors */
 .budget-text .positive { color: #00c853 !important; }
 .budget-text .negative { color: #d50000 !important; }
+
 
 
