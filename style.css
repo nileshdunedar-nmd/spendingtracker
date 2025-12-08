@@ -55,6 +55,7 @@ body {
 
 .header-date {
   font-size: 13px;
+  margin-bottom: 4px;
   opacity: 0.9;
   font-weight: 400;
 }
@@ -769,4 +770,5 @@ input:focus, select:focus, textarea:focus {
 /* Budget text colors */
 .budget-text .positive { color: #00c853 !important; }
 .budget-text .negative { color: #d50000 !important; }
+
 
