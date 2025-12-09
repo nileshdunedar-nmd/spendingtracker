@@ -5,7 +5,7 @@ let monthlyBudget = 0;
 
 // ✅ Initialize on load
 document.addEventListener('DOMContentLoaded', function() {
-    currentType = 'expense';    
+    currentType = 'expense';
     updateCategoryOptions();  // ✅ initial state
     loadFromLocalStorage();  // Load ALL data first
     setDefaultDate();
@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Initial load
-    setFilterMonth();
     filterTransactions();
 });
 
@@ -347,6 +346,7 @@ function addTransaction() {
     };
     transactions.push(transaction);
     saveToLocalStorage();
+    updateRecentTransactions();  // ✅ Add ke baad list refresh
     updateDashboard();      // ✅
     updateBudgetView();     // ✅ CURRENCY UPDATE
     resetForm();
@@ -476,24 +476,28 @@ function loadCategoryBudgets() {
 function updateCategoryBudgetUI() {
     const container = document.getElementById('categoryBudgetList');
     if (!container) return;
-    
+
     container.innerHTML = Object.entries(categoryBudgets).map(([cat, budget]) => `
         <div class="category-budget-row">
             <div class="category-name">${getCategoryEmoji(cat)} ${cat}</div>
             <div class="budget-input-wrapper">
-                <input type="number" value="${budget}" min="0" step="100" 
-                       onchange="setCategoryBudget('${cat}', parseFloat(this.value) || 0)"
-                       class="budget-input">
+                <input type="number"
+                    value="${budget}"
+                    min="0"
+                    step="100"
+                    class="budget-input"
+                    onchange="setCategoryBudget('${cat}', parseFloat(this.value) || 0)">
                 <span class="currency-symbol">${currencySymbol}</span>
             </div>
         </div>
-    `).join('') + 
-    `<div class="total-budget-row">
-        <div class="category-name"><strong>Total Budget</strong></div>
-        <div class="budget-input-wrapper" style="font-size: 12px;">
-            <strong>${formatMoney(monthlyBudget)}</strong>
+    `).join('') + `
+        <div class="total-budget-row">
+            <div class="category-name"><strong>Total Budget</strong></div>
+            <div class="budget-input-wrapper">
+                <strong id="totalCategoryBudget">${formatMoney(monthlyBudget)}</strong>
+            </div>
         </div>
-    </div>`;
+    `;
 }
 
 function setCategoryBudget(category, budget) {
@@ -503,7 +507,9 @@ function setCategoryBudget(category, budget) {
 
 function updateCategoryBudget(category, value) {
     categoryBudgets[category] = parseFloat(value) || 0;
-    updateTotalBudgetDisplay();
+    // updateTotalBudgetDisplay();
+    updateTotalBudgetFromCategories();   // ✅ har change pe total auto update
+
 }
 
 // Category Budgets Save
@@ -548,12 +554,21 @@ function updateCategoryBreakdown() {
 
 // Auto-calculate total budget from categories
 function updateTotalBudgetFromCategories() {
-    const total = Object.values(categoryBudgets).reduce((sum, budget) => sum + budget, 0);
+    const total = Object.values(categoryBudgets)
+        .reduce((sum, budget) => sum + budget, 0);
+
     monthlyBudget = total;
-    document.getElementById('budgetAmount').value = total.toFixed(0);
-    saveCategoryBudgets();
+    
+    const budgetInput = document.getElementById('budgetAmount');
+    const totalLabel = document.getElementById('totalCategoryBudget');
+
+    if (budgetInput) budgetInput.value = total.toFixed(0);
+    if (totalLabel) totalLabel.textContent = formatMoney(total);
+
+    saveToLocalStorage();
     updateBudgetView();
 }
+
 
 // ✅ 2. Helper function
 function getCategoryMonthlySpent(category) {
