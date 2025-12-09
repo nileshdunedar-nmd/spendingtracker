@@ -51,18 +51,18 @@
 
                 <div class="stat-row">
                     <div class="stat-small">
-                        <div class="stat-small-label">Income</div>
+                        <div class="stat-small-label">Total Income</div>
                         <div class="stat-small-value" id="totalIncome">₹0.00</div>
                     </div>
                     <div class="stat-small">
-                        <div class="stat-small-label">Expenses</div>
+                        <div class="stat-small-label">Total Expenses</div>
                         <div class="stat-small-value" id="totalExpenses">₹0.00</div>
                     </div>
                 </div>
 
                 <div class="stat-row">
                     <div class="stat-small">
-                        <div class="stat-small-label">This Month</div>
+                        <div class="stat-small-label">Monthly Expenses</div>
                         <div class="stat-small-value" id="monthlyExpense">₹0.00</div>
                     </div>
                     <div class="stat-small">
@@ -184,8 +184,7 @@
                 <h3 style="margin-bottom: 5px; font-size: 12px;">Set Monthly Budget</h3>
                     <div class="form-group">
                         <label style="font-size: 12px;">Total Monthly Budget Limit</label>
-                        <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0"
-                        style="width: 100%; padding: 4px 12px 4px 20px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;">
+                        <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0">
                     </div>
                     <button class="btn btn-primary" onclick="setBudget()">Set Total Budget</button>
                 </div>

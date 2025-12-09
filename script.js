@@ -218,7 +218,12 @@ function switchTab(tabName) {
     if (tabName === 'dashboard') updateDashboard();
     else if (tabName === 'budget') updateBudgetView();
     else if (tabName === 'history') filterTransactions();  // ✅ History
-    else if (tabName === 'add') resetForm();
+    else if (tabName === 'add') {
+        currentType = "expense";
+        updateCategoryOptions();
+        resetForm();
+    }
+
 }
 
 function filterTransactions() {
@@ -291,39 +296,24 @@ function setType(type) {
 }
 
 function updateCategoryOptions() {
-    const categorySelect = document.getElementById('category');
-    const options = categorySelect.querySelectorAll('optgroup');
-    
-    if (currentType === 'income') {
-        // ✅ Income tab: sirf Income dikhana
-        options[0].style.display = 'none';  // Expenses
-        options[1].style.display = 'block'; // Income
+    const categorySelect = document.getElementById("category");
+    const groups = categorySelect.querySelectorAll("optgroup");
+
+    // groups[0] = Expenses
+    // groups[1] = Income
+
+    if (currentType === "income") {
+        groups[0].style.display = "none";   // hide expenses
+        groups[1].style.display = "block";  // show income
     } else {
-        // ✅ Expense tab: sirf Expenses dikhana
-        options[0].style.display = 'block';
-        options[1].style.display = 'none';
+        groups[0].style.display = "block";  // show expenses
+        groups[1].style.display = "none";   // hide income
     }
-    
-    categorySelect.value = '';  // Select Category reset
+
+    categorySelect.value = "";
 }
 
-// Update category options
-function updateCategoryOptions() {
-    const categorySelect = document.getElementById('category');
-    const currentValue = categorySelect.value;
-    
-    if (currentType === 'income') {
-        const options = categorySelect.querySelectorAll('optgroup');
-        options[0].style.display = 'none';
-        options[1].style.display = 'block';
-    } else {
-        const options = categorySelect.querySelectorAll('optgroup');
-        options[0].style.display = 'block';
-        options[1].style.display = 'none';
-    }
-    
-    categorySelect.value = '';
-}
+
 // Add transaction
 function addTransaction() {
     const amount = parseFloat(document.getElementById('amount').value);
@@ -494,7 +484,7 @@ function updateCategoryBudgetUI() {
         <div class="total-budget-row">
             <div class="category-name"><strong>Total Budget</strong></div>
             <div class="budget-input-wrapper">
-                <strong id="totalCategoryBudget">${formatMoney(monthlyBudget)}</strong>
+                <strong id="totalCategoryBudget" style='font-size: 12px;'>${formatMoney(monthlyBudget)}</strong>
             </div>
         </div>
     `;
@@ -885,23 +875,3 @@ function detectAndUpdateCurrency() {
 
 // Har 2 second me check karo (user location change ho sakti hai)
 setInterval(detectAndUpdateCurrency, 2000);
-
-
-// 🔥 YAHAN SE PURI JAVASCRIPT COPY KARO (index.html ke <script> tag se)
-/*
-const defaultCategory = 'expense';
-let currentType = 'expense';
-let transactions = [];
-let monthlyBudget = 0;
-let isSyncingToFirebase = false;
-
-// Load data on startup
-window.addEventListener('DOMContentLoaded', () => {
-  setDefaultDate();
-  loadFromLocalStorage();
-  updateDashboard();
-  setFilterMonth();
-});
-
-// Baaki saare functions - setDefaultDate, switchTab, addTransaction, etc.
-*/
