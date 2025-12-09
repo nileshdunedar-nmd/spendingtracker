@@ -46,7 +46,7 @@
             <div class="card">
                 <div class="stat-box">
                     <div class="stat-label">Total Balance</div>
-                    <div class="stat-value" id="totalBalance">₹0.00</div>
+                    <div class="stat-value" style="font-size: 20px" id="totalBalance">₹0.00</div>
                 </div>
 
                 <div class="stat-row">
@@ -72,7 +72,7 @@
                 </div>
                 
                 <div class="card-comman">
-                    <h3 style="margin-bottom: 5px; font-size: 14px;">Budget Overview</h3>
+                    <h3 style="margin-bottom: 5px; font-size: 12px;">Budget Overview</h3>
                     <div id="budgetOverview">
                         <div class="empty-state">
                             <div class="empty-icon">📊</div>
@@ -85,7 +85,7 @@
 
             <div class="card">
             <div class="card-comman">
-                <h3 style="margin-bottom: 5px; font-size: 14px;">Category Breakdown</h3>
+                <h3 style="margin-bottom: 5px; font-size: 12px;">Category Breakdown</h3>
                 <div id="categoryBreakdown">
                     <div class="empty-state">
                         <div class="empty-icon">📈</div>
@@ -100,7 +100,7 @@
         <div id="add" class="tab-content">
             <div class="card">
                 <div class="card-comman">
-                <h3 style="margin-bottom: 5px; font-size: 14px;">Add Transaction</h3>
+                <h3 style="margin-bottom: 5px; font-size: 12px;">Add Transaction</h3>
 
                 <div class="form-group">
                     <label>Type</label>
@@ -123,9 +123,9 @@
                             <option value="savings">💰 Savings</option>
                             <option value="shopping">🛍️ Shopping</option>
                             <option value="utilities">💡 Utilities</option>
-                            <option value="health">🏥 Health & Medical</option>
-                            <option value="travel">✈️ Travel & Medical</option>
-                            <option value="housing">🏠 housing & Medical</option>
+                            <option value="health">🏥 Health</option>
+                            <option value="travel">✈️ Travel</option>
+                            <option value="housing">🏠 housing </option>
                             <option value="entertainment">🎬 Entertainment</option>
                             <option value="education">📚 Education</option>
                             <option value="other">📌 Other</option>
@@ -164,7 +164,7 @@
 
             <div class="card">
                 <div class="card-comman">
-                <h3 style="margin-bottom: 5px; font-size: 14px;">Recent Transactions</h3>
+                <h3 style="margin-bottom: 5px; font-size: 12px;">Recent Transactions</h3>
                 <div id="recentTransactions">
                     <div class="empty-state">
                         <div class="empty-icon">📝</div>
@@ -181,7 +181,7 @@
             <!-- Existing Total Budget -->
             <div class="card">
                 <div class="card-comman">
-                <h3 style="margin-bottom: 5px; font-size: 14px;">Set Monthly Budget</h3>
+                <h3 style="margin-bottom: 5px; font-size: 12px;">Set Monthly Budget</h3>
                   <div class="form-group">
                     <label style="font-size: 12px;">Total Monthly Budget Limit</label>
                     <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0"
@@ -227,14 +227,14 @@
         <!-- Settings Tab -->
         <div id="settings" class="tab-content">
             <div class="card">
-                <h3 style="margin-bottom: 5px; font-size: 14px;">Settings</h3>
+                <h3 style="margin-bottom: 5px; font-size: 12px;">Settings</h3>
 
                 <div class="settings-item">
                     <div>
                         <div class="settings-label">Clear All Data</div>
                         <div class="settings-value">Delete all transactions</div>
                     </div>
-                    <button class="btn btn-danger" onclick="clearAllData()">Clear</button>
+                    <button class="btn btn-danger" style="color: white; padding: 8px; background-color: red;" onclick="clearAllData()">Clear</button>
                 </div>
 
                 <div class="settings-item">

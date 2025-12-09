@@ -268,8 +268,7 @@ function showTransactions(transactions) {
                 </div>
                 <div class="expense-right">
                     <div class="expense-amount ${amountClass}">${formatMoney(t.amount)}</div>
-                    <button class="btn btn-danger" onclick="deleteTransaction(${t.id})" 
-                            style="padding:6px 10px;font-size:14px;min-width:36px;">🗑️</button>
+                    <button class="btn btn-danger" onclick="deleteTransaction(${t.id})">🗑️</button>
                 </div>
             </div>
         `;
@@ -277,13 +276,34 @@ function showTransactions(transactions) {
 }
 
 // Set transaction type
+let currentType = 'expense';  // TOP pe hona chahiye
+
 function setType(type) {
     currentType = type;
-    document.querySelectorAll('[data-type]').forEach(btn => btn.classList.remove('selected'));
-    event.target.classList.add('selected');
     
-    // Update category options based on type
-    updateCategoryOptions();
+    document.querySelectorAll('[data-type]').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    event.target.classList.add('selected');
+
+    updateCategoryOptions();   // ✅ Ye call hona zaruri hai
+}
+
+function updateCategoryOptions() {
+    const categorySelect = document.getElementById('category');
+    const options = categorySelect.querySelectorAll('optgroup');
+    
+    if (currentType === 'income') {
+        // ✅ Income tab: sirf Income dikhana
+        options[0].style.display = 'none';  // Expenses
+        options[1].style.display = 'block'; // Income
+    } else {
+        // ✅ Expense tab: sirf Expenses dikhana
+        options[0].style.display = 'block';
+        options[1].style.display = 'none';
+    }
+    
+    categorySelect.value = '';  // Select Category reset
 }
 
 // Update category options
@@ -387,7 +407,7 @@ function updateRecentTransactions() {
                     <div class="expense-amount ${amountClass}">
                         ${formatMoney(t.amount)}
                     </div>
-                    <button class="btn btn-danger delete-btn" onclick="deleteTransaction(${t.id})">🗑️</button>
+                    <button class="btn btn-danger" onclick="deleteTransaction(${t.id})">🗑️</button>
                 </div>
             </div>
         `;
@@ -468,7 +488,7 @@ function updateCategoryBudgetUI() {
     `).join('') + 
     `<div class="total-budget-row">
         <div class="category-name"><strong>Total Budget</strong></div>
-        <div class="budget-input-wrapper">
+        <div class="budget-input-wrapper" style="font-size: 12px;">
             <strong>${formatMoney(monthlyBudget)}</strong>
         </div>
     </div>`;
@@ -570,14 +590,14 @@ function updateBudgetView() {
             <div style="padding: 5px; background: var(--md-sys-color-surface-variant); border-radius: 16px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1px;">
                     <span style="font-weight: 500; font-size: 12px">Monthly Budget</span>
-                    <span style="font-weight: 500;">
+                    <span style="font-weight: 500; font-size: 12px;">
                         <span class="negative">${formatMoney(monthlyExpenses)}</span> / ${formatMoney(monthlyBudget)}
                     </span>
                 </div>
                 <div class="budget-bar">
                     <div class="budget-fill" style="width: ${percentage}%"></div>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 1px;">
+                <div style="display: flex; font-size: 12px; justify-content: space-between; margin-top: 1px;">
                     <span>${percentage.toFixed(1)}% spent</span>
                     <span class="${percentage > 100 ? 'negative' : percentage > 80 ? 'negative' : 'positive'}">
                         ${monthlyBudget - monthlyExpenses >= 0 ? formatMoney(monthlyBudget - monthlyExpenses) + ' left' : 'over budget'}
