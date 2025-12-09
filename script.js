@@ -786,79 +786,101 @@ function exportData() {
 }
 // Export data as PDF
 function exportDataAsPDF() {
-    let content = 'SPENDING TRACKER REPORT\n';
-    content += '='.repeat(50) + '\n\n';
+    let content = "";
+    content += "SPENDING TRACKER REPORT\n";
+    content += "==================================================\n\n";
     content += `Generated: ${new Date().toLocaleDateString('en-IN')}\n\n`;
-    
-    content += 'SUMMARY\n';
-    content += '-'.repeat(50) + '\n';
-    
+
+    // SUMMARY SECTION
     let totalIncome = 0, totalExpenses = 0;
     transactions.forEach(t => {
         if (t.type === 'income') totalIncome += t.amount;
         else totalExpenses += t.amount;
     });
-    
+
+    content += "SUMMARY\n";
+    content += "--------------------------------------------------\n";
     content += `Total Income: ₹${totalIncome.toFixed(2)}\n`;
     content += `Total Expenses: ₹${totalExpenses.toFixed(2)}\n`;
     content += `Balance: ₹${(totalIncome - totalExpenses).toFixed(2)}\n`;
     content += `Monthly Budget: ₹${monthlyBudget.toFixed(2)}\n\n`;
-    
-    content += 'ALL TRANSACTIONS\n';
-    content += '-'.repeat(50) + '\n';
+
+    // ALL TRANSACTIONS
+    content += "ALL TRANSACTIONS\n";
+    content += "--------------------------------------------------\n";
+
     transactions.slice().reverse().forEach(t => {
         content += `${new Date(t.date).toLocaleDateString('en-IN')} | ${t.category} | ${t.description} | ${t.type === 'income' ? '+' : '-'}₹${t.amount.toFixed(2)}\n`;
     });
-    
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `spending-tracker-${new Date().toISOString().split('T')[0]}.pdf.txt`;
-    link.click();
-    URL.revokeObjectURL(url);
-    // alert('📄 Report downloaded as PDF!');
-    showToast('📄 Report downloaded as PDF!');
-}
-// Export data as Excel
-function exportDataAsExcel() {
-    let csv = 'Date,Category,Description,Type,Amount\n';
-    
-    transactions.slice().reverse().forEach(t => {
-        const date = new Date(t.date).toLocaleDateString('en-IN');
-        const amount = t.type === 'income' ? t.amount : -t.amount;
-        csv += `${date},"${t.category}","${t.description}","${t.type}",${amount}\n`;
-    });
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `spending-tracker-${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-    // alert('📊 Data exported as Excel!');
-    showToast('📊 Data exported as Excel!');
-}
-async function clearAllData() {
-    const confirmed = await customConfirm('⚠️ Are you sure? This will delete ALL transactions and cannot be undone.');
-    
-    if (confirmed) {
-        transactions = [];
-        monthlyBudget = 0;
-        saveToLocalStorage();
-        updateDashboard();
-        updateBudgetView();
-        
-        if (firebaseReady) {
-            db.collection('transactions').get().then(snapshot => {
-                snapshot.forEach(doc => doc.ref.delete());
-            });
-        }
-        
-        showToast('All data has been cleared successfully!', 'success', 4000);
+
+    // CREATE PDF-BLOB
+    const blob = new Blob([content], { type: "application/pdf" });
+
+    // If running inside Android WebView → use base64 method
+    if (typeof Android !== "undefined" && Android.downloadFile) {
+        const reader = new FileReader();
+
+        reader.onload = function () {
+            const base64data = reader.result.split(',')[1];
+            const fileName = `spending-report-${new Date().toISOString().split('T')[0]}.pdf`;
+
+            Android.downloadFile(fileName, base64data);
+            showToast("📄 PDF Downloading...");
+        };
+
+        reader.readAsDataURL(blob);   // Convert blob → base64
+    } else {
+        // Normal browser download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `spending-report-${new Date().toISOString().split('T')[0]}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("📄 PDF Downloaded!");
     }
 }
+
+// Export data as Excel
+function exportDataAsExcel() {
+    let csv = "Date,Category,Description,Type,Amount\n";
+
+    transactions.slice().reverse().forEach(t => {
+        const date = new Date(t.date).toLocaleDateString("en-IN");
+        const amount = t.type === "income" ? t.amount : -t.amount;
+        csv += `${date},"${t.category}","${t.description}","${t.type}",${amount}\n`;
+    });
+
+    // Create CSV blob
+    const blob = new Blob([csv], { type: "text/csv" });
+
+    // Android WebView export (BLOB → BASE64)
+    if (typeof Android !== "undefined" && Android.downloadFile) {
+        const reader = new FileReader();
+
+        reader.onload = function () {
+            const base64data = reader.result.split(",")[1];
+            const fileName = `spending-tracker-${new Date().toISOString().split("T")[0]}.csv`;
+
+            Android.downloadFile(fileName, base64data);
+            showToast("📊 Excel Downloading...");
+        };
+
+        reader.readAsDataURL(blob); // BLOB → BASE64
+    }
+
+    // Normal browser export
+    else {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `spending-tracker-${new Date().toISOString().split("T")[0]}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+        showToast("📊 Excel Downloaded!");
+    }
+}
+
 
 // ✅ FIXED: Currency LIVE detect
 function detectAndUpdateCurrency() {
@@ -872,6 +894,14 @@ function detectAndUpdateCurrency() {
     }
 }
 
+function downloadBlob(filename, blob) {
+    const reader = new FileReader();
+    reader.onload = function () {
+        const base64Data = reader.result.split(',')[1];
+        Android.downloadFile(filename, base64Data);
+    };
+    reader.readAsDataURL(blob);
+}
 
 // Har 2 second me check karo (user location change ho sakti hai)
 setInterval(detectAndUpdateCurrency, 2000);
