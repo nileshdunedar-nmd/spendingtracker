@@ -5,6 +5,8 @@ let monthlyBudget = 0;
 
 // ✅ Initialize on load
 document.addEventListener('DOMContentLoaded', function() {
+    currentType = 'expense';    
+    updateCategoryOptions();  // ✅ initial state
     loadFromLocalStorage();  // Load ALL data first
     setDefaultDate();
     updateDashboard();
@@ -351,7 +353,7 @@ function addTransaction() {
     showToast('Transaction added successfully!', 'success');
 }
 // Reset form
-function resetForm() {
+    function resetForm() {
     document.getElementById('amount').value = '';
     document.getElementById('category').value = '';
     document.getElementById('description').value = '';
