@@ -784,6 +784,23 @@ function exportData() {
     link.click();
     URL.revokeObjectURL(url);
 }
+
+
+function downloadBlob(filename, blob) {
+    const reader = new FileReader();
+    reader.onload = function () {
+        const base64Data = reader.result.split(',')[1];
+        Android.downloadFile(filename, base64Data);
+    };
+    reader.readAsDataURL(blob);
+}
+
+function blobToBase64(blob, callback) {
+    const reader = new FileReader();
+    reader.onloadend = () => callback(reader.result.split(",")[1]);
+    reader.readAsDataURL(blob);
+}
+
 // Export data as PDF
 function exportDataAsPDF() {
     let content = "";
@@ -791,7 +808,6 @@ function exportDataAsPDF() {
     content += "==================================================\n\n";
     content += `Generated: ${new Date().toLocaleDateString('en-IN')}\n\n`;
 
-    // SUMMARY SECTION
     let totalIncome = 0, totalExpenses = 0;
     transactions.forEach(t => {
         if (t.type === 'income') totalIncome += t.amount;
@@ -805,7 +821,6 @@ function exportDataAsPDF() {
     content += `Balance: ₹${(totalIncome - totalExpenses).toFixed(2)}\n`;
     content += `Monthly Budget: ₹${monthlyBudget.toFixed(2)}\n\n`;
 
-    // ALL TRANSACTIONS
     content += "ALL TRANSACTIONS\n";
     content += "--------------------------------------------------\n";
 
@@ -815,26 +830,22 @@ function exportDataAsPDF() {
 
     // CREATE PDF-BLOB
     const blob = new Blob([content], { type: "application/pdf" });
+    const fileName = `spending-report-${new Date().toISOString().split('T')[0]}.pdf`;
 
-    // If running inside Android WebView → use base64 method
+    // ANDROID WEBVIEW EXPORT (BLOB → BASE64)
     if (typeof Android !== "undefined" && Android.downloadFile) {
-        const reader = new FileReader();
 
-        reader.onload = function () {
-            const base64data = reader.result.split(',')[1];
-            const fileName = `spending-report-${new Date().toISOString().split('T')[0]}.pdf`;
-
-            Android.downloadFile(fileName, base64data);
+        blobToBase64(blob, function (base64) {
+            Android.downloadFile(fileName, base64, "application/pdf");
             showToast("📄 PDF Downloading...");
-        };
+        });
 
-        reader.readAsDataURL(blob);   // Convert blob → base64
     } else {
-        // Normal browser download
+        // NORMAL BROWSER DOWNLOAD
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `spending-report-${new Date().toISOString().split('T')[0]}.pdf`;
+        a.download = fileName;
         a.click();
         URL.revokeObjectURL(url);
         showToast("📄 PDF Downloaded!");
@@ -851,31 +862,24 @@ function exportDataAsExcel() {
         csv += `${date},"${t.category}","${t.description}","${t.type}",${amount}\n`;
     });
 
-    // Create CSV blob
     const blob = new Blob([csv], { type: "text/csv" });
+    const fileName = `spending-tracker-${new Date().toISOString().split("T")[0]}.csv`;
 
-    // Android WebView export (BLOB → BASE64)
+    // If running inside Android app
     if (typeof Android !== "undefined" && Android.downloadFile) {
-        const reader = new FileReader();
 
-        reader.onload = function () {
-            const base64data = reader.result.split(",")[1];
-            const fileName = `spending-tracker-${new Date().toISOString().split("T")[0]}.csv`;
-
-            Android.downloadFile(fileName, base64data);
+        blobToBase64(blob, function (base64) {
+            Android.downloadFile(fileName, base64, "text/csv");  // Correct
             showToast("📊 Excel Downloading...");
-        };
+        });
 
-        reader.readAsDataURL(blob); // BLOB → BASE64
-    }
-
-    // Normal browser export
-    else {
+    } else {
+        // Browser download
         const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `spending-tracker-${new Date().toISOString().split("T")[0]}.csv`;
-        link.click();
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        a.click();
         URL.revokeObjectURL(url);
         showToast("📊 Excel Downloaded!");
     }
@@ -894,14 +898,6 @@ function detectAndUpdateCurrency() {
     }
 }
 
-function downloadBlob(filename, blob) {
-    const reader = new FileReader();
-    reader.onload = function () {
-        const base64Data = reader.result.split(',')[1];
-        Android.downloadFile(filename, base64Data);
-    };
-    reader.readAsDataURL(blob);
-}
 
 // Har 2 second me check karo (user location change ho sakti hai)
 setInterval(detectAndUpdateCurrency, 2000);
