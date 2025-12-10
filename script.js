@@ -33,17 +33,45 @@ let currencySymbol = getCurrencySymbol();
 
 function getCurrencySymbol() {
     try {
-        const format = new Intl.NumberFormat(undefined, {
+        const parts = new Intl.NumberFormat(undefined, {
             style: 'currency',
-            currency: 'USD'
-        });
+            currencyDisplay: 'symbol',
+            currency: getUserCurrency()
+        }).formatToParts(1);
 
-        const parts = format.formatToParts(1);
-        return parts.find(p => p.type === 'currency')?.value || '$';
+        const symbol = parts.find(p => p.type === 'currency')?.value;
+        return symbol || '$';
     } catch {
         return '$';
     }
 }
+
+function getUserCurrency() {
+    try {
+        const locale = Intl.DateTimeFormat().resolvedOptions().locale;
+
+        // Locale "en-US" → currency USD
+        const region = locale.split('-')[1];
+
+        const currencyMap = {
+            US: 'USD',
+            IN: 'INR',
+            GB: 'GBP',
+            CA: 'CAD',
+            AU: 'AUD',
+            PK: 'PKR',
+            BD: 'BDT',
+            NP: 'NPR',
+            AE: 'AED',
+            SA: 'SAR'
+        };
+
+        return currencyMap[region] || 'USD';
+    } catch {
+        return 'USD';
+    }
+}
+
 
 function formatMoney(amount) {
     const absAmount = Math.abs(amount);
