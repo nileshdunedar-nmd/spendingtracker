@@ -23,18 +23,9 @@
   box-sizing: border-box;
 }
 
-/* body {
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #055c55 0%, #7a04bead 100%);
-  min-height: 100vh;
-  color: #333;
-  line-height: 1.6;
-} */
- /* Body full height layout */
-
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #055c55 0%, #7a04bead 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: #333;
   margin: 0;
   padding: 0;
@@ -64,27 +55,52 @@ body {
   flex-direction: column;
 }
 
-
-/* HEADER */
-/* .header {
-  text-align: center;
-  margin-bottom: 1px;
+.header {
+  /* background: linear-gradient(135deg, #055c55 0%, #7a04bead 100%); */
+  background-color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-bottom: 2px;
   color: white;
-} */
+  text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+/* Left: circular icon */
+.header-left {
+  flex-shrink: 0;
+}
+
+/* Right: title + date in column */
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* heading/date right aligned */
+  gap: 2px;
+  flex: 1;
+}
+
+.app-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.header-date {
+  font-size: 9px;
+  opacity: 0.9;
+  padding-bottom: 4px;
+  font-weight: 400;
+}
+
 /* Header, ad, tabs = fixed (non-scroll) */
 .header,
 .ad-container,
 .tabs {
   flex-shrink: 0;
-}
-
-/* Optional: header bhi sticky chahiye to */
-.header {
-  background: linear-gradient(135deg, #055c55 0%, #7a04bead 100%);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  /* background: transparent;  */
 }
 
 .header { top: 0; }
@@ -106,12 +122,6 @@ body {
   text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-.header-date {
-  font-size: 11px;
-  opacity: 0.9;
-  padding-bottom: 4px;
-  font-weight: 400;
-}
 
 /* AD CONTAINER */
 .ad-container {
@@ -132,24 +142,22 @@ body {
 } */
 /* Tabs already styled; ensure they stay visible */
 .tabs {
-  background: linear-gradient(135deg, #055c55 0%, #7a04bead 100%);
+  display: flex;
+  background: var(--primary); 
   position: sticky;
-  top: 50px;
+  top: 45px;
   z-index: 10;
-  /* background: none; */
   display: flex;
   box-shadow: var(--shadow);
   overflow-x: auto;
-
-  /* background: #ffffff; */
 }
 
 .tab-btn {
   flex: 1;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid;
-  background: none;
-  font-size: 12px;
+  background: linear-gradient(135deg, var(--primary) 10%, var(--primary-dark) 100%);
+  font-size: 11px;
   font-weight: 600;
   color: var(--gray-300);
   border-top: 1px solid;
@@ -162,6 +170,7 @@ body {
 .tab-btn.active {
   background: white;
   /* background: var(--primary); */
+  font-weight: 600;
   color: var(--primary);
 }
 
