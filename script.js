@@ -321,17 +321,20 @@ let currentType = 'expense';  // TOP pe hona chahiye
 
 function setType(type) {
     currentType = type;
-    
+
     document.querySelectorAll('[data-type]').forEach(btn => {
         btn.classList.remove('selected');
     });
     event.target.classList.add('selected');
 
-    updateCategoryOptions();   // ✅ Ye call hona zaruri hai
+    updateCategoryOptions(); // MUST
 }
+
 
 function updateCategoryOptions() {
     const categorySelect = document.getElementById("category");
+
+    // Detect optgroups by label (Correct for all devices)
     const expenseGroup = categorySelect.querySelector('optgroup[label="Expenses"]');
     const incomeGroup = categorySelect.querySelector('optgroup[label="Income"]');
 
@@ -347,6 +350,7 @@ function updateCategoryOptions() {
 
     categorySelect.value = "";
 }
+
 
 
 
