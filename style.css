@@ -23,27 +23,76 @@
   box-sizing: border-box;
 }
 
-body {
+/* body {
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, #055c55 0%, #7a04bead 100%);
   min-height: 100vh;
   color: #333;
   line-height: 1.6;
+} */
+ /* Body full height layout */
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
 }
 
+
 /* CONTAINER */
-.container {
+/* .container {
   max-width: 600px;
   margin: 0 auto;
   padding: 2px;
   min-height: 100vh;
+} */
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
+
 /* HEADER */
-.header {
+/* .header {
   text-align: center;
   margin-bottom: 1px;
   color: white;
+} */
+/* Header, ad, tabs = fixed (non-scroll) */
+.header,
+.ad-container,
+.tabs {
+  flex-shrink: 0;
+}
+
+/* Optional: header bhi sticky chahiye to */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: transparent; /* ya solid color */
+}
+
+.header { top: 0; }
+.ad-container { position: sticky; top: 40px; z-index: 15; background: transparent; }
+.tabs { position: sticky; top: 80px; }
+
+
+/* ✅ Scrollable area */
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 8px;
 }
 
 .header h1 {
@@ -67,7 +116,7 @@ body {
 }
 
 /* TABS */
-.tabs {
+/* .tabs {
   display: flex;
   background: none;
   border-top: 1px solid;
@@ -76,6 +125,13 @@ body {
   box-shadow: var(--shadow);
   margin-bottom: none;
   overflow-x: auto;
+} */
+/* Tabs already styled; ensure they stay visible */
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #ffffff;
 }
 
 .tab-btn {
