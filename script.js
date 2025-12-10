@@ -71,7 +71,7 @@ function getUserCurrency() {
 }
 
 // Currency functions (TOP PE - FIXED)
-let currencySymbol = getCurrencySymbol();
+//let currencySymbol = getCurrencySymbol();
 
 function formatMoney(amount) {
     const absAmount = Math.abs(amount);
