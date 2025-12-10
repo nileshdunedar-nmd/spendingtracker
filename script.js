@@ -71,12 +71,12 @@ function getUserCurrency() {
 }
 
 // Currency functions (TOP PE - FIXED)
-//let currencySymbol = getCurrencySymbol();
+let currencySymbol = getCurrencySymbol();
 
 function formatMoney(amount) {
     const absAmount = Math.abs(amount);
     
-    // Agar integer hai (.00) to sirf whole number dikhao
+    // Agar inger hai (.00) to sirf whole number dikhao
     const formattedAmount = absAmount % 1 === 0 
         ? Math.round(absAmount).toString() 
         : absAmount.toFixed(2);
