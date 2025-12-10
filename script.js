@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
 let currencySymbol = getCurrencySymbol();
 
 function getCurrencySymbol() {
-function getCurrencySymbol() {
     try {
         const format = new Intl.NumberFormat(undefined, {
             style: 'currency',
