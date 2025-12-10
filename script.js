@@ -28,8 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
     filterTransactions();
 });
 
-// Currency functions (TOP PE - FIXED)
-let currencySymbol = getCurrencySymbol();
 
 function getCurrencySymbol() {
     try {
@@ -72,6 +70,8 @@ function getUserCurrency() {
     }
 }
 
+// Currency functions (TOP PE - FIXED)
+let currencySymbol = getCurrencySymbol();
 
 function formatMoney(amount) {
     const absAmount = Math.abs(amount);
