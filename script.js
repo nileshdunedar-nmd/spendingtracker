@@ -187,7 +187,7 @@ function setDefaultDate() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('date').value = today;
     
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
     document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', options);
 }
 
