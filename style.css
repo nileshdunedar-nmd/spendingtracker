@@ -33,6 +33,9 @@
  /* Body full height layout */
 
 body {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #055c55 0%, #7a04bead 100%);
+  color: #333;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -77,10 +80,11 @@ body {
 
 /* Optional: header bhi sticky chahiye to */
 .header {
+  background: linear-gradient(135deg, #055c55 0%, #7a04bead 100%);
   position: sticky;
   top: 0;
   z-index: 20;
-  background: transparent; /* ya solid color */
+  /* background: transparent;  */
 }
 
 .header { top: 0; }
@@ -128,10 +132,16 @@ body {
 } */
 /* Tabs already styled; ensure they stay visible */
 .tabs {
+  background: linear-gradient(135deg, #055c55 0%, #7a04bead 100%);
   position: sticky;
-  top: 0;
+  top: 50px;
   z-index: 10;
-  background: #ffffff;
+  /* background: none; */
+  display: flex;
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+
+  /* background: #ffffff; */
 }
 
 .tab-btn {
