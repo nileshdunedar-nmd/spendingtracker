@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Currency functions (TOP PE - FIXED)
-let currencySymbol = getCurrencySymbol();
+//let currencySymbol = getCurrencySymbol();
 
 function getCurrencySymbol() {
     const currency = getUserCurrency();
