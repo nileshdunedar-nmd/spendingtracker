@@ -220,11 +220,11 @@ window.addEventListener('DOMContentLoaded', () => {
 // Set default date to today
 function setDefaultDate() {
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date').value = today;
-    
+    document.
     const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
     document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', options);
-}
+}getElementById('date').value = today;
+    
 
 // Set filter month to current
 function setFilterMonth() {
@@ -332,21 +332,22 @@ function setType(type) {
 
 function updateCategoryOptions() {
     const categorySelect = document.getElementById("category");
-    const groups = categorySelect.querySelectorAll("optgroup");
+    const expenseGroup = categorySelect.querySelector('optgroup[label="Expenses"]');
+    const incomeGroup = categorySelect.querySelector('optgroup[label="Income"]');
 
-    // groups[0] = Expenses
-    // groups[1] = Income
+    if (!expenseGroup || !incomeGroup) return;
 
     if (currentType === "income") {
-        groups[0].style.display = "none";   // hide expenses
-        groups[1].style.display = "block";  // show income
+        expenseGroup.style.display = "none";
+        incomeGroup.style.display = "block";
     } else {
-        groups[0].style.display = "block";  // show expenses
-        groups[1].style.display = "none";   // hide income
+        expenseGroup.style.display = "block";
+        incomeGroup.style.display = "none";
     }
 
     categorySelect.value = "";
 }
+
 
 
 // Add transaction
