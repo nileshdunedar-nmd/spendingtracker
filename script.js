@@ -28,50 +28,62 @@ document.addEventListener('DOMContentLoaded', function() {
     filterTransactions();
 });
 
+// Currency functions (TOP PE - FIXED)
+let currencySymbol = getCurrencySymbol();
 
 function getCurrencySymbol() {
+    const currency = getUserCurrency();
     try {
         const parts = new Intl.NumberFormat(undefined, {
-            style: 'currency',
-            currencyDisplay: 'symbol',
-            currency: getUserCurrency()
+            style: "currency",
+            currency: currency
         }).formatToParts(1);
 
-        const symbol = parts.find(p => p.type === 'currency')?.value;
-        return symbol || '$';
+        const symbol = parts.find(p => p.type === "currency")?.value;
+        return symbol || currency;  // fallback
     } catch {
-        return '$';
+        return currency;
     }
 }
 
 function getUserCurrency() {
-    try {
-        const locale = Intl.DateTimeFormat().resolvedOptions().locale;
+    let locale = Intl.DateTimeFormat().resolvedOptions().locale || "";
 
-        // Locale "en-US" → currency USD
-        const region = locale.split('-')[1];
+    // 1️⃣ Extract region (US, IN, GB…)
+    let region = locale.split("-")[1];
 
-        const currencyMap = {
-            US: 'USD',
-            IN: 'INR',
-            GB: 'GBP',
-            CA: 'CAD',
-            AU: 'AUD',
-            PK: 'PKR',
-            BD: 'BDT',
-            NP: 'NPR',
-            AE: 'AED',
-            SA: 'SAR'
-        };
+    // 2️⃣ If region NOT found → Detect via timezone
+    if (!region) {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
 
-        return currencyMap[region] || 'USD';
-    } catch {
-        return 'USD';
+        if (tz.includes("Kolkata")) region = "IN";
+        else if (tz.includes("London")) region = "GB";
+        else if (tz.includes("Colombo")) region = "LK";
+        else if (tz.includes("Karachi")) region = "PK";
+        else if (tz.includes("Kathmandu")) region = "NP";
+        else if (tz.includes("Dhaka")) region = "BD";
+        else if (tz.includes("Dubai")) region = "AE";
+        else region = "US"; // fallback
     }
-}
 
-// Currency functions (TOP PE - FIXED)
-let currencySymbol = getCurrencySymbol();
+    // 3️⃣ Region → Currency mapping
+    const map = {
+        IN: "INR",
+        US: "USD",
+        GB: "GBP",
+        AE: "AED",
+        SA: "SAR",
+        CA: "CAD",
+        AU: "AUD",
+        PK: "PKR",
+        LK: "LKR",
+        NP: "NPR",
+        BD: "BDT",
+        EU: "EUR"
+    };
+
+    return map[region] || "USD";
+}
 
 function formatMoney(amount) {
     const absAmount = Math.abs(amount);
