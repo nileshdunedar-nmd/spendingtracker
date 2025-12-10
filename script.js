@@ -32,21 +32,17 @@ document.addEventListener('DOMContentLoaded', function() {
 let currencySymbol = getCurrencySymbol();
 
 function getCurrencySymbol() {
-    // Method 1: Check if India timezone/location
-    const isIndia = Intl.DateTimeFormat().resolvedOptions().timeZone.includes('Asia/Kolkata') ||
-                    navigator.language?.includes('IN');
-    
-    if (isIndia) return '₹';
-    
-    // Method 2: Intl automatic detection
+function getCurrencySymbol() {
     try {
-        // Try INR first (India), fallback to USD
-        return new Intl.NumberFormat('default', { 
-            style: 'currency', 
-            currency: 'INR' 
-        }).formatToParts(1)[0].value;
-    } catch (e) {
-        return '$'; // Final fallback
+        const format = new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: 'USD'
+        });
+
+        const parts = format.formatToParts(1);
+        return parts.find(p => p.type === 'currency')?.value || '$';
+    } catch {
+        return '$';
     }
 }
 
