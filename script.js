@@ -2,6 +2,29 @@
 let transactions = [];
 let monthlyBudget = 0;
 
+
+
+let locale = "en-US";
+
+if (window.androidLocale) {
+    locale = `${window.androidLocale.lang}-${window.androidLocale.region}`;
+} else {
+    locale = navigator.language || "en-US";
+}
+
+function getCurrencyFromLocale(loc) {
+    try {
+        const formatter = new Intl.NumberFormat(loc, { style: "currency", currency: "USD" });
+        return formatter.resolvedOptions().currency;
+    } catch (e) {
+        return "USD";
+    }
+}
+
+
+
+
+
 // --- Compatibility wrapper used by older code (keeps older calls working) ---
 function detectCurrency() {
     // return same shape as previous implementations
