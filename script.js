@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initial load
     filterTransactions();
+    detectAndUpdateCurrency();
 });
 
 // Currency functions (TOP PE - FIXED)
@@ -210,21 +211,25 @@ function updateDashboard() {
     setInterval(detectAndUpdateCurrency, 2000);
 
 // Load data on startup
-window.addEventListener('DOMContentLoaded', () => {
+/*window.addEventListener('DOMContentLoaded', () => {
     setDefaultDate();
     loadFromLocalStorage();
     updateDashboard();
     setFilterMonth();
-});
+});*/
 
 // Set default date to today
 function setDefaultDate() {
-    const today = new Date().toISOString().split('T')[0];
-    document.
-    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', options);
-}getElementById('date').value = today;
-    
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("date").value = today;
+
+    const options = { weekday: "short", year: "numeric", month: "short", day: "numeric" };
+    const dateLabel = document.getElementById("currentDate");
+    if (dateLabel) {
+        dateLabel.textContent = new Date().toLocaleDateString("en-IN", options);
+    }
+}
+
 
 // Set filter month to current
 function setFilterMonth() {
@@ -234,7 +239,7 @@ function setFilterMonth() {
 }
 
 // Switch tabs
-function switchTab(tabName) {
+function switchTab(tabName, event) {
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
@@ -530,10 +535,10 @@ function updateCategoryBudgetUI() {
     `;
 }
 
-function setCategoryBudget(category, budget) {
+/*function setCategoryBudget(category, budget) {
     categoryBudgets[category] = budget;
     updateTotalBudgetDisplay();
-}
+}*/
 
 function updateCategoryBudget(category, value) {
     categoryBudgets[category] = parseFloat(value) || 0;
@@ -856,16 +861,16 @@ function exportDataAsPDF() {
 
     content += "SUMMARY\n";
     content += "--------------------------------------------------\n";
-    content += `Total Income: ₹${totalIncome.toFixed(2)}\n`;
-    content += `Total Expenses: ₹${totalExpenses.toFixed(2)}\n`;
-    content += `Balance: ₹${(totalIncome - totalExpenses).toFixed(2)}\n`;
-    content += `Monthly Budget: ₹${monthlyBudget.toFixed(2)}\n\n`;
+    content += `Total Income: ${currencySymbol}${totalIncome.toFixed(2)}\n`;
+    content += `Total Expenses: ${currencySymbol}${totalExpenses.toFixed(2)}\n`;
+    content += `Balance:${currencySymbol}${(totalIncome - totalExpenses).toFixed(2)}\n`;
+    content += `Monthly Budget:${currencySymbol}${monthlyBudget.toFixed(2)}\n\n`;
 
     content += "ALL TRANSACTIONS\n";
     content += "--------------------------------------------------\n";
 
     transactions.slice().reverse().forEach(t => {
-        content += `${new Date(t.date).toLocaleDateString('en-IN')} | ${t.category} | ${t.description} | ${t.type === 'income' ? '+' : '-'}₹${t.amount.toFixed(2)}\n`;
+        content += `${new Date(t.date).toLocaleDateString('en-IN')} | ${t.category} | ${t.description} | ${t.type === 'income' ? '+' : '-'} ${currencySymbol}${t.amount.toFixed(2)}\n`;
     });
 
     // CREATE PDF-BLOB
@@ -940,4 +945,4 @@ function detectAndUpdateCurrency() {
 
 
 // Har 2 second me check karo (user location change ho sakti hai)
-setInterval(detectAndUpdateCurrency, 2000);
+//setInterval(detectAndUpdateCurrency, 2000);
