@@ -431,37 +431,87 @@ let currentType = 'expense';  // TOP pe hona chahiye
 function setType(type) {
     currentType = type;
 
-    // remove selected class from all category badges (use class selector)
-    document.querySelectorAll('.category-badge').forEach(btn => btn.classList.remove('selected'));
+    document.querySelectorAll('[data-type]').forEach(btn => {
+        btn.classList.remove('selected');
+    });
 
-    // try find button by id pattern `type-<type>`
-    const btn = document.getElementById('type-' + type);
-    if (btn) btn.classList.add('selected');
+    event.target.classList.add('selected');
 
-    updateCategoryOptions();
+    updateCategoryOptions();  // must rebuild options
 }
+
+// function setType(type) {
+//     currentType = type;
+
+//     // remove selected class from all category badges (use class selector)
+//     document.querySelectorAll('.category-badge').forEach(btn => btn.classList.remove('selected'));
+
+//     // try find button by id pattern `type-<type>`
+//     const btn = document.getElementById('type-' + type);
+//     if (btn) btn.classList.add('selected');
+
+//     updateCategoryOptions();
+// }
+
+
 
 
 
 function updateCategoryOptions() {
     const categorySelect = document.getElementById("category");
 
-    // Detect optgroups by label (Correct for all devices)
-    const expenseGroup = categorySelect.querySelector('optgroup[label="Expenses"]');
-    const incomeGroup = categorySelect.querySelector('optgroup[label="Income"]');
+    const expenseOptions = `
+        <option value="food">🍔 Food & Dining</option>
+        <option value="groceries">🛒 Groceries</option>
+        <option value="transport">🚗 Transport</option>
+        <option value="clothing">👗 Clothing</option>
+        <option value="debt">💳 Debt</option>
+        <option value="savings">💰 Savings</option>
+        <option value="shopping">🛍️ Shopping</option>
+        <option value="utilities">💡 Utilities</option>
+        <option value="health">🏥 Health</option>
+        <option value="travel">✈️ Travel</option>
+        <option value="housing">🏠 Housing</option>
+        <option value="entertainment">🎬 Entertainment</option>
+        <option value="education">📚 Education</option>
+        <option value="other">📌 Other</option>
+    `;
 
-    if (!expenseGroup || !incomeGroup) return;
+    const incomeOptions = `
+        <option value="salary">💼 Salary</option>
+        <option value="freelance">💻 Freelance</option>
+        <option value="investment">📈 Investment</option>
+        <option value="bonus">🎁 Bonus</option>
+        <option value="other-income">➕ Other Income</option>
+    `;
 
-    if (currentType === "income") {
-        expenseGroup.style.display = "none";
-        incomeGroup.style.display = "block";
-    } else {
-        expenseGroup.style.display = "block";
-        incomeGroup.style.display = "none";
-    }
+    // Always replace full list
+    categorySelect.innerHTML = `<option value="">Select Category</option>` +
+        (currentType === "income" ? incomeOptions : expenseOptions);
 
     categorySelect.value = "";
 }
+
+
+// function updateCategoryOptions() {
+//     const categorySelect = document.getElementById("category");
+
+//     // Detect optgroups by label (Correct for all devices)
+//     const expenseGroup = categorySelect.querySelector('optgroup[label="Expenses"]');
+//     const incomeGroup = categorySelect.querySelector('optgroup[label="Income"]');
+
+//     if (!expenseGroup || !incomeGroup) return;
+
+//     if (currentType === "income") {
+//         expenseGroup.style.display = "none";
+//         incomeGroup.style.display = "block";
+//     } else {
+//         expenseGroup.style.display = "block";
+//         incomeGroup.style.display = "none";
+//     }
+
+//     categorySelect.value = "";
+// }
 
 // Add transaction
 function addTransaction() {
