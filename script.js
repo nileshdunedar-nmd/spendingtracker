@@ -4,178 +4,111 @@ let monthlyBudget = 0;
 
 
 
+let locale = "en-US";
 
-
-function getRegion() {
-    // 1️⃣ Android WebView → Highest priority
-    if (window.androidRegion && window.androidRegion.length === 2) {
-        return window.androidRegion; // e.g. "IN"
-    }
-
-    // 2️⃣ Normal browser → navigator.language
-    try {
-        let locale = navigator.language || "en-US";
-
-        // Example → en-US → US
-        if (locale.includes("-")) {
-            return locale.split("-")[1].toUpperCase();
-        }
-
-    } catch (e) {}
-
-    // 3️⃣ Fallback
-    return "US";
+if (window.androidLocale) {
+    locale = `${window.androidLocale.lang}-${window.androidLocale.region}`;
+} else {
+    locale = navigator.language || "en-US";
 }
 
-function getCurrencyFromRegion(region) {
-    const map = {
-        IN: "INR",
-        US: "USD",
-        GB: "GBP",
-        AE: "AED",
-        SA: "SAR",
-        CA: "CAD",
-        AU: "AUD",
-        PK: "PKR",
-        BD: "BDT",
-        NP: "NPR",
-        LK: "LKR",
-        EU: "EUR",
-        JP: "JPY",
-        KR: "KRW",
-        ID: "IDR",
-        RU: "RUB"
+function getCurrencyFromLocale(loc) {
+    try {
+        const formatter = new Intl.NumberFormat(loc, { style: "currency", currency: "USD" });
+        return formatter.resolvedOptions().currency;
+    } catch (e) {
+        return "USD";
+    }
+}
+
+
+
+
+
+// --- Compatibility wrapper used by older code (keeps older calls working) ---
+function detectCurrency() {
+    // return same shape as previous implementations
+    try {
+        return detectCurrencyByRegion();
+    } catch (e) {
+        return { locale: (navigator.language||'en-US'), region: 'US', currency: 'USD', symbol: '$' };
+    }
+}
+
+// ----------------- CURRENCY GLOBALS (must be at top) -----------------
+let APP_CURRENCY = localStorage.getItem('APP_CURRENCY') || "";
+let currencySymbol = localStorage.getItem('APP_SYMBOL') || ""; // This was causing the error when undefined
+// --------------------------------------------------------------------
+
+// ------------------ REAL CURRENCY DETECTOR ------------------
+
+function detectCurrencyByRegion() {
+    const locale = navigator.language || "en-US";
+
+    // mapping: region -> currency
+    const regionToCurrency = {
+        "IN": "INR",
+        "US": "USD",
+        "GB": "GBP",
+        "JP": "JPY",
+        "KR": "KRW",
+        "FR": "EUR",
+        "DE": "EUR",
+        "SA": "SAR",
+        "RU": "RUB",
+        "ID": "IDR",
+        "BR": "BRL",
+        "CA": "CAD",
+        "AU": "AUD",
+        "CN": "CNY",
+        "TW": "TWD",
+        "SG": "SGD",
+        "AE": "AED",
+        "ZA": "ZAR"
     };
 
-    return map[region] || "USD"; // default fallback
-}
+    let region = locale.split("-")[1];
 
-function detectCurrencySymbol() {
-    const region = getRegion();
-    const currency = getCurrencyFromRegion(region);
-
-    try {
-        const formatter = new Intl.NumberFormat(undefined, {
-            style: "currency",
-            currency: currency
-        }).formatToParts(1);
-
-        const symbol = formatter.find(p => p.type === "currency")?.value;
-
-        console.log(`REGION: ${region} → CURRENCY: ${currency} → SYMBOL: ${symbol}`);
-
-        return symbol || currency;
-    } catch {
-        return currency;
+    // fallback: if device gives only "en" instead of "en-US"
+    if (!region) {
+        try {
+            region = Intl.DateTimeFormat().resolvedOptions().locale.split("-")[1];
+        } catch (e) {}
     }
+
+    let currency = regionToCurrency[region] || "USD";
+
+    let symbol = currency;
+    try {
+        const parts = new Intl.NumberFormat(locale, {
+            style: "currency",
+            currency: currency,
+            currencyDisplay: "symbol"
+        }).formatToParts(1);
+        const cPart = parts.find(p => p.type === "currency");
+        if (cPart && cPart.value) symbol = cPart.value;
+    } catch (e) {
+        // fallback to currency code
+        symbol = currency;
+    }
+    return { locale, region, currency, symbol };
 }
 
-let currencySymbol = detectCurrencySymbol();
+function detectAndUpdateCurrency() {
+    const out = detectCurrencyByRegion();
+
+    APP_CURRENCY = out.currency;
+    currencySymbol = out.symbol;
+
+    localStorage.setItem("APP_CURRENCY", APP_CURRENCY);
+    localStorage.setItem("APP_SYMBOL", currencySymbol);
+
+    console.log("DETECTED:", out.locale, "→", out.currency, out.symbol);
+}
 
 
 
 
-// let locale = "en-US";
-
-// if (window.androidLocale) {
-//     locale = `${window.androidLocale.lang}-${window.androidLocale.region}`;
-// } else {
-//     locale = navigator.language || "en-US";
-// }
-
-// function getCurrencyFromLocale(loc) {
-//     try {
-//         const formatter = new Intl.NumberFormat(loc, { style: "currency", currency: "USD" });
-//         return formatter.resolvedOptions().currency;
-//     } catch (e) {
-//         return "USD";
-//     }
-// }
-
-
-
-
-
-// // --- Compatibility wrapper used by older code (keeps older calls working) ---
-// function detectCurrency() {
-//     // return same shape as previous implementations
-//     try {
-//         return detectCurrencyByRegion();
-//     } catch (e) {
-//         return { locale: (navigator.language||'en-US'), region: 'US', currency: 'USD', symbol: '$' };
-//     }
-// }
-
-// // ----------------- CURRENCY GLOBALS (must be at top) -----------------
-// let APP_CURRENCY = localStorage.getItem('APP_CURRENCY') || "";
-// let currencySymbol = localStorage.getItem('APP_SYMBOL') || ""; // This was causing the error when undefined
-// // --------------------------------------------------------------------
-
-// // ------------------ REAL CURRENCY DETECTOR ------------------
-
-// function detectCurrencyByRegion() {
-//     const locale = navigator.language || "en-US";
-
-//     // mapping: region -> currency
-//     const regionToCurrency = {
-//         "IN": "INR",
-//         "US": "USD",
-//         "GB": "GBP",
-//         "JP": "JPY",
-//         "KR": "KRW",
-//         "FR": "EUR",
-//         "DE": "EUR",
-//         "SA": "SAR",
-//         "RU": "RUB",
-//         "ID": "IDR",
-//         "BR": "BRL",
-//         "CA": "CAD",
-//         "AU": "AUD",
-//         "CN": "CNY",
-//         "TW": "TWD",
-//         "SG": "SGD",
-//         "AE": "AED",
-//         "ZA": "ZAR"
-//     };
-
-//     let region = locale.split("-")[1];
-
-//     // fallback: if device gives only "en" instead of "en-US"
-//     if (!region) {
-//         try {
-//             region = Intl.DateTimeFormat().resolvedOptions().locale.split("-")[1];
-//         } catch (e) {}
-//     }
-
-//     let currency = regionToCurrency[region] || "USD";
-
-//     let symbol = currency;
-//     try {
-//         const parts = new Intl.NumberFormat(locale, {
-//             style: "currency",
-//             currency: currency,
-//             currencyDisplay: "symbol"
-//         }).formatToParts(1);
-//         const cPart = parts.find(p => p.type === "currency");
-//         if (cPart && cPart.value) symbol = cPart.value;
-//     } catch (e) {
-//         // fallback to currency code
-//         symbol = currency;
-//     }
-//     return { locale, region, currency, symbol };
-// }
-
-// function detectAndUpdateCurrency() {
-//     const out = detectCurrencyByRegion();
-
-//     APP_CURRENCY = out.currency;
-//     currencySymbol = out.symbol;
-
-//     localStorage.setItem("APP_CURRENCY", APP_CURRENCY);
-//     localStorage.setItem("APP_SYMBOL", currencySymbol);
-
-//     console.log("DETECTED:", out.locale, "→", out.currency, out.symbol);
-// }
 
 // ✅ 1. Global variables (TOP PE add karo)
 let categoryBudgets = {
@@ -189,8 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---------- INITIAL SETUP ----------
     currentType = 'expense';
-    detectCurrencySymbol()
-    // detectAndUpdateCurrency();      // Set correct symbol first
+    detectAndUpdateCurrency();      // Set correct symbol first
     loadFromLocalStorage();         // Load all saved data
     setDefaultDate();               // Set date fields
     updateCategoryOptions();        // Set category based on type
