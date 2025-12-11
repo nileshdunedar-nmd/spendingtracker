@@ -38,11 +38,11 @@
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-            <button class="tab-btn" onclick="switchTab('add')">Add Expense</button>
-            <button class="tab-btn" onclick="switchTab('budget')">Budget</button>
-            <button class="tab-btn" onclick="switchTab('history')">History</button>
-            <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
+            <button class="tab-btn active" onclick="switchTab('dashboard',event)">Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('add', event)">Add Expense</button>
+            <button class="tab-btn" onclick="switchTab('budget', event)">Budget</button>
+            <button class="tab-btn" onclick="switchTab('history', event)">History</button>
+            <button class="tab-btn" onclick="switchTab('settings', event)">Settings</button>
             
         </div>
 
@@ -107,67 +107,98 @@
         <div id="add" class="tab-content">
             <div class="card">
                 <div class="card-comman">
-                <h3 style="margin-bottom: 5px; font-size: 12px;">Add Transaction</h3>
+                    <h3 class="section-title">Add Transaction</h3>
 
-                <div class="form-group">
-                    <label>Type</label>
-                    <div class="category-badges" style="gap: 12px; font-size: 10; margin-top: 0;">
-                        <button class="category-badge selected" onclick="setType('expense')" data-type="expense">Expense</button>
-                        <button class="category-badge" onclick="setType('income')" data-type="income">Income</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Category</label>
-                    <select id="category" required>
-                        <option value="">Select Category</option>
-                        <optgroup label="Expenses">
-                            <option value="food">🍔 Food & Dining</option>
-                            <option value="groceries">🛒 Groceries</option>
-                            <option value="transport">🚗 Transport</option>
-                            <option value="clothing">👗 Clothing</option>
-                            <option value="debt">💳 Debt</option>
-                            <option value="savings">💰 Savings</option>
-                            <option value="shopping">🛍️ Shopping</option>
-                            <option value="utilities">💡 Utilities</option>
-                            <option value="health">🏥 Health</option>
-                            <option value="travel">✈️ Travel</option>
-                            <option value="housing">🏠 housing </option>
-                            <option value="entertainment">🎬 Entertainment</option>
-                            <option value="education">📚 Education</option>
-                            <option value="other">📌 Other</option>
-                        </optgroup>
-                        <optgroup label="Income">
-                            <option value="salary">💼 Salary</option>
-                            <option value="freelance">💻 Freelance</option>
-                            <option value="investment">📈 Investment</option>
-                            <option value="bonus">🎁 Bonus</option>
-                            <option value="other-income">➕ Other Income</option>
-                        </optgroup>
-                    </select>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
-                        <label>Amount</label>
-                        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="date" id="date" required>
-                    </div>
-                </div>
+                        <!-- <label>Type</label> -->
+                        <label for="type-expense" class="field-label">Type</label>
+                            <button class="category-badge selected"
+                                id="type-expense"
+                                name="transactionType"
+                                onclick="setType('expense')"
+                                data-type="expense">
+                                Expense
+                            </button>
 
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="description" placeholder="Add notes..." rows="2" maxlength="100"></textarea>
-                </div>
-                <div>
-                    <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
-                    <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
-                </div>
+                            <button class="category-badge"
+                                id="type-income"
+                                name="transactionType"
+                                onclick="setType('income')"
+                                data-type="income">
+                                Income
+                            </button>
+                        
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select Category</option>
+
+                            <optgroup label="Expenses">
+                                <option value="food">🍔 Food & Dining</option>
+                                <option value="groceries">🛒 Groceries</option>
+                                <option value="transport">🚗 Transport</option>
+                                <option value="clothing">👗 Clothing</option>
+                                <option value="debt">💳 Debt</option>
+                                <option value="savings">💰 Savings</option>
+                                <option value="shopping">🛍️ Shopping</option>
+                                <option value="utilities">💡 Utilities</option>
+                                <option value="health">🏥 Health</option>
+                                <option value="travel">✈️ Travel</option>
+                                <option value="housing">🏠 Housing</option>
+                                <option value="entertainment">🎬 Entertainment</option>
+                                <option value="education">📚 Education</option>
+                                <option value="other">📌 Other</option>
+                            </optgroup>
+
+                            <optgroup label="Income">
+                                <option value="salary">💼 Salary</option>
+                                <option value="freelance">💻 Freelance</option>
+                                <option value="investment">📈 Investment</option>
+                                <option value="bonus">🎁 Bonus</option>
+                                <option value="other-income">➕ Other Income</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="amount">Amount</label>
+                            <input type="number"
+                                id="amount"
+                                name="amount"
+                                placeholder="0.00"
+                                step="0.01"
+                                min="0"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date"
+                                id="date"
+                                name="date"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description"
+                            name="description"
+                            placeholder="Add notes..."
+                            rows="2"
+                            maxlength="100"></textarea>
+                    </div>
+
+                    <div class="btn-row">
+                        <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
+                        <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                    </div>
                 </div>
             </div>
+
 
             <div class="card">
                 <div class="card-comman">
@@ -184,13 +215,13 @@
         </div>
 
         <!-- Category Budget Tab -->
-            <div id="budget" class="tab-content">
+        <div id="budget" class="tab-content">
             <!-- Existing Total Budget -->
             <div class="card">
                 <div class="card-comman">
                 <h3 style="margin-bottom: 5px; font-size: 12px;">Set Monthly Budget</h3>
                     <div class="form-group">
-                        <label style="font-size: 12px;">Total Monthly Budget Limit</label>
+                        <label for="budgetAmount" style="font-size: 12px;">Total Monthly Budget Limit</label>
                         <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0">
                     </div>
                     <button class="btn btn-primary" onclick="setBudget()">Set Total Budget</button>
@@ -220,7 +251,7 @@
                 
                 <!-- Existing month filter -->
                 <div class="form-group">
-                    <label>Filter by Month</label>
+                    <label for="filterMonth">Filter by Month</label>
                     <input type="month" id="filterMonth">
                 </div>
                 

@@ -1,104 +1,228 @@
 // ✅ Global state
 let transactions = [];
 let monthlyBudget = 0;
-// let categoryBudgets = {};  // Empty initially, loaded from storage
 
-// ✅ Initialize on load
-document.addEventListener('DOMContentLoaded', function() {
+// --- Compatibility wrapper used by older code (keeps older calls working) ---
+function detectCurrency() {
+    // return same shape as previous implementations
+    try {
+        return detectCurrencyByRegion();
+    } catch (e) {
+        return { locale: (navigator.language||'en-US'), region: 'US', currency: 'USD', symbol: '$' };
+    }
+}
+
+// ----------------- CURRENCY GLOBALS (must be at top) -----------------
+let APP_CURRENCY = localStorage.getItem('APP_CURRENCY') || "";
+let currencySymbol = localStorage.getItem('APP_SYMBOL') || ""; // This was causing the error when undefined
+// --------------------------------------------------------------------
+
+// ------------------ REAL CURRENCY DETECTOR ------------------
+
+function detectCurrencyByRegion() {
+    const locale = navigator.language || "en-US";
+
+    // mapping: region -> currency
+    const regionToCurrency = {
+        "IN": "INR",
+        "US": "USD",
+        "GB": "GBP",
+        "JP": "JPY",
+        "KR": "KRW",
+        "FR": "EUR",
+        "DE": "EUR",
+        "SA": "SAR",
+        "RU": "RUB",
+        "ID": "IDR",
+        "BR": "BRL",
+        "CA": "CAD",
+        "AU": "AUD",
+        "CN": "CNY",
+        "TW": "TWD",
+        "SG": "SGD",
+        "AE": "AED",
+        "ZA": "ZAR"
+    };
+
+    let region = locale.split("-")[1];
+
+    // fallback: if device gives only "en" instead of "en-US"
+    if (!region) {
+        try {
+            region = Intl.DateTimeFormat().resolvedOptions().locale.split("-")[1];
+        } catch (e) {}
+    }
+
+    let currency = regionToCurrency[region] || "USD";
+
+    let symbol = currency;
+    try {
+        const parts = new Intl.NumberFormat(locale, {
+            style: "currency",
+            currency: currency,
+            currencyDisplay: "symbol"
+        }).formatToParts(1);
+        const cPart = parts.find(p => p.type === "currency");
+        if (cPart && cPart.value) symbol = cPart.value;
+    } catch (e) {
+        // fallback to currency code
+        symbol = currency;
+    }
+    return { locale, region, currency, symbol };
+}
+
+function detectAndUpdateCurrency() {
+    const out = detectCurrencyByRegion();
+
+    APP_CURRENCY = out.currency;
+    currencySymbol = out.symbol;
+
+    localStorage.setItem("APP_CURRENCY", APP_CURRENCY);
+    localStorage.setItem("APP_SYMBOL", currencySymbol);
+
+    console.log("DETECTED:", out.locale, "→", out.currency, out.symbol);
+}
+
+// ✅ 1. Global variables (TOP PE add karo)
+let categoryBudgets = {
+    food: 0, groceries: 0, transport: 0, clothing: 0, 
+    debt: 0, savings: 0, shopping: 0, utilities: 0,
+    health: 0, travel: 0, housing: 0, entertainment: 0, 
+    education: 0, other: 0
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ---------- INITIAL SETUP ----------
     currentType = 'expense';
-    updateCategoryOptions();  // ✅ initial state
-    loadFromLocalStorage();  // Load ALL data first
-    setDefaultDate();
-    updateDashboard();
-    setFilterMonth();
-    updateBudgetView();      // Refresh budgets
-    updateCategoryBudgetUI(); // Show category inputs
-    // ✅ Search events
+    detectAndUpdateCurrency();      // Set correct symbol first
+    loadFromLocalStorage();         // Load all saved data
+    setDefaultDate();               // Set date fields
+    updateCategoryOptions();        // Set category based on type
+    updateDashboard();              // Update home stats
+    setFilterMonth();               // Set current month
+    updateBudgetView();             // Budget UI
+    updateCategoryBudgetUI();       // Category budget UI
+    filterTransactions();           // Show initial transactions
+
+
+    // ---------- SEARCH + FILTER EVENTS ----------
     const searchInput = document.getElementById('transactionSearch');
     const monthFilter = document.getElementById('filterMonth');
-    
+
     if (searchInput) {
         searchInput.addEventListener('input', filterTransactions);
     }
     if (monthFilter) {
         monthFilter.addEventListener('change', filterTransactions);
     }
-    
-    // Initial load
-    filterTransactions();
-    detectAndUpdateCurrency();
+
+
+    // ---------- CUSTOM CONFIRM BUTTON EVENTS ----------
+    const yesBtn = document.getElementById('confirmYes');
+    const noBtn = document.getElementById('confirmNo');
+    const dialog = document.getElementById('confirmDialog');
+    const msg = document.getElementById('confirmMessage');
+
+    if (yesBtn) {
+        yesBtn.onclick = () => {
+            dialog.style.display = 'none';
+            if (confirmResolve) confirmResolve(true);
+        };
+    }
+
+    if (noBtn) {
+        noBtn.onclick = () => {
+            dialog.style.display = 'none';
+            if (confirmResolve) confirmResolve(false);
+        };
+    }
+
+    // Escape key closes dialog
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && dialog.style.display === 'flex') {
+            if (noBtn) noBtn.click();
+        }
+    });
+
 });
 
-// Currency functions (TOP PE - FIXED)
-let currencySymbol = getCurrencySymbol();
-
-function getCurrencySymbol() {
-    const currency = getUserCurrency();
-    try {
-        const parts = new Intl.NumberFormat(undefined, {
-            style: "currency",
-            currency: currency
-        }).formatToParts(1);
-
-        const symbol = parts.find(p => p.type === "currency")?.value;
-        return symbol || currency;  // fallback
-    } catch {
-        return currency;
-    }
-}
-
-function getUserCurrency() {
-    let locale = Intl.DateTimeFormat().resolvedOptions().locale || "";
-
-    // 1️⃣ Extract region (US, IN, GB…)
-    let region = locale.split("-")[1];
-
-    // 2️⃣ If region NOT found → Detect via timezone
-    if (!region) {
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-
-        if (tz.includes("Kolkata")) region = "IN";
-        else if (tz.includes("London")) region = "GB";
-        else if (tz.includes("Colombo")) region = "LK";
-        else if (tz.includes("Karachi")) region = "PK";
-        else if (tz.includes("Kathmandu")) region = "NP";
-        else if (tz.includes("Dhaka")) region = "BD";
-        else if (tz.includes("Dubai")) region = "AE";
-        else region = "US"; // fallback
-    }
-
-    // 3️⃣ Region → Currency mapping
-    const map = {
-        IN: "INR",
-        US: "USD",
-        GB: "GBP",
-        AE: "AED",
-        SA: "SAR",
-        CA: "CAD",
-        AU: "AUD",
-        PK: "PKR",
-        LK: "LKR",
-        NP: "NPR",
-        BD: "BDT",
-        EU: "EUR"
-    };
-
-    return map[region] || "USD";
-}
-
 function formatMoney(amount) {
-    const absAmount = Math.abs(amount);
-    
-    // Agar inger hai (.00) to sirf whole number dikhao
-    const formattedAmount = absAmount % 1 === 0 
-        ? Math.round(absAmount).toString() 
-        : absAmount.toFixed(2);
-    
+    // ensure currencySymbol is present; if not, run detection synchronously
+    if (!currencySymbol) {
+        const tmp = detectCurrency();
+        APP_CURRENCY = tmp.currency;
+        currencySymbol = tmp.symbol || tmp.currency || "$";
+    }
+
+    const absAmount = Math.abs(amount || 0);
+    const formattedAmount = (absAmount % 1 === 0) ? Math.round(absAmount).toString() : absAmount.toFixed(2);
     const sign = amount < 0 ? '-' : '';
     return sign + currencySymbol + ' ' + formattedAmount;
 }
 
+// Clear all data (safe, uses existing customConfirm and showToast)
+async function clearAllData() {
+    try {
+        // Ask user for confirmation using existing customConfirm()
+        const confirmed = await customConfirm('This will DELETE all transactions and budgets from this device. Are you sure?');
+        if (!confirmed) return;
 
+        // Clear local variables
+        transactions = [];
+        monthlyBudget = 0;
+        // Reset category budgets to defaults (keeps same keys)
+        categoryBudgets = {
+            food: 0, groceries: 0, transport: 0, clothing: 0,
+            debt: 0, savings: 0, shopping: 0, utilities: 0,
+            health: 0, travel: 0, housing: 0, entertainment: 0,
+            education: 0, other: 0
+        };
+
+        // Remove from localStorage
+        try {
+            localStorage.removeItem('spendingTrackerData');
+        } catch (e) {
+            console.warn('Could not remove localStorage key:', e);
+        }
+
+        // If Firebase available, try to delete docs (best-effort, guarded)
+        if (typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firebaseReady !== 'undefined' && firebaseReady) {
+            try {
+                // Warning: deleting many docs could be slow / costly — we do best-effort
+                const snapshot = await db.collection('transactions').get();
+                const batch = db.batch ? db.batch() : null;
+                if (snapshot && !snapshot.empty) {
+                    if (batch) {
+                        snapshot.forEach(doc => batch.delete(doc.ref));
+                        await batch.commit();
+                    } else {
+                        // if no batch API available, delete one-by-one
+                        const deletes = [];
+                        snapshot.forEach(doc => deletes.push(db.collection('transactions').doc(doc.id).delete()));
+                        await Promise.all(deletes);
+                    }
+                }
+                console.log('Firebase: all transactions deleted (if any).');
+            } catch (e) {
+                console.warn('Firebase clear error (ignored):', e);
+            }
+        }
+
+        // Update UI safely (check elements exist)
+        saveToLocalStorage(); // save cleared state (keeps consistent)
+        updateDashboard();
+        updateBudgetView();
+        updateCategoryBudgetUI();
+        updateRecentTransactions();
+        filterTransactions();
+
+        showToast('All data cleared.', 'success', 3500);
+    } catch (err) {
+        console.error('clearAllData error:', err);
+        showToast('Error clearing data. See console.', 'error', 4000);
+    }
+}
 
 // Toast function
 function showToast(message, type = 'info', duration = 3000) {
@@ -126,38 +250,6 @@ function customConfirm(message) {
     document.getElementById('confirmDialog').style.display = 'flex';
   });
 }
-
-// Dialog event listeners
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('confirmYes').onclick = () =>{
-    document.getElementById('confirmDialog').style.display = 'none';
-    if (confirmResolve) confirmResolve(true);
-  };
-
-  document.getElementById('confirmNo').onclick = () => {
-    document.getElementById('confirmDialog').style.display = 'none';
-    if (confirmResolve) confirmResolve(false);
-  };
-
-  // ESC key support
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.getElementById('confirmDialog').style.display === 'flex') {
-      document.getElementById('confirmNo').click();
-    }
-  });
-
-  // ✅ SEARCH LISTENERS
-    document.getElementById('transactionSearch').addEventListener('input', function() {
-        filterTransactions();
-    });
-    
-    document.getElementById('filterMonth').addEventListener('change', filterTransactions);
-    
-    // Initial load
-    setFilterMonth();
-    filterTransactions();
-});
-
 
 // updateDashboard me ye add karo:
 function updateDashboard() {
@@ -201,23 +293,6 @@ function updateDashboard() {
     updateRecentTransactions();
 }
 
-// ✅ INITIALIZE APP (combined)
-    setDefaultDate();
-    loadFromLocalStorage();
-    updateDashboard();
-    setFilterMonth();
-
-    // Currency check har 2 sec
-    setInterval(detectAndUpdateCurrency, 2000);
-
-// Load data on startup
-/*window.addEventListener('DOMContentLoaded', () => {
-    setDefaultDate();
-    loadFromLocalStorage();
-    updateDashboard();
-    setFilterMonth();
-});*/
-
 // Set default date to today
 function setDefaultDate() {
     const today = new Date().toISOString().split("T")[0];
@@ -230,7 +305,6 @@ function setDefaultDate() {
     }
 }
 
-
 // Set filter month to current
 function setFilterMonth() {
     const today = new Date().toISOString().substring(0, 7);
@@ -239,32 +313,35 @@ function setFilterMonth() {
 }
 
 // Switch tabs
-function switchTab(tabName, event) {
+function switchTab(tabName, e) {
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
-    
+
     // Remove active from all buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     // Show selected tab
-    document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');  // Active button
-    
+    const tabEl = document.getElementById(tabName);
+    if (tabEl) tabEl.classList.add('active');
+
+    // mark clicked button active if event provided
+    if (e && e.target) e.target.classList.add('active');
+
     // Refresh content
     if (tabName === 'dashboard') updateDashboard();
     else if (tabName === 'budget') updateBudgetView();
-    else if (tabName === 'history') filterTransactions();  // ✅ History
+    else if (tabName === 'history') filterTransactions();
     else if (tabName === 'add') {
         currentType = "expense";
         updateCategoryOptions();
         resetForm();
     }
-
 }
+
 
 function filterTransactions() {
     const searchTerm = document.getElementById('transactionSearch').value.toLowerCase();
@@ -327,13 +404,16 @@ let currentType = 'expense';  // TOP pe hona chahiye
 function setType(type) {
     currentType = type;
 
-    document.querySelectorAll('[data-type]').forEach(btn => {
-        btn.classList.remove('selected');
-    });
-    event.target.classList.add('selected');
+    // remove selected class from all category badges (use class selector)
+    document.querySelectorAll('.category-badge').forEach(btn => btn.classList.remove('selected'));
 
-    updateCategoryOptions(); // MUST
+    // try find button by id pattern `type-<type>`
+    const btn = document.getElementById('type-' + type);
+    if (btn) btn.classList.add('selected');
+
+    updateCategoryOptions();
 }
+
 
 
 function updateCategoryOptions() {
@@ -355,9 +435,6 @@ function updateCategoryOptions() {
 
     categorySelect.value = "";
 }
-
-
-
 
 // Add transaction
 function addTransaction() {
@@ -388,7 +465,7 @@ function addTransaction() {
     showToast('Transaction added successfully!', 'success');
 }
 // Reset form
-    function resetForm() {
+function resetForm() {
     document.getElementById('amount').value = '';
     document.getElementById('category').value = '';
     document.getElementById('description').value = '';
@@ -491,14 +568,6 @@ function getCategoryEmoji(category) {
     return emojis[category] || '📌';
 }
 
-// ✅ 1. Global variables (TOP PE add karo)
-let categoryBudgets = {
-    food: 0, groceries: 0, transport: 0, clothing: 0, 
-    debt: 0, savings: 0, shopping: 0, utilities: 0,
-    health: 0, travel: 0, housing: 0, entertainment: 0, 
-    education: 0, other: 0
-};
-
 // 2. Load on startup
 loadCategoryBudgets();
 updateCategoryBudgetUI(); // Show UI
@@ -517,6 +586,8 @@ function updateCategoryBudgetUI() {
             <div class="category-name">${getCategoryEmoji(cat)} ${cat}</div>
             <div class="budget-input-wrapper">
                 <input type="number"
+                    id="budget-${cat}"
+                    name="budget-${cat}"
                     value="${budget}"
                     min="0"
                     step="100"
@@ -535,17 +606,26 @@ function updateCategoryBudgetUI() {
     `;
 }
 
-/*function setCategoryBudget(category, budget) {
-    categoryBudgets[category] = budget;
-    updateTotalBudgetDisplay();
-}*/
+// function setCategoryBudget(category, budget) {
+//     categoryBudgets[category] = budget;
+// }
 
 function updateCategoryBudget(category, value) {
     categoryBudgets[category] = parseFloat(value) || 0;
-    // updateTotalBudgetDisplay();
-    updateTotalBudgetFromCategories();   // ✅ har change pe total auto update
-
+    updateTotalBudgetFromCategories();   // recompute total and update UI
 }
+
+function updateTotalBudgetDisplay() {
+    // convenience: shows computed total in budgetAmount + totalCategoryBudget label
+    const total = Object.values(categoryBudgets).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+    monthlyBudget = total;
+    const budgetInput = document.getElementById('budgetAmount');
+    const totalLabel = document.getElementById('totalCategoryBudget');
+
+    if (budgetInput) budgetInput.value = total.toFixed(0);
+    if (totalLabel) totalLabel.textContent = formatMoney(total);
+}
+
 
 // Category Budgets Save
 function saveCategoryBudgets() {
@@ -604,12 +684,11 @@ function updateTotalBudgetFromCategories() {
     updateBudgetView();
 }
 
-
 // ✅ 2. Helper function
 function getCategoryMonthlySpent(category) {
     const currentMonth = new Date().toISOString().substring(0, 7);
     return transactions
-        .filter(t => t.date.substring(0, 7) === currentMonth && 
+        .filter(t => t.date.substring(0, 7) === currentMonth &&                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
                     t.type === 'expense' && t.category === category)
         .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 }
@@ -830,7 +909,6 @@ function exportData() {
     URL.revokeObjectURL(url);
 }
 
-
 function downloadBlob(filename, blob) {
     const reader = new FileReader();
     reader.onload = function () {
@@ -851,7 +929,7 @@ function exportDataAsPDF() {
     let content = "";
     content += "SPENDING TRACKER REPORT\n";
     content += "==================================================\n\n";
-    content += `Generated: ${new Date().toLocaleDateString('en-IN')}\n\n`;
+    content += `Generated: ${new Date().toLocaleDateString()}\n\n`;
 
     let totalIncome = 0, totalExpenses = 0;
     transactions.forEach(t => {
@@ -861,32 +939,28 @@ function exportDataAsPDF() {
 
     content += "SUMMARY\n";
     content += "--------------------------------------------------\n";
-    content += `Total Income: ${currencySymbol}${totalIncome.toFixed(2)}\n`;
-    content += `Total Expenses: ${currencySymbol}${totalExpenses.toFixed(2)}\n`;
-    content += `Balance:${currencySymbol}${(totalIncome - totalExpenses).toFixed(2)}\n`;
-    content += `Monthly Budget:${currencySymbol}${monthlyBudget.toFixed(2)}\n\n`;
+    content += `Total Income: ${currencySymbol} ${totalIncome.toFixed(2)}\n`;
+    content += `Total Expenses: ${currencySymbol} ${totalExpenses.toFixed(2)}\n`;
+    content += `Balance: ${currencySymbol} ${(totalIncome - totalExpenses).toFixed(2)}\n`;
+    content += `Monthly Budget: ${currencySymbol} ${monthlyBudget.toFixed(2)}\n\n`;
 
     content += "ALL TRANSACTIONS\n";
     content += "--------------------------------------------------\n";
 
     transactions.slice().reverse().forEach(t => {
-        content += `${new Date(t.date).toLocaleDateString('en-IN')} | ${t.category} | ${t.description} | ${t.type === 'income' ? '+' : '-'} ${currencySymbol}${t.amount.toFixed(2)}\n`;
+        const sign = t.type === 'income' ? '+' : '-';
+        content += `${new Date(t.date).toLocaleDateString()} | ${t.category} | ${t.description || ''} | ${sign}${currencySymbol} ${t.amount.toFixed(2)}\n`;
     });
 
-    // CREATE PDF-BLOB
     const blob = new Blob([content], { type: "application/pdf" });
     const fileName = `spending-report-${new Date().toISOString().split('T')[0]}.pdf`;
 
-    // ANDROID WEBVIEW EXPORT (BLOB → BASE64)
     if (typeof Android !== "undefined" && Android.downloadFile) {
-
         blobToBase64(blob, function (base64) {
             Android.downloadFile(fileName, base64, "application/pdf");
             showToast("📄 PDF Downloading...");
         });
-
     } else {
-        // NORMAL BROWSER DOWNLOAD
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -929,20 +1003,3 @@ function exportDataAsExcel() {
         showToast("📊 Excel Downloaded!");
     }
 }
-
-
-// ✅ FIXED: Currency LIVE detect
-function detectAndUpdateCurrency() {
-    const newSymbol = getCurrencySymbol();
-    if (newSymbol !== currencySymbol) {
-        currencySymbol = newSymbol;
-        updateDashboard();
-        updateBudgetView();
-        filterByMonth();
-        updateRecentTransactions();
-    }
-}
-
-
-// Har 2 second me check karo (user location change ho sakti hai)
-//setInterval(detectAndUpdateCurrency, 2000);
