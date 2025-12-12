@@ -49,14 +49,12 @@
         <div class="page-content">
 
         <!-- Dashboard Tab -->
-        <div class="budget-arc-container" style="text-align:center; margin:20px 0;">
+            <div id="budgetArcBox" style="width:100%; text-align:center; margin:20px 0;">
 
-    <svg viewBox="0 0 100 50" width="100%" height="120">
-
-        <!-- Gradient -->
+    <svg viewBox="0 0 100 60" width="100%" height="130">
         <defs>
-            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#4E8EA2"/>
+            <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#0A4174"/>
                 <stop offset="100%" stop-color="#7BBDE8"/>
             </linearGradient>
         </defs>
@@ -64,27 +62,30 @@
         <!-- Background Arc -->
         <path id="arc-bg"
               d="M10 50 A40 40 0 0 1 90 50"
-              stroke="#D5E4EF"
-              stroke-width="6"
-              fill="none" />
+              stroke="#D0DFE8"
+              stroke-width="8"
+              fill="none"
+        />
 
         <!-- Progress Arc -->
         <path id="arc-progress"
               d="M10 50 A40 40 0 0 1 90 50"
-              stroke="url(#grad)"
-              stroke-width="6"
+              stroke="url(#arcGrad)"
+              stroke-width="8"
               fill="none"
               stroke-linecap="round"
               stroke-dasharray="126"
-              stroke-dashoffset="126" />
+              stroke-dashoffset="126"
+        />
     </svg>
 
-    <div class="budget-arc-text" style="margin-top:-70px; position:relative;">
-        <div id="arcTotal" style="font-size:18px; font-weight:bold;">₹0</div>
+    <div style="margin-top:-75px; position:relative;">
+        <div id="arcTotal" style="font-size:18px; font-weight:600;">₹0</div>
         <div style="font-size:12px;">Spent: <span id="arcSpent">₹0</span></div>
         <div style="font-size:12px;">Left: <span id="arcLeft">₹0</span></div>
     </div>
 </div>
+
 
         
 
