@@ -49,6 +49,19 @@
         <div class="page-content">
 
         <!-- Dashboard Tab -->
+         <div class="budget-arc-container">
+    <svg viewBox="0 0 100 50" class="budget-arc">
+        <path id="arc-bg" d="M10 50 A40 40 0 0 1 90 50" />
+        <path id="arc-progress" d="M10 50 A40 40 0 0 1 90 50" />
+    </svg>
+
+    <div class="budget-arc-text">
+        <div class="budget-value" id="arcTotal">₹0</div>
+        <div class="budget-sub">Spent: <span id="arcSpent">₹0</span></div>
+        <div class="budget-sub">Left: <span id="arcLeft">₹0</span></div>
+    </div>
+</div>
+
         <div id="dashboard" class="tab-content active">
             <div class="card">
                 <div class="stat-box">
