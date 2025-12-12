@@ -250,7 +250,7 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.6)}
 .budget-value {
     font-size: 20px;
     font-weight: 700;
-    color: #fff;
+    color: #4E8EA2;
 }
 
 .budget-sub {
@@ -264,3 +264,4 @@ svg defs linearGradient stop:first-child {
 svg defs linearGradient stop:last-child {
     stop-color: #7BBDE8;
 }
+
