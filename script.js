@@ -338,6 +338,7 @@ function updateDashboard() {
     
     updateRecentTransactions();
     updateArcBudget(monthlyBudget, monthlyExpense);
+    updateBudgetArc(10000, 3500);
 
 }
 
