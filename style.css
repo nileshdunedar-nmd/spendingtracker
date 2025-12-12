@@ -210,3 +210,57 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.6)}
   .budget-input{width:110px}
   .container{padding:8px}
 }
+
+.budget-arc-container {
+    position: relative;
+    width: 220px;
+    margin: 20px auto;
+}
+
+.budget-arc {
+    width: 100%;
+    height: auto;
+}
+
+#arc-bg {
+    fill: none;
+    stroke: #1E2A47;
+    stroke-width: 10;
+    opacity: 0.3;
+}
+
+#arc-progress {
+    fill: none;
+    stroke: url(#grad);
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 126;
+    stroke-dashoffset: 126;
+    transition: stroke-dashoffset 1s ease;
+}
+
+.budget-arc-text {
+    position: absolute;
+    top: 28%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.budget-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.budget-sub {
+    font-size: 12px;
+    color: #c9d6f0;
+}
+
+svg defs linearGradient stop:first-child {
+    stop-color: #4E8EA2;
+}
+svg defs linearGradient stop:last-child {
+    stop-color: #7BBDE8;
+}
