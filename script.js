@@ -131,7 +131,8 @@ document.addEventListener('DOMContentLoaded', function () {
     updateBudgetView();             // Budget UI
     updateCategoryBudgetUI();       // Category budget UI
     filterTransactions();           // Show initial transactions
-
+    
+    
 
     // ---------- SEARCH + FILTER EVENTS ----------
     const searchInput = document.getElementById('transactionSearch');
@@ -187,6 +188,24 @@ function formatMoney(amount) {
     const sign = amount < 0 ? '-' : '';
     return sign + currencySymbol + ' ' + formattedAmount;
 }
+
+function updateArcBudget(total, spent) {
+    const left = total - spent;
+
+    document.getElementById("arcTotal").innerText = formatMoney(total);
+    document.getElementById("arcSpent").innerText = formatMoney(spent);
+    document.getElementById("arcLeft").innerText = formatMoney(left);
+
+    const percent = Math.min((spent / total) * 100, 100);
+
+    const arcLength = 126; // 1/3 circle
+    const offset = arcLength - (arcLength * percent) / 100;
+
+    document.getElementById("arc-progress").style.strokeDashoffset = offset;
+}
+
+
+
 
 // Clear all data (safe, uses existing customConfirm and showToast)
 async function clearAllData() {
@@ -318,6 +337,8 @@ function updateDashboard() {
     budgetLeftEl.className = budgetLeft >= 0 ? 'stat-value positive' : 'stat-value negative';
     
     updateRecentTransactions();
+    updateArcBudget(monthlyBudget, monthlyExpense);
+
 }
 
 // Set default date to today
