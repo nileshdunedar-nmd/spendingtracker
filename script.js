@@ -189,20 +189,20 @@ function formatMoney(amount) {
     return sign + currencySymbol + ' ' + formattedAmount;
 }
 
-function updateArcBudget(total, spent) {
+
+function updateBudgetArc(total, spent) {
     const left = total - spent;
+    const percent = total > 0 ? (spent / total) * 100 : 0;
 
     document.getElementById("arcTotal").innerText = formatMoney(total);
     document.getElementById("arcSpent").innerText = formatMoney(spent);
     document.getElementById("arcLeft").innerText = formatMoney(left);
 
-    const percent = Math.min((spent / total) * 100, 100);
-
-    const arcLength = 126; // 1/3 circle
-    const offset = arcLength - (arcLength * percent) / 100;
-
-    document.getElementById("arc-progress").style.strokeDashoffset = offset;
+    const arc = document.getElementById("arc-progress");
+    const L = 126; // arc length
+    arc.style.strokeDashoffset = L - (L * percent / 100);
 }
+
 
 
 
