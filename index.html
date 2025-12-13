@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spending Tracker - 3D Dark Glossy</title>
+    <title>Spending Tracker</title>
+    
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    
+    <!-- Firebase v10 compat (namespaced API support) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -975,6 +980,23 @@
     let transactions = [];
     let monthlyBudget = 50000;
 
+    let categoryBudgets = {
+        food: 5000,
+        groceries: 4000,
+        transport: 3000,
+        clothing: 2000,
+        debt: 4000,
+        savings: 5000,
+        shopping: 3000,
+        utilities: 2500,
+        health: 2000,
+        travel: 6000,
+        housing: 8000,
+        entertainment: 2500,
+        education: 3000,
+        other: 2000
+    };
+
     const categoryEmojis = {
         // Expense Categories
         food: '🍔',
@@ -1645,7 +1667,10 @@
         URL.revokeObjectURL(url);
     }
 
-      // ===== FIREBASE CONFIG =====
+// ===== FIREBASE INIT (Script के END में) =====
+window.addEventListener('load', () => {
+    console.log('App Loading...');
+
     const firebaseConfig = {
         apiKey: "AIzaSyCLnj8vRLLjgfWFlu9wU0gK8ZccmpA67GI",
         authDomain: "spendingtracker-a3e9a.firebaseapp.com",
@@ -1657,10 +1682,12 @@
     };
 
 
-    // Initialize Firebase
+        // Initialize Firebase - यह MUST है!
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
+        console.log('✅ Firebase initialized');
     }
+});
 
     // ===== LOAD FROM FIREBASE =====
     function loadTransactionsFromFirebase() {
