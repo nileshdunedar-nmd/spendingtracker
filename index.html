@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spending Tracker</title>
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Firebase v10 compat (namespaced API support) -->
+    <title>Spending Tracker - 3D Dark Glossy</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
     <style>
         * {
@@ -85,6 +81,58 @@
             margin: 0 auto;
             padding: 16px;
             padding-bottom: 100px;
+        }
+
+        .user-profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #1E90FF, #0A4174);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(30, 144, 255, 0.3);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(30, 144, 255, 0.4);
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-size: 12px;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .logout-link {
+            background: none;
+            border: none;
+            color: #9CA3AF;
+            font-size: 11px;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.2s;
+            padding: 0;
+        }
+
+        .logout-link:hover {
+            color: #EF4444;
         }
 
         /* ===== AUTH SCREEN ===== */
@@ -173,6 +221,34 @@
             text-decoration: none;
         }
 
+        .auth-tab {
+            display: none;
+        }
+
+        .auth-tab.active {
+            display: block;
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            color: #9CA3AF;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .auth-tab-btn.active {
+            background: linear-gradient(135deg, #1E90FF, #0A4174);
+            border-color: #1E90FF;
+            color: white;
+        }
+
+
         .hidden { display: none !important; }
 
         /* ===== HEADER ===== */
@@ -216,13 +292,13 @@
         }
 
         .header-text h2 {
-            font-size: 18px;
+            font-size: 16px;
             color: white;
             margin: 0;
         }
 
         .header-text p {
-            font-size: 12px;
+            font-size: 11px;
             color: #9CA3AF;
             margin: 0;
         }
@@ -292,23 +368,23 @@
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 11px;
             color: #6EA2B3;
             font-weight: 500;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
             color: white;
             margin-bottom: 4px;
         }
 
         .stat-change {
-            font-size: 11px;
+            font-size: 10px;
             color: #9CA3AF;
         }
 
@@ -363,7 +439,8 @@
         .chart-title {
             font-size: 14px;
             font-weight: 600;
-            margin-bottom: 12px;
+            color: var(--gray-600);
+            margin-bottom: 10px;
             color: white;
         }
 
@@ -393,7 +470,7 @@
             cursor: pointer;
             padding: 8px 12px;
             transition: all 0.2s;
-            font-size: 20px;
+            font-size: 16px;
         }
 
         .nav-btn.active {
@@ -403,7 +480,7 @@
 
         .nav-label {
             font-size: 10px;
-            font-weight: 600;
+            font-weight: 500;
         }
 
         /* ===== CONTENT SECTIONS ===== */
@@ -422,20 +499,20 @@
 
         .form-label {
             display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
+            font-size: 12px;
+            font-weight: 400;
+            margin-bottom: 5px;
             color: white;
         }
 
         .form-input, .form-select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 8px 10px;
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 10px;
             color: white;
-            font-size: 13px;
+            font-size: 12px;
             transition: all 0.2s;
         }
 
@@ -489,13 +566,13 @@
 
         .btn-add {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background: linear-gradient(135deg, #1E90FF, #0A4174);
             background-clip: padding-box;
             color: white;
             border: none;
-            border-radius: 12px;
-            font-weight: 600;
+            border-radius: 10px;
+            font-weight: 500;
             cursor: pointer;
             box-shadow: 0 8px 24px rgba(30, 144, 255, 0.3);
             transition: all 0.2s;
@@ -530,24 +607,24 @@
         }
 
         .transaction-icon {
-            width: 36px;
-            height: 36px;
+            width: 10px;
+            height: 10px;
             background: rgba(30, 144, 255, 0.2);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 14px;
         }
 
         .transaction-info h4 {
-            font-size: 13px;
+            font-size: 12px;
             margin: 0;
             color: white;
         }
 
         .transaction-info p {
-            font-size: 11px;
+            font-size: 10px;
             margin: 2px 0 0;
             color: #9CA3AF;
         }
@@ -557,8 +634,8 @@
         }
 
         .transaction-amount .amount {
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 300;
             color: white;
         }
 
@@ -568,7 +645,7 @@
         /* ===== SEARCH ===== */
         .search-box {
             position: relative;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .search-box input {
@@ -578,7 +655,7 @@
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 12px;
             color: white;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .search-box input::placeholder { color: rgba(255,255,255,0.5); }
@@ -604,13 +681,13 @@
         }
 
         .settings-item-left h4 {
-            font-size: 13px;
+            font-size: 12px;
             margin: 0;
             color: white;
         }
 
         .settings-item-left p {
-            font-size: 11px;
+            font-size: 10px;
             margin: 4px 0 0;
             color: #9CA3AF;
         }
@@ -629,11 +706,11 @@
         }
 
         .settings-toggle {
-            width: 48px;
-            height: 28px;
+            width: 36px;
+            height: 18px;
             background: rgba(255,255,255,0.1);
             border: none;
-            border-radius: 14px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -658,160 +735,6 @@
             .stat-card { padding: 12px; }
             .stat-value { font-size: 20px; }
         }
-
-
-
-        /* Green-Blue Glass Morphism - replace/override previous glass styles */
-.glass {
-    background: linear-gradient(180deg, rgba(6, 30, 48, 0.45), rgba(3, 53, 78, 0.35));
-    backdrop-filter: blur(12px) saturate(1.05);
-    -webkit-backdrop-filter: blur(12px) saturate(1.05);
-    border: 1px solid rgba(60, 192, 255, 0.10);
-    border-radius: 16px;
-    box-shadow:
-        0 8px 30px rgba(3, 45, 70, 0.40),
-        0 0 40px rgba(40, 200, 255, 0.03) inset;
-    color: #E6F9FF;
-}
-
-/* Cards with stronger green-blue tint */
-.glass-card {
-    background: linear-gradient(135deg, rgba(8, 96, 140, 0.26), rgba(2, 34, 58, 0.28));
-    backdrop-filter: blur(14px) saturate(1.05);
-    -webkit-backdrop-filter: blur(14px) saturate(1.05);
-    border: 1px solid rgba(46, 195, 255, 0.12);
-    border-radius: 18px;
-    padding: 18px;
-    margin-bottom: 14px;
-    box-shadow:
-        0 10px 40px rgba(2, 40, 60, 0.45),
-        inset 0 1px 0 rgba(255,255,255,0.02);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    color: #E6F9FF;
-}
-.glass-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 18px 50px rgba(5, 80, 120, 0.45), 0 0 40px rgba(46,195,255,0.06) inset;
-}
-
-/* Stat cards - subtle glass + neon accent */
-.stat-card {
-    background: linear-gradient(180deg, rgba(10, 56, 86, 0.22), rgba(4, 28, 46, 0.28));
-    border: 1px solid rgba(46,195,255,0.10);
-    border-radius: 14px;
-    padding: 16px;
-    box-shadow: inset 0 2px 20px rgba(46,195,255,0.02);
-    transition: transform 0.18s;
-}
-.stat-card:hover { transform: translateY(-4px); }
-
-/* Transaction items */
-.transaction-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background: linear-gradient(180deg, rgba(4,38,58,0.30), rgba(6,60,90,0.20));
-    border-radius: 12px;
-    margin-bottom: 10px;
-    border: 1px solid rgba(46,195,255,0.06);
-    box-shadow: 0 6px 20px rgba(3,35,50,0.35);
-    transition: background 0.18s, transform 0.18s;
-}
-.transaction-item:hover {
-    background: linear-gradient(180deg, rgba(6,60,90,0.36), rgba(10,90,130,0.22));
-    transform: translateY(-3px);
-}
-
-/* Transaction icon accent */
-.transaction-icon {
-    background: linear-gradient(135deg, rgba(34, 183, 255, 0.12), rgba(12, 102, 140, 0.20));
-    border: 1px solid rgba(46,195,255,0.08);
-    color: #DFF8FF;
-}
-
-/* Settings items */
-.settings-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px;
-    background: linear-gradient(180deg, rgba(6, 40, 62, 0.30), rgba(10, 70, 100, 0.20));
-    border-radius: 12px;
-    margin-bottom: 10px;
-    border: 1px solid rgba(46,195,255,0.07);
-    box-shadow: 0 6px 20px rgba(2,34,50,0.30);
-}
-
-/* Header glass look */
-.header {
-    background: linear-gradient(180deg, rgba(6, 36, 56, 0.6), rgba(8, 60, 86, 0.45));
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(46,195,255,0.08);
-    padding: 16px;
-    border-radius: 0 0 20px 20px;
-    margin-bottom: 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 6px 24px rgba(2, 28, 44, 0.45);
-}
-
-/* Auth card */
-.auth-card {
-    background: linear-gradient(135deg, rgba(6, 50, 76, 0.55), rgba(4, 30, 46, 0.42));
-    border: 1px solid rgba(46,195,255,0.10);
-    padding: 24px;
-    border-radius: 18px;
-    box-shadow: 0 18px 50px rgba(3, 45, 70, 0.55);
-    color: #E6F9FF;
-}
-
-/* Buttons - green/blue gradient */
-.auth-btn,
-.btn-add {
-    background: linear-gradient(135deg, #1e90ff, #10b981);
-    color: #fff;
-    border: none;
-    box-shadow: 0 10px 28px rgba(16,185,129,0.12);
-    transition: transform 0.18s, box-shadow 0.18s;
-}
-.auth-btn:hover,
-.btn-add:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 40px rgba(16,185,129,0.16);
-}
-
-/* Bottom nav glass */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(180deg, rgba(3, 34, 52, 0.9), rgba(2,26,40,0.95));
-    backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(46,195,255,0.06);
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    z-index: 200;
-}
-
-/* Light mode adjustments */
-body.light-mode .glass,
-body.light-mode .glass-card,
-body.light-mode .stat-card,
-body.light-mode .transaction-item,
-body.light-mode .settings-item {
-    background: linear-gradient(180deg, rgba(235, 249, 255, 0.65), rgba(220, 245, 255, 0.60));
-    color: #043044;
-    border: 1px solid rgba(30, 144, 255, 0.12);
-    box-shadow: 0 8px 30px rgba(30,144,255,0.06);
-}
-
-/* small polish */
-.chart-title, .progress-label, .form-label, .stat-label { color: #DFF8FF; }
-body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .form-label, body.light-mode .stat-label { color: #043044; }
     </style>
 </head>
 <body>
@@ -823,15 +746,62 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         <h1 id="authTitle">Login</h1>
         <p>Track your spending smartly</p>
         
-        <input type="email" class="auth-input" id="authEmail" placeholder="Email address">
-        <input type="password" class="auth-input" id="authPassword" placeholder="Password">
-        <input type="password" class="auth-input hidden" id="authConfirmPassword" placeholder="Confirm password">
-        
-        <button class="auth-btn" onclick="handleAuth()">Login</button>
-        
-        <div class="auth-toggle">
-            <span id="toggleText">Don't have account? </span>
-            <a onclick="toggleAuthMode()">Sign up</a>
+        <!-- Tab Buttons -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <button class="auth-tab-btn active" onclick="switchAuthTab('email')">Email</button>
+            <button class="auth-tab-btn" onclick="switchAuthTab('pin')">PIN</button>
+            <button class="auth-tab-btn" onclick="switchAuthTab('biometric')">Biometric</button>
+        </div>
+
+        <!-- EMAIL TAB -->
+        <div id="emailTab" class="auth-tab active">
+            <input type="email" class="auth-input" id="authEmail" placeholder="Email address">
+            <input type="password" class="auth-input" id="authPassword" placeholder="Password">
+            <input type="password" class="auth-input hidden" id="authConfirmPassword" placeholder="Confirm password">
+            
+            <button class="auth-btn" onclick="handleAuth('email')">Login</button>
+            
+            <div class="auth-toggle">
+                <span id="toggleText">Don't have account? </span>
+                <a onclick="toggleAuthMode()">Sign up</a>
+            </div>
+        </div>
+
+        <!-- PIN TAB -->
+        <div id="pinTab" class="auth-tab hidden">
+            <div style="margin-bottom:16px;">
+                <p style="color:#9CA3AF;font-size:12px;margin-bottom:12px;">First time? Set a 4-digit PIN</p>
+                <input type="text" class="auth-input" id="pinEmail" placeholder="Email address">
+                <input type="password" class="auth-input" id="setPIN" placeholder="4-digit PIN" maxlength="4" inputmode="numeric">
+                <input type="password" class="auth-input" id="confirmPIN" placeholder="Confirm PIN" maxlength="4" inputmode="numeric">
+                <button class="auth-btn" onclick="handleAuth('setPin')">Set PIN</button>
+            </div>
+            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);margin:16px 0;">
+            <div>
+                <p style="color:#9CA3AF;font-size:12px;margin-bottom:12px;">Login with PIN</p>
+                <input type="text" class="auth-input" id="loginEmail" placeholder="Email address">
+                <input type="password" class="auth-input" id="loginPIN" placeholder="4-digit PIN" maxlength="4" inputmode="numeric">
+                <button class="auth-btn" onclick="handleAuth('loginPin')">Login with PIN</button>
+            </div>
+        </div>
+
+        <!-- BIOMETRIC TAB -->
+        <div id="biometricTab" class="auth-tab hidden">
+            <div style="text-align:center;padding:20px 0;">
+                <div style="font-size:64px;margin-bottom:20px;">👆</div>
+                <p style="color:#9CA3AF;margin-bottom:16px;">Enable Biometric Login</p>
+                <button class="auth-btn" style="background:linear-gradient(135deg,#10B981,#059669);" onclick="enableBiometric()">
+                    Enable Fingerprint/Face
+                </button>
+                <p style="color:#6EA2B3;font-size:11px;margin-top:12px;">Must have a PIN set first</p>
+            </div>
+            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);margin:16px 0;">
+            <div style="text-align:center;">
+                <p style="color:#9CA3AF;font-size:12px;margin-bottom:12px;">Login with Biometric</p>
+                <button class="auth-btn" style="background:linear-gradient(135deg,#0A4174,#1E90FF);" onclick="handleAuth('biometric')">
+                    🔓 Use Fingerprint/Face
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -848,9 +818,16 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
                     <p id="headerDate"></p>
                 </div>
             </div>
-            <button class="header-btn" onclick="logout()">👤</button>
+            <div class="user-profile-section">
+                <div class="user-avatar" id="userAvatar">👤</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">User</div>
+                    <button class="logout-link" onclick="logout()">Logout</button>
+                </div>
+            </div>
         </div>
     </div>
+
 
     <!-- Main Container -->
     <div class="container">
@@ -858,7 +835,7 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         <div id="dashboardPage" class="page active">
             <!-- Alert -->
             <div class="alert">
-                <div class="alert-icon">✅</div>
+                <!-- <div class="alert-icon">✅</div> -->
                 <div class="alert-text">
                     <h4>Budget Alert</h4>
                     <p id="alertText">You're spending well! Keep it up.</p>
@@ -873,12 +850,12 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
                     <div class="stat-change" id="balanceChange">+5% this month</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">This Month</div>
+                    <div class="stat-label">This Month Expense</div>
                     <div class="stat-value" id="monthlyExpense">₹0</div>
                     <div class="stat-change negative" id="expenseChange">-₹500</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Income</div>
+                    <div class="stat-label">Total Income</div>
                     <div class="stat-value" id="totalIncome">₹0</div>
                     <div class="stat-change positive">+2 transactions</div>
                 </div>
@@ -918,7 +895,7 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
 
             <!-- Recent Transactions -->
             <div class="glass-card">
-                <div class="chart-title">🕐 Recent Transactions</div>
+                <div class="chart-title" style="color: var(--gray-600);">Recent Transactions</div>
                 <div id="recentTransactions"></div>
             </div>
         </div>
@@ -926,7 +903,7 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         <!-- ===== ADD TRANSACTION PAGE ===== -->
         <div id="addPage" class="page">
             <div class="glass-card">
-                <h3 style="color:white;margin-bottom:16px;">Add Transaction</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:14px;">Add Transaction</h3>
                 
                 <div class="type-toggle">
                     <button class="type-btn active" onclick="setType('expense')" data-type="expense">Expense</button>
@@ -963,14 +940,16 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Amount</label>
-                    <input type="number" class="form-input" id="amount" placeholder="0.00">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Date</label>
-                    <input type="date" class="form-input" id="transDate">
+                <!-- Amount & Date in same row -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-input" id="amount" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" id="transDate">
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -983,12 +962,15 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
                     <input type="text" class="form-input" id="tags" placeholder="e.g., work, urgent, recurring">
                 </div>
 
-                <button class="btn-add" onclick="addTransaction()">Add Transaction</button>
-                <button class="btn-add" style="background: linear-gradient(135deg, #6EA2B3, #4E8EA2); margin-top: 8px;" onclick="resetAddForm()">Clear</button>
+                <!-- Add & Clear buttons in same row -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <button class="btn-add" onclick="addTransaction()">Add Transaction</button>
+                    <button class="btn-add" style="background: linear-gradient(135deg, #6EA2B3, #4E8EA2);" onclick="resetAddForm()">Clear</button>
+                </div>
             </div>
 
             <div class="glass-card" style="margin-top:20px;">
-                <h3 style="color:white;margin-bottom:16px;">📋 Quick Stats</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:16px;">📋 Quick Stats</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; color: #9CA3AF; margin-bottom: 4px;">Total Added</div>
@@ -999,15 +981,49 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
                         <div style="font-size: 20px; font-weight: 700; color: #1E90FF;" id="transactionCount">0</div>
                     </div>
                 </div>
-                <h3 style="color:white;margin-bottom:16px;margin-top:20px;">Last 5 Transactions</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:16px;margin-top:20px;">Last 5 Transactions</h3>
                 <div id="lastTransactions"></div>
+            </div>
+        </div>
+
+        <!-- ===== BUDGET PAGE ===== -->
+        <div id="budgetPage" class="page">
+            <div class="glass-card">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                
+                    <div style="flex:1;">
+                        <h3 style="color: var(--gray-600);margin:0;font-size:14px;">Set Category Budgets</h3>
+                        <p style="color:#9CA3AF;margin:4px 0 0;font-size:11px;">Total = Monthly Budget</p>
+                    </div>
+                    <div style="text-align:right;background:rgba(30,144,255,0.1);padding:8px 12px;border-radius:8px;">
+                        <div style="color:#9CA3AF;font-size:10px;">Total</div>
+                        <div style="color:#1E90FF;font-size:16px;font-weight:700;" id="budgetTotal">₹0</div>
+                    </div>
+                </div>
+                <div id="budgetCategoryList" style="max-height:500px;overflow-y:auto;"></div>
+                <button class="btn-add" style="margin-top:14px;background:linear-gradient(135deg,#10B981,#059669);" onclick="setAllBudgets()">
+                    ✅ Set All Budgets
+                </button>
+            </div>
+
+            <div class="glass-card" style="margin-top:16px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                    <span style="font-size:24px;">💡</span>
+                    <h3 style="color: var(--gray-600);margin:0;font-size:14px;">Budget Tips</h3>
+                </div>
+                <div style="color:#9CA3AF;font-size:11px;line-height:1.6;">
+                    <p>📌 Allocate 50-60% for needs (food, housing, transport)</p>
+                    <p>📌 Keep 20-30% for wants (entertainment, shopping)</p>
+                    <p>📌 Save 10-20% for future goals</p>
+                    <p>📌 Review and adjust monthly</p>
+                </div>
             </div>
         </div>
 
         <!-- ===== ANALYTICS PAGE ===== -->
         <div id="analyticsPage" class="page">
             <div class="glass-card">
-                <h3 style="color:white;margin-bottom:16px;">📊 Monthly Report</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:16px;">📊 Monthly Report</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; color: #9CA3AF; margin-bottom: 4px;">Total Budget</div>
@@ -1046,7 +1062,7 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
             </div>
 
             <div class="glass-card">
-                <h3 style="color:white;margin-bottom:16px;">📈 Category Budget Breakdown</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:14px;">Category Budget Breakdown</h3>
                 <div id="categoryBudgetList"></div>
             </div>
         </div>
@@ -1054,14 +1070,9 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         <!-- ===== HISTORY PAGE ===== -->
         <div id="historyPage" class="page">
             <div class="glass-card">
-                <h3 style="color:white;margin-bottom:14px;">🔍 Search Transactions</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:14px;">Search Transactions</h3>
                 <div class="search-box" style="position: relative; margin-bottom: 12px;">
                     <input type="text" id="searchInput" placeholder="Search transactions..." onkeyup="updateHistory()">
-                </div>
-                
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn-add" style="flex: 1; background: linear-gradient(135deg, #10B981, #059669);" onclick="exportDataPDF()">📥 Export PDF</button>
-                    <button class="btn-add" style="flex: 1; background: linear-gradient(135deg, #6EA2B3, #4E8EA2);" onclick="exportDataCSV()">📊 Export CSV</button>
                 </div>
             </div>
             <div id="historyList"></div>
@@ -1070,7 +1081,7 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         <!-- ===== SETTINGS PAGE ===== -->
         <div id="settingsPage" class="page">
             <div class="glass-card">
-                <h3 style="color:white;margin-bottom:16px;">Settings</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:14px;">Settings</h3>
                 
                 <div class="settings-item">
                     <div class="settings-item-left">
@@ -1094,7 +1105,10 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
                         <p id="settingsBudget" style="color: #10B981; font-weight: 600;">0</p>
                     </div>
                 </div>
-
+                <div style="display: flex; gap: 8px; margin-top:10px;">
+                    <button class="btn-add" style="flex: 1; background: linear-gradient(135deg, #10B981, #059669);" onclick="exportDataPDF()">📥 Export PDF</button>
+                    <button class="btn-add" style="flex: 1; background: linear-gradient(135deg, #6EA2B3, #4E8EA2);" onclick="exportDataCSV()">📊 Export CSV</button>
+                </div>
                 <button class="btn-add" style="margin-top:20px;" onclick="logout()">Logout</button>
             </div>
         </div>
@@ -1103,23 +1117,27 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
         <button class="nav-btn active" onclick="switchPage('dashboard')">
-            <span>📊</span>
+            <img src="asset/dashboard.png" style="width:20px;height:20px;">
             <span class="nav-label">Dashboard</span>
         </button>
         <button class="nav-btn" onclick="switchPage('add')">
-            <span>➕</span>
+            <img src="asset/add.png" style="width:20px;height:20px;">
             <span class="nav-label">Add</span>
         </button>
-        <button class="nav-btn" onclick="switchPage('analytics')">
-            <span>📈</span>
+        <button class="nav-btn" onclick="switchPage('budget')">
+            <img src="asset/transaction.png" style="width:20px;height:20px;">
             <span class="nav-label">Budget</span>
         </button>
+        <button class="nav-btn" onclick="switchPage('analytics')">
+            <img src="asset/graph.png" style="width:20px;height:20px;">
+            <span class="nav-label">Analytics</span>
+        </button>
         <button class="nav-btn" onclick="switchPage('history')">
-            <span>🕐</span>
+            <img src="asset/watch.png" style="width:20px;height:20px;">
             <span class="nav-label">History</span>
         </button>
         <button class="nav-btn" onclick="switchPage('settings')">
-            <span>⚙️</span>
+            <img src="asset/setting.png" style="width:20px;height:20px;">
             <span class="nav-label">Settings</span>
         </button>
     </div>
@@ -1133,7 +1151,6 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
     let currentType = 'expense';
     let transactions = [];
     let monthlyBudget = 50000;
-
     let categoryBudgets = {
         food: 5000,
         groceries: 4000,
@@ -1206,7 +1223,211 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         }
     }
 
-    // ===== AUTH =====
+        // ===== AUTH TABS =====
+    function switchAuthTab(tab) {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(tab + 'Tab').classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // ===== BIOMETRIC API =====
+    async function enableBiometric() {
+        const email = prompt('Enter email for biometric:');
+        const pin = prompt('Enter your 4-digit PIN:');
+        
+        if (!email || !pin || pin.length !== 4) {
+            alert('Invalid email or PIN');
+            return;
+        }
+        
+        // Check WebAuthn support
+        if (!window.PublicKeyCredential) {
+            alert('Biometric not supported on this device');
+            return;
+        }
+        
+        try {
+            // Create biometric credential
+            const credential = await navigator.credentials.create({
+                publicKey: {
+                    challenge: new Uint8Array(32),
+                    rp: { name: "Spending Tracker" },
+                    user: {
+                        id: new Uint8Array(16),
+                        name: email,
+                        displayName: email
+                    },
+                    pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                    timeout: 60000,
+                    attestation: "none"
+                }
+            });
+            
+            if (credential) {
+                // Save to localStorage
+                const bioData = {
+                    email: email,
+                    pin: btoa(pin), // Basic encoding (not secure, use proper encryption in production)
+                    credentialId: credential.id,
+                    biometricEnabled: true
+                };
+                localStorage.setItem('biometricData', JSON.stringify(bioData));
+                showNotification('✅ Biometric enabled! Use fingerprint/face to login', 'success');
+                switchAuthTab('biometric');
+            }
+        } catch (err) {
+            console.error('Biometric setup failed:', err);
+            alert('Biometric setup failed: ' + err.message);
+        }
+    }
+
+    async function handleBiometricLogin() {
+        const bioData = localStorage.getItem('biometricData');
+        if (!bioData) {
+            alert('No biometric data found. Set it up first.');
+            return;
+        }
+        
+        try {
+            const parsed = JSON.parse(bioData);
+            
+            // Verify with biometric
+            const assertion = await navigator.credentials.get({
+                publicKey: {
+                    challenge: new Uint8Array(32),
+                    timeout: 60000,
+                    userVerification: "preferred"
+                }
+            });
+            
+            if (assertion) {
+                // Auto-login with stored email & PIN
+                await loginWithPin(parsed.email, atob(parsed.pin));
+            }
+        } catch (err) {
+            console.error('Biometric login failed:', err);
+            showNotification('❌ Biometric verification failed', 'error');
+        }
+    }
+
+    // ===== PIN FUNCTIONS =====
+    async function handlePinSetup() {
+        const email = document.getElementById('pinEmail').value;
+        const pin = document.getElementById('setPIN').value;
+        const confirmPin = document.getElementById('confirmPIN').value;
+        
+        if (!email || pin.length !== 4 || pin !== confirmPin) {
+            alert('Invalid input or PINs do not match');
+            return;
+        }
+        
+        try {
+            // Create Firebase account first
+            const userCred = await firebase.auth().createUserWithEmailAndPassword(email, 'temp' + pin + Date.now());
+            
+            // Store PIN in Realtime DB
+            await firebase.database().ref('users/' + userCred.user.uid + '/security').set({
+                pinHash: btoa(pin),
+                biometricEnabled: false
+            });
+            
+            showNotification('✅ PIN set successfully!', 'success');
+            switchAuthTab('pin');
+            document.getElementById('pinEmail').value = '';
+            document.getElementById('setPIN').value = '';
+            document.getElementById('confirmPIN').value = '';
+        } catch (err) {
+            alert('Setup failed: ' + err.message);
+        }
+    }
+
+    async function loginWithPin(email, pin) {
+        try {
+            // Find user by email
+            const snapshot = await firebase.database().ref('users').orderByChild('email').equalTo(email).once('value');
+            
+            if (!snapshot.exists()) {
+                alert('Email not found');
+                return;
+            }
+            
+            // Verify PIN
+            const userData = Object.values(snapshot.val())[0];
+            if (atob(userData.security.pinHash) !== pin) {
+                alert('Invalid PIN');
+                return;
+            }
+            
+            // Auto-login (store session)
+            sessionStorage.setItem('pinnedUser', email);
+            isLoggedIn = true;
+            showNotification('✅ Logged in with PIN!', 'success');
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            updateDashboard();
+        } catch (err) {
+            console.error('PIN login error:', err);
+            alert('Login failed: ' + err.message);
+        }
+    }
+
+    // ===== MAIN AUTH HANDLER =====
+    async function handleAuth(method = 'email') {
+        if (method === 'email') {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            
+            if (!email || !password) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            try {
+                if (isSignup) {
+                    const userCred = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                    currentUser = userCred.user;
+                    isLoggedIn = true;
+                    showNotification('✅ Account created!', 'success');
+                } else {
+                    const userCred = await firebase.auth().signInWithEmailAndPassword(email, password);
+                    currentUser = userCred.user;
+                    isLoggedIn = true;
+                    showNotification('✅ Logged in!', 'success');
+                }
+                
+                loadTransactionsFromFirebase();
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+                updateUserName();
+                updateDashboard();
+                updateBudgetDisplay();
+                setDefaultDate();
+            } catch (error) {
+                alert('Auth error: ' + error.message);
+            }
+        } 
+        else if (method === 'setPin') {
+            await handlePinSetup();
+        }
+        else if (method === 'loginPin') {
+            const email = document.getElementById('loginEmail').value;
+            const pin = document.getElementById('loginPIN').value;
+            
+            if (!email || pin.length !== 4) {
+                alert('Invalid input');
+                return;
+            }
+            
+            await loginWithPin(email, pin);
+        }
+        else if (method === 'biometric') {
+            await handleBiometricLogin();
+        }
+    }
+
+    // ===== UPDATE TOGGLE FOR PIN/BIOMETRIC =====
     function toggleAuthMode() {
         isSignup = !isSignup;
         const titleEl = document.getElementById('authTitle');
@@ -1224,68 +1445,28 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         }
     }
 
-    function handleAuth() {
-        const email = document.getElementById('authEmail').value;
-        const password = document.getElementById('authPassword').value;
-        
-        if (!email || !password) {
-            alert('Please fill all fields');
-            return;
-        }
-
-        if (isSignup) {
-            // Firebase Sign Up
-            firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    currentUser = userCredential.user;
-                    isLoggedIn = true;
-                    showNotification('✅ Account created successfully!');
-                    loadTransactionsFromFirebase();
-                    document.getElementById('authScreen').classList.add('hidden');
-                    document.getElementById('app').classList.remove('hidden');
-                    updateDashboard();
-                    updateBudgetDisplay();
-                    setDefaultDate();
-                })
-                .catch((error) => {
-                    alert('Sign up error: ' + error.message);
-                });
-        } else {
-            // Firebase Login
-            firebase.auth().signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    currentUser = userCredential.user;
-                    isLoggedIn = true;
-                    showNotification('✅ Logged in successfully!');
-                    loadTransactionsFromFirebase();
-                    document.getElementById('authScreen').classList.add('hidden');
-                    document.getElementById('app').classList.remove('hidden');
-                    updateDashboard();
-                    updateBudgetDisplay();
-                    setDefaultDate();
-                })
-                .catch((error) => {
-                    alert('Login error: ' + error.message);
-                });
-        }
-    }
-
+    // ===== LOGOUT =====
     function logout() {
         firebase.auth().signOut().then(() => {
             isLoggedIn = false;
             currentUser = null;
             transactions = [];
             
+            document.getElementById('userAvatar').textContent = '👤';  // ← add करो
+            document.getElementById('userName').textContent = 'User';   // ← add करो
+
+            // document.getElementById('userNameDisplay').textContent = '';
             document.getElementById('authScreen').classList.remove('hidden');
             document.getElementById('app').classList.add('hidden');
             document.getElementById('authEmail').value = '';
             document.getElementById('authPassword').value = '';
             document.getElementById('authConfirmPassword').value = '';
-            showNotification('👋 Logged out successfully');
+            showNotification('👋 Logged out successfully', 'success');
         }).catch((error) => {
             alert('Logout error: ' + error.message);
         });
     }
+
 
     // ===== NAVIGATION =====
     function switchPage(page) {
@@ -1299,6 +1480,7 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         
         if (page === 'history') updateHistory();
         if (page === 'analytics') updateAnalytics();
+        if (page === 'budget') renderBudgetCategoryList();
     }
 
     // ===== DASHBOARD =====
@@ -1313,6 +1495,24 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         const date = new Date().toLocaleDateString('en-IN', options);
         document.getElementById('headerDate').textContent = date;
     }
+
+    function updateUserName() {
+        if (currentUser && currentUser.email) {
+            const fullEmail = currentUser.email;
+            const userName = fullEmail.split('@')[0]; // "john@gmail.com" → "john"
+            const firstLetter = userName.charAt(0).toUpperCase();
+            
+            // Avatar: first letter or emoji
+            const avatarEmojis = ['🎯', '💎', '🚀', '⭐', '🎨', '🔥', '💡', '👑'];
+            const avatarIndex = fullEmail.charCodeAt(0) % avatarEmojis.length;
+            const avatarEmoji = avatarEmojis[avatarIndex];
+            
+            // Update display
+            document.getElementById('userAvatar').textContent = avatarEmoji;
+            document.getElementById('userName').textContent = userName.charAt(0).toUpperCase() + userName.slice(1);
+        }
+    }
+
 
     function updateDashboard() {
         const currentMonth = new Date().toISOString().substring(0, 7);
@@ -1380,8 +1580,27 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
     // ===== ADD TRANSACTION =====
     function setType(type) {
         currentType = type;
+        
+        // सब type-btn से active class हटाओ
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // जिसका data-type match करता है उसे active करो
+        document.querySelector('[data-type="' + type + '"]').classList.add('active');
+        
+        updateCategoryOptions();
+    }
+
+    function setTypeBtn(button, type) {
+        currentType = type;
+        
+        // सब से remove
         document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
+        
+        // यह button active करो
+        button.classList.add('active');
+        
         updateCategoryOptions();
     }
 
@@ -1465,7 +1684,7 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
                 </div>
                 <div class="transaction-amount">
                     <div class="amount ${t.type === 'income' ? 'positive' : 'negative'}">
-                        ${t.type === 'income' ? '+' : '-'}₹${t.amount.toLocaleString('en-IN')}
+                        ${t.type === 'income' ? '+' : '-'}${currencySymbol}${t.amount.toLocaleString('en-IN')}
                     </div>
                 </div>
             </div>
@@ -1476,6 +1695,68 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         document.getElementById('transactionCount').textContent = transactions.length;
         
         document.getElementById('lastTransactions').innerHTML = html || '<p style="color:#9CA3AF;">No transactions yet</p>';
+    }
+
+    // ===== BUDGET PAGE FUNCTIONS =====
+    function renderBudgetCategoryList() {
+        const container = document.getElementById('budgetCategoryList');
+        const categories = ['food', 'groceries', 'transport', 'clothing', 'debt', 'savings', 'shopping', 'utilities', 'health', 'travel', 'housing', 'entertainment', 'education', 'other'];
+        
+        const html = categories.map(cat => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.08);">
+                <div style="display:flex;align-items:center;gap:8px;flex:1;">
+                    <span style="font-size:14px;">${categoryEmojis[cat] || '📦'}</span>
+                    <span style="color:white;font-weight:300;font-size:12px;text-transform:capitalize;">${cat}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="color:#9CA3AF;font-size:10px;">₹</span>
+                    <input type="number"
+                        class="cat-budget-input"
+                        data-category="${cat}"
+                        style="width:70px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);color:white;font-size:10px;text-align:right;font-weight:400;"
+                        value="${categoryBudgets[cat] || 0}"
+                        oninput="liveUpdateBudgetTotal()">
+                </div>
+            </div>
+        `).join('');
+        
+        container.innerHTML = html;
+        liveUpdateBudgetTotal();
+    }
+
+    function liveUpdateBudgetTotal() {
+        let total = 0;
+        document.querySelectorAll('.cat-budget-input').forEach(input => {
+            const val = parseFloat(input.value) || 0;
+            categoryBudgets[input.dataset.category] = val;
+            total += val;
+        });
+        document.getElementById('budgetTotal').textContent = '₹' + total.toLocaleString('en-IN');
+    }
+
+    function setAllBudgets() {
+        let total = 0;
+        
+        // Category budgets को update करो
+        document.querySelectorAll('.cat-budget-input').forEach(input => {
+            const val = parseFloat(input.value) || 0;
+            categoryBudgets[input.dataset.category] = val;
+            total += val;
+        });
+        
+        // Category total को monthly budget बना दो
+        monthlyBudget = total;
+        
+        // Local storage में save करो
+        localStorage.setItem('monthlyBudget', monthlyBudget);
+        localStorage.setItem('categoryBudgets', JSON.stringify(categoryBudgets));
+        
+        // Success notification
+        showNotification(`✅ Monthly Budget: ${currencySymbol}${total.toLocaleString('en-IN')}`, 'success');
+        
+        // Dashboard को update करो
+        updateDashboard();
+        updateBudgetDisplay();
     }
 
     // ===== HISTORY =====
@@ -1491,13 +1772,13 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
             <div class="glass-card">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div style="display:flex;gap:12px;align-items:center;">
-                        <div style="font-size:24px;">${categoryEmojis[t.category] || '📦'}</div>
+                        <div style="font-size:14px;">${categoryEmojis[t.category] || '📦'}</div>
                         <div>
-                            <div style="color:white;font-weight:600;">${t.category}${t.tags ? ' • ' + t.tags : ''}</div>
-                            <div style="color:#9CA3AF;font-size:12px;">${t.date} ${t.note ? '• ' + t.note : ''}</div>
+                            <div style="color:white;font-weight:400; font-size: 12px">${t.category}${t.tags ? ' • ' + t.tags : ''}</div>
+                            <div style="color:#9CA3AF;font-size:10px;">${t.date} ${t.note ? '• ' + t.note : ''}</div>
                         </div>
                     </div>
-                    <div style="text-align:right;color:${t.type === 'income' ? '#10B981' : '#EF4444'};font-weight:700;">
+                    <div style="font-size:12px;text-align:right;color:${t.type === 'income' ? '#10B981' : '#EF4444'};font-weight:400;">
                         ${t.type === 'income' ? '+' : '-'}${currencySymbol}${t.amount.toLocaleString('en-IN')}
                     </div>
                 </div>
@@ -1533,13 +1814,13 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
             const spent = transactions
                 .filter(t => t.category === cat && t.type === 'expense')
                 .reduce((sum, t) => sum + t.amount, 0);
-            const budget = 5000; // Sample per category
-            const percent = (spent / budget) * 100;
+            const budget = categoryBudgets[cat] || 0;
+            const percent = budget > 0 ? (spent / budget) * 100 : 0;
 
             return `
                 <div style="margin-bottom:16px;">
                     <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                        <span style="color:white;font-weight:600;">${categoryEmojis[cat]} ${cat}</span>
+                        <span style="color:white;font-weight:300;">${categoryEmojis[cat]} ${cat}</span>
                         <span style="color:#9CA3AF;">${currencySymbol}${spent.toLocaleString('en-IN')} / ${currencySymbol}${budget.toLocaleString('en-IN')}</span>
                     </div>
                     <div style="height:6px;background:rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;">
@@ -1821,10 +2102,7 @@ body.light-mode .chart-title, body.light-mode .progress-label, body.light-mode .
         URL.revokeObjectURL(url);
     }
 
-// ===== FIREBASE INIT (Script के END में) =====
-window.addEventListener('load', () => {
-    console.log('App Loading...');
-
+    // ===== FIREBASE CONFIG =====
     const firebaseConfig = {
         apiKey: "AIzaSyCLnj8vRLLjgfWFlu9wU0gK8ZccmpA67GI",
         authDomain: "spendingtracker-a3e9a.firebaseapp.com",
@@ -1835,13 +2113,10 @@ window.addEventListener('load', () => {
         appId: "1:948139369692:web:7df339d507716a22864019"
     };
 
-
-        // Initialize Firebase - यह MUST है!
+    // Initialize Firebase
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
-        console.log('✅ Firebase initialized');
     }
-});
 
     // ===== LOAD FROM FIREBASE =====
     function loadTransactionsFromFirebase() {
@@ -1973,11 +2248,23 @@ window.addEventListener('load', () => {
         setType('expense');
         updateCategoryOptions();
         
+        // Load saved budgets
+        const savedMonthlyBudget = localStorage.getItem('monthlyBudget');
+        if (savedMonthlyBudget) {
+            monthlyBudget = parseFloat(savedMonthlyBudget);
+        }
+
+        const savedCatBudgets = localStorage.getItem('categoryBudgets');
+        if (savedCatBudgets) {
+            categoryBudgets = JSON.parse(savedCatBudgets);
+        }
+        
         // Check Firebase Auth State
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
                 isLoggedIn = true;
+                updateUserName();
                 loadTransactionsFromFirebase();
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
