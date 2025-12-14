@@ -455,22 +455,29 @@
             border-top: 1px solid rgba(255,255,255,0.1);
             display: flex;
             justify-content: space-around;
-            padding: 8px 0;
+            align-items: center;
+            padding: 6px 0;
             z-index: 200;
+            overflow: hidden;
+            width: 100%;
+            height: 60px;
         }
 
         .nav-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 2px;
             background: none;
             border: none;
             color: #6B7280;
             cursor: pointer;
-            padding: 8px 12px;
+            padding: 4px 8px;
             transition: all 0.2s;
-            font-size: 16px;
+            font-size: 18px;
+            min-width: 50px;
+            flex: 1;
         }
 
         .nav-btn.active {
@@ -479,8 +486,9 @@
         }
 
         .nav-label {
-            font-size: 10px;
-            font-weight: 500;
+            font-size: 9px;
+            font-weight: 600;
+            white-space: nowrap;
         }
 
         /* ===== CONTENT SECTIONS ===== */
@@ -812,7 +820,7 @@
     <div class="header">
         <div class="header-content">
             <div class="header-left">
-                <div class="header-icon">asset/icon.png</div>
+                <img src="asset/icon.png" style="width:36px;height:36px;">
                 <div class="header-text">
                     <h2>Spending Tracker</h2>
                     <p id="headerDate"></p>
@@ -903,7 +911,7 @@
         <!-- ===== ADD TRANSACTION PAGE ===== -->
         <div id="addPage" class="page">
             <div class="glass-card">
-                <h3 style="color: var(--gray-600);margin-bottom:14px;">Add Transaction</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:14px; font-size: 14px;">Add Transaction</h3>
                 
                 <div class="type-toggle">
                     <button class="type-btn active" onclick="setType('expense')" data-type="expense">Expense</button>
@@ -970,7 +978,7 @@
             </div>
 
             <div class="glass-card" style="margin-top:20px;">
-                <h3 style="color: var(--gray-600);margin-bottom:16px;">📋 Quick Stats</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:16px; font-size: 14px;">📋 Quick Stats</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; color: #9CA3AF; margin-bottom: 4px;">Total Added</div>
@@ -981,7 +989,7 @@
                         <div style="font-size: 20px; font-weight: 700; color: #1E90FF;" id="transactionCount">0</div>
                     </div>
                 </div>
-                <h3 style="color: var(--gray-600);margin-bottom:16px;margin-top:20px;">Last 5 Transactions</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:16px;margin-top:20px; font-size: 14px;">Last 5 Transactions</h3>
                 <div id="lastTransactions"></div>
             </div>
         </div>
@@ -1023,7 +1031,7 @@
         <!-- ===== ANALYTICS PAGE ===== -->
         <div id="analyticsPage" class="page">
             <div class="glass-card">
-                <h3 style="color: var(--gray-600);margin-bottom:16px;">📊 Monthly Report</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:16px; font-size: 14px;">Monthly Report</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; color: #9CA3AF; margin-bottom: 4px;">Total Budget</div>
@@ -1036,7 +1044,7 @@
                 </div>
 
                 <div style="margin-bottom: 16px;">
-                    <label class="form-label">View Category Trend</label>
+                    <label class="form-label" style="color: var(--gray-600);">View Category Trend</label>
                     <select class="form-select" id="categorySelect" onchange="updateCategoryReport()">
                         <option value="">Overall - All Categories</option>
                         <option value="food">🍔 Food & Dining</option>
@@ -1062,7 +1070,7 @@
             </div>
 
             <div class="glass-card">
-                <h3 style="color: var(--gray-600);margin-bottom:14px;">Category Budget Breakdown</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:12px;">Category Budget Breakdown</h3>
                 <div id="categoryBudgetList"></div>
             </div>
         </div>
@@ -1070,7 +1078,7 @@
         <!-- ===== HISTORY PAGE ===== -->
         <div id="historyPage" class="page">
             <div class="glass-card">
-                <h3 style="color: var(--gray-600);margin-bottom:14px;">Search Transactions</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:12px;">Search Transactions</h3>
                 <div class="search-box" style="position: relative; margin-bottom: 12px;">
                     <input type="text" id="searchInput" placeholder="Search transactions..." onkeyup="updateHistory()">
                 </div>
@@ -1081,7 +1089,7 @@
         <!-- ===== SETTINGS PAGE ===== -->
         <div id="settingsPage" class="page">
             <div class="glass-card">
-                <h3 style="color: var(--gray-600);margin-bottom:14px;">Settings</h3>
+                <h3 style="color: var(--gray-600);margin-bottom:12px;">Settings</h3>
                 
                 <div class="settings-item">
                     <div class="settings-item-left">
@@ -1814,14 +1822,14 @@
             const spent = transactions
                 .filter(t => t.category === cat && t.type === 'expense')
                 .reduce((sum, t) => sum + t.amount, 0);
-            const budget = categoryBudgets[cat] || 0;
-            const percent = budget > 0 ? (spent / budget) * 100 : 0;
+            const budget = 5000;
+            const percent = (spent / budget) * 100;
 
             return `
-                <div style="margin-bottom:16px;">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                        <span style="color:white;font-weight:300;">${categoryEmojis[cat]} ${cat}</span>
-                        <span style="color:#9CA3AF;">${currencySymbol}${spent.toLocaleString('en-IN')} / ${currencySymbol}${budget.toLocaleString('en-IN')}</span>
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                        <span style="color:white;font-weight:600;font-size:12px;">${categoryEmojis[cat]} ${cat}</span>
+                        <span style="color:#9CA3AF;font-size:11px;">${currencySymbol}${spent.toLocaleString('en-IN')} / ${currencySymbol}${budget.toLocaleString('en-IN')}</span>
                     </div>
                     <div style="height:6px;background:rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;">
                         <div style="height:100%;background:linear-gradient(90deg,#1E90FF,#0A4174);width:${Math.min(percent, 100)}%;transition:width 0.3s;"></div>
