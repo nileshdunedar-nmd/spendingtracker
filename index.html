@@ -17,11 +17,11 @@
         }
 
         :root {
-            --primary-dark: #0F172A;
-            --primary: #0A4174;
-            --primary-light: #1E90FF;
-            --accent: #6EA2B3;
-            --success: #10B981;
+            --primary-dark: #0D2B1F;
+            --primary: #0F5C47;
+            --primary-light: #1ABC9C;
+            --accent: #00D4AA;
+            --success: #1ABC9C;
             --danger: #EF4444;
             --warning: #F59E0B;
             --gray-800: #1F2937;
@@ -33,7 +33,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #0F172A 0%, #1a1f3a 50%, #0F172A 100%);
+            background: linear-gradient(135deg, #0D2B1F 0%, #1a1f3a 50%, #0D2B1F 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #E5E7EB;
@@ -49,7 +49,7 @@
 
         /* ===== GLASS MORPHISM ===== */
         .glass {
-            background: rgba(20, 33, 61, 0.8);
+            background: rgba(13, 43, 31, 0.8);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px;
@@ -58,8 +58,8 @@
                 inset 0 0 32px rgba(255,255,255,0.1);
         }
 
-        .glass-card {
-            background: rgba(31, 41, 55, 0.6);
+        .stat-card {
+            background: rgba(15, 92, 71, 0.6);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 20px;
@@ -69,7 +69,7 @@
             transition: all 0.3s ease;
         }
 
-        body.light-mode .glass-card {
+        body.light-mode .stat-card {
             background: rgba(255, 255, 255, 0.8);
             border-color: rgba(30, 144, 255, 0.2);
             box-shadow: 0 8px 32px rgba(30, 144, 255, 0.1);
@@ -92,7 +92,7 @@
         .user-avatar {
             width: 44px;
             height: 44px;
-            background: linear-gradient(135deg, #1E90FF, #0A4174);
+            background: linear-gradient(135deg, #1ABC9C, #0F5C47);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -142,7 +142,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0F172A 0%, #1a1f3a 100%);
+            background: linear-gradient(135deg, #0D2B1F 0%, #1a1f3a 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -158,7 +158,7 @@
         .auth-logo {
             font-size: 48px;
             margin-bottom: 20px;
-            background: linear-gradient(135deg, #1E90FF, #0A4174);
+            background: linear-gradient(135deg, #1ABC9C, #0F5C47);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -188,12 +188,12 @@
         }
 
         .auth-input::placeholder { color: rgba(255,255,255,0.5); }
-        .auth-input:focus { outline: none; border-color: #1E90FF; }
+        .auth-input:focus { outline: none; border-color: #1ABC9C; }
 
         .auth-btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #1E90FF, #0A4174);
+            background: linear-gradient(135deg, #1ABC9C, #0F5C47);
             background-clip: padding-box;
             color: white;
             border: none;
@@ -216,7 +216,7 @@
         }
 
         .auth-toggle a {
-            color: #1E90FF;
+            color: #1ABC9C;
             cursor: pointer;
             text-decoration: none;
         }
@@ -243,8 +243,8 @@
         }
 
         .auth-tab-btn.active {
-            background: linear-gradient(135deg, #1E90FF, #0A4174);
-            border-color: #1E90FF;
+            background: linear-gradient(135deg, #1ABC9C, #0F5C47);
+            border-color: #1ABC9C;
             color: white;
         }
 
@@ -281,7 +281,7 @@
         .header-icon {
             /* width: 40px;
             height: 40px; */
-            background: linear-gradient(135deg, #1E90FF, #0A4174);
+            background: linear-gradient(135deg, #1ABC9C, #0F5C47);
             background-clip: padding-box;
             border-radius: 12px;
             display: flex;
@@ -424,7 +424,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #1E90FF, #0A4174);
+            background: linear-gradient(90deg, #1ABC9C, #0F5C47);
             transition: width 0.5s ease;
             box-shadow: 0 0 10px rgba(30, 144, 255, 0.5);
         }
@@ -481,7 +481,7 @@
         }
 
         .nav-btn.active {
-            color: #1E90FF;
+            color: #1ABC9C;
             transform: scale(1.1);
         }
 
@@ -527,7 +527,7 @@
         .form-input::placeholder { color: rgba(255,255,255,0.5); }
         .form-input:focus, .form-select:focus {
             outline: none;
-            border-color: #1E90FF;
+            border-color: #1ABC9C;
             box-shadow: 0 0 12px rgba(30, 144, 255, 0.3);
         }
 
@@ -539,12 +539,12 @@
         }
 
         body.light-mode .form-input::placeholder {
-            color: rgba(31, 41, 55, 0.5);
+            color: rgba(15, 92, 71, 0.5);
         }
 
         body.light-mode .form-input:focus,
         body.light-mode .form-select:focus {
-            border-color: #1E90FF;
+            border-color: #1ABC9C;
             box-shadow: 0 0 12px rgba(30, 144, 255, 0.2);
         }
 
@@ -567,15 +567,15 @@
         }
 
         .type-btn.active {
-            background: linear-gradient(135deg, #1E90FF, #0A4174);
-            border-color: #1E90FF;
+            background: linear-gradient(135deg, #1ABC9C, #0F5C47);
+            border-color: #1ABC9C;
             color: white;
         }
 
         .btn-add {
             width: 100%;
             padding: 10px;
-            background: linear-gradient(135deg, #1E90FF, #0A4174);
+            background: linear-gradient(135deg, #1ABC9C, #0F5C47);
             background-clip: padding-box;
             color: white;
             border: none;
@@ -806,7 +806,7 @@
             <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);margin:16px 0;">
             <div style="text-align:center;">
                 <p style="color:#9CA3AF;font-size:12px;margin-bottom:12px;">Login with Biometric</p>
-                <button class="auth-btn" style="background:linear-gradient(135deg,#0A4174,#1E90FF);" onclick="handleAuth('biometric')">
+                <button class="auth-btn" style="background:linear-gradient(135deg,#0F5C47,#1ABC9C);" onclick="handleAuth('biometric')">
                     🔓 Use Fingerprint/Face
                 </button>
             </div>
@@ -878,7 +878,7 @@
             </div>
 
             <!-- Monthly Budget Progress -->
-            <div class="progress-section glass-card">
+            <div class="stat-card">
                 <div class="progress-header">
                     <div class="progress-label">Monthly Budget</div>
                     <div class="progress-percent" id="budgetPercent2">0%</div>
@@ -889,7 +889,7 @@
             </div>
 
             <!-- Monthly Expense Graph -->
-            <div class="glass-card">
+            <div class="stat-card">
                 <div class="chart-title">Monthly Expense</div>
                 <div class="chart-container">
                     <canvas id="expenseChart"></canvas>
@@ -897,7 +897,7 @@
             </div>
 
             <!-- Category Budget Progress -->
-            <div class="glass-card">
+            <div class="stat-card">
                 <div class="chart-title">Category Distribution</div>
                 <div class="chart-container">
                     <canvas id="categoryChart"></canvas>
@@ -905,7 +905,7 @@
             </div>
 
             <!-- Recent Transactions -->
-            <div class="glass-card">
+            <div class="stat-card">
                 <div class="chart-title" style="color: var(--gray-600);">Recent Transactions</div>
                 <div id="recentTransactions"></div>
             </div>
@@ -913,7 +913,7 @@
 
         <!-- ===== ADD TRANSACTION PAGE ===== -->
         <div id="addPage" class="page">
-            <div class="glass-card">
+            <div class="stat-card">
                 <h3 style="color: var(--gray-600);margin-bottom:14px; font-size: 14px;">Add Transaction</h3>
                 
                 <div class="type-toggle">
@@ -925,29 +925,7 @@
                     <label class="form-label">Category</label>
                     <select class="form-select" id="category">
                         <option value="">Select Category</option>
-                        <optgroup label="Expenses">
-                            <option value="food">🍔 Food & Dining</option>
-                            <option value="groceries">🛒 Groceries</option>
-                            <option value="transport">🚗 Transport</option>
-                            <option value="clothing">👕 Clothing</option>
-                            <option value="debt">💳 Debt</option>
-                            <option value="savings">🏦 Savings</option>
-                            <option value="shopping">🛍️ Shopping</option>
-                            <option value="utilities">💡 Utilities</option>
-                            <option value="health">🏥 Health & Medical</option>
-                            <option value="travel">✈️ Travel</option>
-                            <option value="housing">🏠 Housing</option>
-                            <option value="entertainment">🎬 Entertainment</option>
-                            <option value="education">📚 Education</option>
-                            <option value="other">📦 Other</option>
-                        </optgroup>
-                        <optgroup label="Income">
-                            <option value="salary">💼 Salary</option>
-                            <option value="freelance">💻 Freelance</option>
-                            <option value="investment">📈 Investment</option>
-                            <option value="bonus">🎁 Bonus</option>
-                            <option value="other-income">💰 Other Income</option>
-                        </optgroup>
+                        <optgroup id="categoryGroup" label="Expense Categories">
                     </select>
                 </div>
 
@@ -980,8 +958,8 @@
                 </div>
             </div>
 
-            <div class="glass-card" style="margin-top:20px;">
-                <h3 style="color: var(--gray-600);margin-bottom:16px; font-size: 14px;">📋 Quick Stats</h3>
+            <div class="stat-card" style="margin-top:20px;">
+                <h3 style="color: var(--gray-600);margin-bottom:16px; font-size: 14px;">Quick Stats</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; color: #9CA3AF; margin-bottom: 4px;">Total Added</div>
@@ -989,7 +967,7 @@
                     </div>
                     <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; color: #9CA3AF; margin-bottom: 4px;">Transactions</div>
-                        <div style="font-size: 20px; font-weight: 700; color: #1E90FF;" id="transactionCount">0</div>
+                        <div style="font-size: 20px; font-weight: 700; color: #1ABC9C;" id="transactionCount">0</div>
                     </div>
                 </div>
                 <h3 style="color: var(--gray-600);margin-bottom:16px;margin-top:20px; font-size: 14px;">Last 5 Transactions</h3>
@@ -999,7 +977,7 @@
 
         <!-- ===== BUDGET PAGE ===== -->
         <div id="budgetPage" class="page">
-            <div class="glass-card">
+            <div class="stat-card">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
                 
                     <div style="flex:1;">
@@ -1008,7 +986,7 @@
                     </div>
                     <div style="text-align:right;background:rgba(30,144,255,0.1);padding:8px 12px;border-radius:8px;">
                         <div style="color:#9CA3AF;font-size:10px;">Total</div>
-                        <div style="color:#1E90FF;font-size:16px;font-weight:700;" id="budgetTotal">₹0</div>
+                        <div style="color:#1ABC9C;font-size:16px;font-weight:700;" id="budgetTotal">₹0</div>
                     </div>
                 </div>
                 <div id="budgetCategoryList" style="max-height:500px;overflow-y:auto;"></div>
@@ -1017,7 +995,7 @@
                 </button>
             </div>
 
-            <div class="glass-card" style="margin-top:16px;">
+            <div class="stat-card" style="margin-top:16px;">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
                     <span style="font-size:24px;">💡</span>
                     <h3 style="color: var(--gray-600);margin:0;font-size:14px;">Budget Tips</h3>
@@ -1033,12 +1011,12 @@
 
         <!-- ===== ANALYTICS PAGE ===== -->
         <div id="analyticsPage" class="page">
-            <div class="glass-card">
+            <div class="stat-card">
                 <h3 style="color: var(--gray-600);margin-bottom:16px; font-size: 14px;">Monthly Report</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; color: #9CA3AF; margin-bottom: 4px;">Total Budget</div>
-                        <div style="font-size: 22px; font-weight: 700; color: #1E90FF;" id="reportTotalBudget">₹0</div>
+                        <div style="font-size: 22px; font-weight: 700; color: #1ABC9C;" id="reportTotalBudget">₹0</div>
                     </div>
                     <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; color: #9CA3AF; margin-bottom: 4px;">Spent This Month</div>
@@ -1072,7 +1050,7 @@
                 </div>
             </div>
 
-            <div class="glass-card">
+            <div class="stat-card">
                 <h3 style="color: var(--gray-600);margin-bottom:12px;">Category Budget Breakdown</h3>
                 <div id="categoryBudgetList"></div>
             </div>
@@ -1080,7 +1058,7 @@
 
         <!-- ===== HISTORY PAGE ===== -->
         <div id="historyPage" class="page">
-            <div class="glass-card">
+            <div class="stat-card">
                 <h3 style="color: var(--gray-600);margin-bottom:16px; font-size: 14px;">Search Transactions</h3>
                 <div class="search-box" style="position: relative; margin-bottom: 12px;">
                     <input type="text" id="searchInput" placeholder="Search transactions..." onkeyup="updateHistory()">
@@ -1091,7 +1069,7 @@
 
         <!-- ===== SETTINGS PAGE ===== -->
         <div id="settingsPage" class="page">
-            <div class="glass-card">
+            <div class="stat-card">
                 <h3 style="color: var(--gray-600);margin-bottom:16px; font-size: 14px;">Settings</h3>
                 
                 <div class="settings-item">
@@ -1159,7 +1137,6 @@
     let isSignup = false;
     let isLoggedIn = false;
     let currentUser = null;
-    let currentType = 'expense';
     let transactions = [];
     let monthlyBudget = 50000;
     let categoryBudgets = {
@@ -1179,8 +1156,24 @@
         other: 2000
     };
 
+    // अलग-अलग category lists
+    const expenseCategories = [
+        'food', 'groceries', 'transport', 'clothing',
+        'debt', 'savings', 'shopping', 'utilities',
+        'health', 'travel', 'housing', 'entertainment',
+        'education', 'other'
+    ];
+
+    const incomeCategories = [
+        'salary', 'freelance', 'investment',
+        'business', 'bonus', 'refund', 'gift', 'other'
+    ];
+
+    let currentType = 'expense';
+
+
     const categoryEmojis = {
-        // Expense Categories
+        // Expense
         food: '🍔',
         groceries: '🛒',
         transport: '🚗',
@@ -1195,13 +1188,16 @@
         entertainment: '🎬',
         education: '📚',
         other: '📦',
-        // Income Categories
+        // Income
         salary: '💼',
         freelance: '💻',
         investment: '📈',
+        business: '🏢',
         bonus: '🎁',
-        'other-income': '💰'
+        refund: '↩️',
+        gift: '🎀'
     };
+
 
     // ===== CURRENCY DETECTION =====
     let currencySymbol = '₹'; // Default
@@ -1499,6 +1495,7 @@
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('transDate').value = today;
         updateHeaderDate();
+        renderCategoryOptions();   // पहली बार Expense वाली categories दिखेंगी
     }
 
     function updateHeaderDate() {
@@ -1566,6 +1563,33 @@
         drawCharts();
     }
 
+    function renderCategoryOptions() {
+        const group = document.getElementById('categoryGroup');
+        if (!group) return;
+
+        let list = currentType === 'expense' ? expenseCategories : incomeCategories;
+        let label = currentType === 'expense' ? 'Expense Categories' : 'Income Categories';
+        group.setAttribute('label', label);
+
+        const html = list.map(cat => {
+            // readable label
+            let text = cat.replace(/-/g, ' ');
+            text = text.charAt(0).toUpperCase() + text.slice(1);
+            if (cat === 'food') text = 'Food & Dining';
+            if (cat === 'health') text = 'Health & Medical';
+            if (cat === 'salary') text = 'Salary';
+            if (cat === 'freelance') text = 'Freelance';
+            if (cat === 'investment') text = 'Investment';
+            if (cat === 'business') text = 'Business Income';
+
+            return `<option value="${cat}">${categoryEmojis[cat] || ''} ${text}</option>`;
+        }).join('');
+
+        group.innerHTML = html;
+        document.getElementById('category').value = '';
+    }
+
+
     function renderRecentTransactions() {
         const recent = transactions.slice(-5).reverse();
         const html = recent.map(t => `
@@ -1591,16 +1615,13 @@
     // ===== ADD TRANSACTION =====
     function setType(type) {
         currentType = type;
-        
-        // सब type-btn से active class हटाओ
+
         document.querySelectorAll('.type-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        
-        // जिसका data-type match करता है उसे active करो
-        document.querySelector('[data-type="' + type + '"]').classList.add('active');
-        
-        updateCategoryOptions();
+        document.querySelector(`.type-btn[data-type="${type}"]`)?.classList.add('active');
+
+        renderCategoryOptions();   // यहाँ से category बदल जाएगी
     }
 
     function setTypeBtn(button, type) {
@@ -1780,7 +1801,7 @@
         }).reverse();
 
         const html = filtered.map(t => `
-            <div class="glass-card">
+            <div class="stat-card">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div style="display:flex;gap:12px;align-items:center;">
                         <div style="font-size:14px;">${categoryEmojis[t.category] || '📦'}</div>
@@ -1835,7 +1856,7 @@
                         <span style="color:#9CA3AF;font-size:11px;">${currencySymbol}${spent.toLocaleString('en-IN')} / ${currencySymbol}${budget.toLocaleString('en-IN')}</span>
                     </div>
                     <div style="height:6px;background:rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;">
-                        <div style="height:100%;background:linear-gradient(90deg,#1E90FF,#0A4174);width:${Math.min(percent, 100)}%;transition:width 0.3s;"></div>
+                        <div style="height:100%;background:linear-gradient(90deg,#1ABC9C,#0F5C47);width:${Math.min(percent, 100)}%;transition:width 0.3s;"></div>
                     </div>
                 </div>
             `;
@@ -1898,7 +1919,7 @@
                         'rgba(30, 144, 255, 0.8)',
                         'rgba(30, 144, 255, 1)'
                     ],
-                    borderColor: '#1E90FF',
+                    borderColor: '#1ABC9C',
                     borderWidth: 2,
                     borderRadius: 6,
                     borderSkipped: false
@@ -1954,7 +1975,7 @@
                 datasets: [{
                     label: 'Daily Expense',
                     data: Object.values(monthData),
-                    borderColor: '#1E90FF',
+                    borderColor: '#1ABC9C',
                     backgroundColor: 'rgba(30, 144, 255, 0.1)',
                     tension: 0.4,
                     fill: true
@@ -1980,7 +2001,7 @@
                 labels: Object.keys(categoryData).map(c => categoryEmojis[c] + ' ' + c),
                 datasets: [{
                     data: Object.values(categoryData),
-                    backgroundColor: ['#1E90FF', '#0A4174', '#6EA2B3', '#10B981', '#EF4444', '#F59E0B']
+                    backgroundColor: ['#1ABC9C', '#0F5C47', '#6EA2B3', '#10B981', '#EF4444', '#F59E0B']
                 }]
             },
             options: {
