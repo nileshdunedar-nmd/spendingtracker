@@ -248,6 +248,79 @@
             color: white;
         }
 
+        .google-btn {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.3);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.google-btn img {
+    width: 18px;
+    height: 18px;
+}
+
+.google-btn:hover {
+    background: rgba(0,0,0,0.5);
+}
+
+.phone-section {
+    margin-top: 12px;
+    text-align: left;
+}
+
+.phone-row {
+    display: grid;
+    grid-template-columns: 1.4fr 0.8fr;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.small-helper {
+    font-size: 11px;
+    color: #9CA3AF;
+}
+
+.otp-row {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 8px;
+}
+
+.auth-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148,163,184,0.4);
+    font-size: 11px;
+    color: #E5E7EB;
+    margin-bottom: 14px;
+}
+
+.auth-badge span {
+    font-size: 15px;
+}
+
+#recaptcha-container {
+    margin-top: 8px;
+    transform: scale(0.88);
+    transform-origin: left top;
+            }
+
 
         .hidden { display: none !important; }
 
@@ -749,69 +822,44 @@
 
 <!-- ===== AUTH SCREEN ===== -->
 <div id="authScreen" class="auth-screen">
-    <div class="auth-card">
-        <div class="auth-logo">💰</div>
-        <h1 id="authTitle">Login</h1>
-        <p>Track your spending smartly</p>
-        
-        <!-- Tab Buttons -->
-        <div style="display:flex;gap:8px;margin-bottom:16px;">
-            <button class="auth-tab-btn active" onclick="switchAuthTab('email')">Email</button>
-            <button class="auth-tab-btn" onclick="switchAuthTab('pin')">PIN</button>
-            <button class="auth-tab-btn" onclick="switchAuthTab('biometric')">Biometric</button>
-        </div>
+  <div class="auth-card glass-card">
+    <div class="auth-logo">💰</div>
+    <h1>Welcome</h1>
+    <p>Sign in with Google and verify your phone number.</p>
 
-        <!-- EMAIL TAB -->
-        <div id="emailTab" class="auth-tab active">
-            <input type="email" class="auth-input" id="authEmail" placeholder="Email address">
-            <input type="password" class="auth-input" id="authPassword" placeholder="Password">
-            <input type="password" class="auth-input hidden" id="authConfirmPassword" placeholder="Confirm password">
-            
-            <button class="auth-btn" onclick="handleAuth('email')">Login</button>
-            
-            <div class="auth-toggle">
-                <span id="toggleText">Don't have account? </span>
-                <a onclick="toggleAuthMode()">Sign up</a>
-            </div>
-        </div>
-
-        <!-- PIN TAB -->
-        <div id="pinTab" class="auth-tab hidden">
-            <div style="margin-bottom:16px;">
-                <p style="color:#9CA3AF;font-size:12px;margin-bottom:12px;">First time? Set a 4-digit PIN</p>
-                <input type="text" class="auth-input" id="pinEmail" placeholder="Email address">
-                <input type="password" class="auth-input" id="setPIN" placeholder="4-digit PIN" maxlength="4" inputmode="numeric">
-                <input type="password" class="auth-input" id="confirmPIN" placeholder="Confirm PIN" maxlength="4" inputmode="numeric">
-                <button class="auth-btn" onclick="handleAuth('setPin')">Set PIN</button>
-            </div>
-            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);margin:16px 0;">
-            <div>
-                <p style="color:#9CA3AF;font-size:12px;margin-bottom:12px;">Login with PIN</p>
-                <input type="text" class="auth-input" id="loginEmail" placeholder="Email address">
-                <input type="password" class="auth-input" id="loginPIN" placeholder="4-digit PIN" maxlength="4" inputmode="numeric">
-                <button class="auth-btn" onclick="handleAuth('loginPin')">Login with PIN</button>
-            </div>
-        </div>
-
-        <!-- BIOMETRIC TAB -->
-        <div id="biometricTab" class="auth-tab hidden">
-            <div style="text-align:center;padding:20px 0;">
-                <div style="font-size:64px;margin-bottom:20px;">👆</div>
-                <p style="color:#9CA3AF;margin-bottom:16px;">Enable Biometric Login</p>
-                <button class="auth-btn" style="background:linear-gradient(135deg,#10B981,#059669);" onclick="enableBiometric()">
-                    Enable Fingerprint/Face
-                </button>
-                <p style="color:#6EA2B3;font-size:11px;margin-top:12px;">Must have a PIN set first</p>
-            </div>
-            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);margin:16px 0;">
-            <div style="text-align:center;">
-                <p style="color:#9CA3AF;font-size:12px;margin-bottom:12px;">Login with Biometric</p>
-                <button class="auth-btn" style="background:linear-gradient(135deg,#0F5C47,#1ABC9C);" onclick="handleAuth('biometric')">
-                    🔓 Use Fingerprint/Face
-                </button>
-            </div>
-        </div>
+    <div class="auth-badge">
+      <span>🔐</span>
+      <span>Google + Phone (OTP) protected</span>
     </div>
+
+    <!-- GOOGLE SIGN-IN -->
+    <button class="google-btn" onclick="handleGoogleSignIn()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+      <span>Continue with Google</span>
+    </button>
+
+    <!-- PHONE OTP STEP -->
+    <div class="phone-section hidden" id="phoneStep">
+      <p class="small-helper">
+        Almost done! Verify your mobile number to secure your account.
+      </p>
+
+      <div class="phone-row">
+        <input id="phoneNumber" class="auth-input" placeholder="+91 98765 43210">
+        <button class="auth-btn" style="margin-top:0;" onclick="sendOtp()">Send OTP</button>
+      </div>
+
+      <div id="recaptcha-container"></div>
+
+      <div class="otp-row" style="margin-top:12px;">
+        <input id="otpCode" class="auth-input" placeholder="Enter OTP">
+        <button class="auth-btn" style="margin-top:0;" onclick="verifyOtp()">Verify</button>
+      </div>
+
+      <p id="authStatus" class="small-helper" style="margin-top:8px;"></p>
+    </div>
+  </div>
+</div>
 </div>
 
 <!-- ===== APP ===== -->
@@ -1221,259 +1269,181 @@
                 currencySymbol = '$';
                 currencyCode = 'USD';
             } else if (timezone.includes('Europe')) {
-                currencySymbol = '€';
-                currencyCode = 'EUR';
-            } else {
-                currencySymbol = '₹'; // Default to INR
-                currencyCode = 'INR';
-            }
-        }
+
+            
+
+    // ===== GOOGLE + PHONE (OTP) AUTH =====
+const auth = firebase.auth();
+let googleUser = null;
+let confirmationResultGlobal = null;
+
+// Login ke baad app initialise
+function initAppAfterLogin(user) {
+    currentUser = user;
+    isLoggedIn = true;
+
+    loadTransactionsFromFirebase();
+    updateDashboard();
+    updateBudgetDisplay();
+    setDefaultDate();
+    if (typeof updateUserName === 'function') {
+        updateUserName();
     }
 
-        // ===== AUTH TABS =====
-    function switchAuthTab(tab) {
-        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
-        
-        document.getElementById(tab + 'Tab').classList.add('active');
-        event.target.classList.add('active');
-    }
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+}
 
-    // ===== BIOMETRIC API =====
-    async function enableBiometric() {
-        const email = prompt('Enter email for biometric:');
-        const pin = prompt('Enter your 4-digit PIN:');
-        
-        if (!email || !pin || pin.length !== 4) {
-            alert('Invalid email or PIN');
-            return;
+// reCAPTCHA setup
+function setupRecaptcha() {
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        size: 'invisible',
+        callback: function () {
+            console.log('reCAPTCHA solved');
         }
-        
-        // Check WebAuthn support
-        if (!window.PublicKeyCredential) {
-            alert('Biometric not supported on this device');
-            return;
-        }
-        
-        try {
-            // Create biometric credential
-            const credential = await navigator.credentials.create({
-                publicKey: {
-                    challenge: new Uint8Array(32),
-                    rp: { name: "Spending Tracker" },
-                    user: {
-                        id: new Uint8Array(16),
-                        name: email,
-                        displayName: email
-                    },
-                    pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                    timeout: 60000,
-                    attestation: "none"
-                }
-            });
-            
-            if (credential) {
-                // Save to localStorage
-                const bioData = {
-                    email: email,
-                    pin: btoa(pin), // Basic encoding (not secure, use proper encryption in production)
-                    credentialId: credential.id,
-                    biometricEnabled: true
-                };
-                localStorage.setItem('biometricData', JSON.stringify(bioData));
-                showNotification('✅ Biometric enabled! Use fingerprint/face to login', 'success');
-                switchAuthTab('biometric');
-            }
-        } catch (err) {
-            console.error('Biometric setup failed:', err);
-            alert('Biometric setup failed: ' + err.message);
-        }
-    }
+    });
+}
 
-    async function handleBiometricLogin() {
-        const bioData = localStorage.getItem('biometricData');
-        if (!bioData) {
-            alert('No biometric data found. Set it up first.');
-            return;
-        }
-        
-        try {
-            const parsed = JSON.parse(bioData);
-            
-            // Verify with biometric
-            const assertion = await navigator.credentials.get({
-                publicKey: {
-                    challenge: new Uint8Array(32),
-                    timeout: 60000,
-                    userVerification: "preferred"
-                }
-            });
-            
-            if (assertion) {
-                // Auto-login with stored email & PIN
-                await loginWithPin(parsed.email, atob(parsed.pin));
-            }
-        } catch (err) {
-            console.error('Biometric login failed:', err);
-            showNotification('❌ Biometric verification failed', 'error');
-        }
-    }
+// Page load par recaptcha + auth state
+window.addEventListener('load', () => {
+    detectCurrency();
+    updateHeaderDate();
+    loadTheme();
+    createToastContainer();
+    document.getElementById('transDate').valueAsDate = new Date();
+    setType('expense');
+    updateCategoryOptions();
 
-    // ===== PIN FUNCTIONS =====
-    async function handlePinSetup() {
-        const email = document.getElementById('pinEmail').value;
-        const pin = document.getElementById('setPIN').value;
-        const confirmPin = document.getElementById('confirmPIN').value;
-        
-        if (!email || pin.length !== 4 || pin !== confirmPin) {
-            alert('Invalid input or PINs do not match');
-            return;
-        }
-        
-        try {
-            // Create Firebase account first
-            const userCred = await firebase.auth().createUserWithEmailAndPassword(email, 'temp' + pin + Date.now());
-            
-            // Store PIN in Realtime DB
-            await firebase.database().ref('users/' + userCred.user.uid + '/security').set({
-                pinHash: btoa(pin),
-                biometricEnabled: false
-            });
-            
-            showNotification('✅ PIN set successfully!', 'success');
-            switchAuthTab('pin');
-            document.getElementById('pinEmail').value = '';
-            document.getElementById('setPIN').value = '';
-            document.getElementById('confirmPIN').value = '';
-        } catch (err) {
-            alert('Setup failed: ' + err.message);
-        }
-    }
+    setupRecaptcha();
 
-    async function loginWithPin(email, pin) {
-        try {
-            // Find user by email
-            const snapshot = await firebase.database().ref('users').orderByChild('email').equalTo(email).once('value');
-            
-            if (!snapshot.exists()) {
-                alert('Email not found');
-                return;
-            }
-            
-            // Verify PIN
-            const userData = Object.values(snapshot.val())[0];
-            if (atob(userData.security.pinHash) !== pin) {
-                alert('Invalid PIN');
-                return;
-            }
-            
-            // Auto-login (store session)
-            sessionStorage.setItem('pinnedUser', email);
-            isLoggedIn = true;
-            showNotification('✅ Logged in with PIN!', 'success');
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            updateDashboard();
-        } catch (err) {
-            console.error('PIN login error:', err);
-            alert('Login failed: ' + err.message);
-        }
-    }
-
-    // ===== MAIN AUTH HANDLER =====
-    async function handleAuth(method = 'email') {
-        if (method === 'email') {
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
-            
-            if (!email || !password) {
-                alert('Please fill all fields');
-                return;
-            }
-
-            try {
-                if (isSignup) {
-                    const userCred = await firebase.auth().createUserWithEmailAndPassword(email, password);
-                    currentUser = userCred.user;
-                    isLoggedIn = true;
-                    showNotification('✅ Account created!', 'success');
-                } else {
-                    const userCred = await firebase.auth().signInWithEmailAndPassword(email, password);
-                    currentUser = userCred.user;
-                    isLoggedIn = true;
-                    showNotification('✅ Logged in!', 'success');
-                }
-                
-                loadTransactionsFromFirebase();
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('app').classList.remove('hidden');
-                updateUserName();
-                updateDashboard();
-                updateBudgetDisplay();
-                setDefaultDate();
-            } catch (error) {
-                alert('Auth error: ' + error.message);
-            }
-        } 
-        else if (method === 'setPin') {
-            await handlePinSetup();
-        }
-        else if (method === 'loginPin') {
-            const email = document.getElementById('loginEmail').value;
-            const pin = document.getElementById('loginPIN').value;
-            
-            if (!email || pin.length !== 4) {
-                alert('Invalid input');
-                return;
-            }
-            
-            await loginWithPin(email, pin);
-        }
-        else if (method === 'biometric') {
-            await handleBiometricLogin();
-        }
-    }
-
-    // ===== UPDATE TOGGLE FOR PIN/BIOMETRIC =====
-    function toggleAuthMode() {
-        isSignup = !isSignup;
-        const titleEl = document.getElementById('authTitle');
-        const toggleEl = document.getElementById('toggleText');
-        const confirmPwEl = document.getElementById('authConfirmPassword');
-        
-        if (isSignup) {
-            titleEl.textContent = 'Sign Up';
-            toggleEl.textContent = 'Already have account? ';
-            confirmPwEl.classList.remove('hidden');
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            googleUser = user;
+            initAppAfterLogin(user);
         } else {
-            titleEl.textContent = 'Login';
-            toggleEl.textContent = `Don't have account? `;
-            confirmPwEl.classList.add('hidden');
-        }
-    }
-
-    // ===== LOGOUT =====
-    function logout() {
-        firebase.auth().signOut().then(() => {
-            isLoggedIn = false;
-            currentUser = null;
-            transactions = [];
-            
-            document.getElementById('userAvatar').textContent = '👤';  // ← add करो
-            document.getElementById('userName').textContent = 'User';   // ← add करो
-
-            // document.getElementById('userNameDisplay').textContent = '';
             document.getElementById('authScreen').classList.remove('hidden');
             document.getElementById('app').classList.add('hidden');
-            document.getElementById('authEmail').value = '';
-            document.getElementById('authPassword').value = '';
-            document.getElementById('authConfirmPassword').value = '';
-            showNotification('👋 Logged out successfully', 'success');
-        }).catch((error) => {
-            alert('Logout error: ' + error.message);
-        });
+        }
+    });
+});
+
+// STEP 1: Google Sign-In
+async function handleGoogleSignIn() {
+    try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await auth.signInWithPopup(provider);
+        googleUser = result.user;
+
+        document.getElementById('phoneStep').classList.remove('hidden');
+        document.getElementById('authStatus').textContent =
+            'Google connected: ' + (googleUser.displayName || googleUser.email) +
+            '. Now verify your phone.';
+    } catch (err) {
+        console.error(err);
+        alert('Google sign-in failed: ' + err.message);
+    }
+}
+
+// STEP 2: Send OTP
+async function sendOtp() {
+    if (!googleUser) {
+        alert('Please sign in with Google first.');
+        return;
     }
 
+    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+    if (!phoneNumber) {
+        alert('Enter phone with country code, e.g. +91...');
+        return;
+    }
+
+    try {
+        const appVerifier = window.recaptchaVerifier;
+        const confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, appVerifier);
+        confirmationResultGlobal = confirmationResult;
+
+        document.getElementById('authStatus').textContent =
+            'OTP sent to ' + phoneNumber + '. Enter the code.';
+    } catch (err) {
+        console.error(err);
+        alert('Error sending OTP: ' + err.message);
+    }
+}
+
+// STEP 3: Verify OTP + link with Google account
+async function verifyOtp() {
+    if (!confirmationResultGlobal) {
+        alert('Please request OTP first.');
+        return;
+    }
+    const code = document.getElementById('otpCode').value.trim();
+    if (!code) {
+        alert('Enter OTP code.');
+        return;
+    }
+
+    try {
+        // confirm se phone user milta hai
+        const result = await confirmationResultGlobal.confirm(code);
+
+        // phone credential bana ke google user ke saath link karo
+        const cred = firebase.auth.PhoneAuthProvider.credential(
+            confirmationResultGlobal.verificationId,
+            code
+        );
+        const linkResult = await googleUser.linkWithCredential(cred);
+        const user = linkResult.user;
+
+        document.getElementById('authStatus').textContent =
+            'Phone verified: ' + (user.phoneNumber || '') + '. Loading app...';
+
+        initAppAfterLogin(user);
+    } catch (err) {
+        console.error(err);
+        alert('OTP verification failed: ' + err.message);
+    }
+}
+
+// ===== LOGOUT (single function) =====
+function logout() {
+    auth.signOut().then(() => {
+        isLoggedIn = false;
+        currentUser = null;
+        googleUser = null;
+        confirmationResultGlobal = null;
+        transactions = [];
+
+        const statusEl = document.getElementById('authStatus');
+        if (statusEl) statusEl.textContent = '';
+
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('app').classList.add('hidden');
+
+        showNotification('👋 Logged out successfully', 'success');
+    }).catch(error => {
+        alert('Logout error: ' + error.message);
+    });
+}
+    // ===== LOGOUT ====//
+    function logout() {
+    firebase.auth().signOut().then(() => {
+        // Firebase session clear
+        googleUser = null;
+        confirmationResultGlobal = null;
+
+        // App छुपाओ, auth screen दिखाओ
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('app').classList.add('hidden');
+
+        // Status clear
+        const statusEl = document.getElementById('authStatus');
+        if (statusEl) statusEl.textContent = '';
+
+        showNotification('👋 Logged out successfully', 'success');
+    }).catch((error) => {
+        alert('Logout error: ' + error.message);
+    });
+    }
 
     // ===== NAVIGATION =====
     function switchPage(page) {
