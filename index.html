@@ -1424,26 +1424,7 @@ function logout() {
         alert('Logout error: ' + error.message);
     });
 }
-    // ===== LOGOUT ====//
-    function logout() {
-    firebase.auth().signOut().then(() => {
-        // Firebase session clear
-        googleUser = null;
-        confirmationResultGlobal = null;
-
-        // App छुपाओ, auth screen दिखाओ
-        document.getElementById('authScreen').classList.remove('hidden');
-        document.getElementById('app').classList.add('hidden');
-
-        // Status clear
-        const statusEl = document.getElementById('authStatus');
-        if (statusEl) statusEl.textContent = '';
-
-        showNotification('👋 Logged out successfully', 'success');
-    }).catch((error) => {
-        alert('Logout error: ' + error.message);
-    });
-    }
+    
 
     // ===== NAVIGATION =====
     function switchPage(page) {
