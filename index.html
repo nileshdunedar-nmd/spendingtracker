@@ -1311,14 +1311,14 @@ function setupRecaptcha() {
 window.addEventListener('load', () => {
     setupRecaptcha();
 
-  /*  auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(user => {
         if (user && user.phoneNumber) {
             initAppAfterLogin(user);
         } else {
             document.getElementById('authScreen').classList.remove('hidden');
             document.getElementById('app').classList.add('hidden');
         }
-    });*/
+    });
 });
 
 // ===== STEP 1: GOOGLE LOGIN =====
