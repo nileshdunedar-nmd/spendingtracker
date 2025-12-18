@@ -1313,14 +1313,14 @@ function setupRecaptcha() {
 window.addEventListener('load', () => {
     setupRecaptcha();
 
-    auth.onAuthStateChanged(user => {
+  /*  auth.onAuthStateChanged(user => {
         if (user && user.phoneNumber) {
             initAppAfterLogin(user);
         } else {
             document.getElementById('authScreen').classList.remove('hidden');
             document.getElementById('app').classList.add('hidden');
         }
-    });
+    });*/
 });
 
 // ===== STEP 1: GOOGLE LOGIN =====
@@ -2220,7 +2220,7 @@ window.addEventListener('load', () => {
     if (savedCats) categoryBudgets = JSON.parse(savedCats);
 
     // ===== AUTH STATE (SINGLE SOURCE) =====
-   /* auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(user => {
         if (!user) return;
 
         currentUser = user;
@@ -2233,7 +2233,7 @@ window.addEventListener('load', () => {
 
         document.getElementById('authScreen')?.classList.add('hidden');
         document.getElementById('app')?.classList.remove('hidden');
-    });*/
+    });
 
     // ===== ADD ANIMATION STYLE ONCE =====
     if (!document.getElementById('toast-animations')) {
