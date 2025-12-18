@@ -1247,31 +1247,24 @@
     };
 
 
-    // ===== CURRENCY DETECTION =====
-    let currencySymbol = '₹'; // Default
-    let currencyCode = 'INR';
+    /*************************
+ * ===== CURRENCY =====
+ *************************/
+let currencySymbol = '₹';
 
-    function detectCurrency() {
-        try {
-            const formatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' });
-            const parts = formatter.formatToParts(1);
-            const currencyPart = parts.find(p => p.type === 'currency');
-            if (currencyPart) {
-                currencySymbol = currencyPart.value;
-            }
-        } catch (e) {
-            // Fallback based on timezone
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            if (timezone.includes('Asia/Kolkata')) {
-                currencySymbol = '₹';
-                currencyCode = 'INR';
-            } else if (timezone.includes('America') || timezone.includes('UTC')) {
-                currencySymbol = '$';
-                currencyCode = 'USD';
-            } else if (timezone.includes('Europe')) {
+function detectCurrency() {
+    try {
+        const formatter = new Intl.NumberFormat(undefined, {
+            style: 'currency', currency: 'INR'
+        });
+        currencySymbol = formatter.formatToParts(1)
+            .find(p => p.type === 'currency')?.value || '₹';
+    } catch {
+        currencySymbol = '₹';
+    }
+}
 
-            
-
+    
     // ===== GOOGLE + PHONE (OTP) AUTH =====
 const auth = firebase.auth();
 let googleUser = null;
