@@ -1279,6 +1279,7 @@ function detectCurrency() {
 
     // ===== AUTH SETUP =====
 const auth = firebase.auth();
+window.auth = auth;
 let googleUser = null;
 let confirmationResultGlobal = null;
 let recaptchaVerifier = null;
@@ -1309,17 +1310,37 @@ function setupRecaptcha() {
 
 // ===== PAGE LOAD =====
 window.addEventListener('load', () => {
-    setupRecaptcha();
 
-    auth.onAuthStateChanged(user => {
-        if (user && user.phoneNumber) {
-            initAppAfterLogin(user);
+    // UI init
+    detectCurrency();
+    updateHeaderDate();
+    loadTheme();
+    createToastContainer();
+
+    // Date
+    document.getElementById('transDate').valueAsDate = new Date();
+    setType('expense');
+    updateCategoryOptions();
+
+    // Auth state
+    window.auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUser = user;
+            isLoggedIn = true;
+            updateUserName();
+            loadTransactionsFromFirebase();
+            updateDashboard();
+            updateBudgetDisplay();
+
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
         } else {
             document.getElementById('authScreen').classList.remove('hidden');
             document.getElementById('app').classList.add('hidden');
         }
     });
 });
+    
 
 // ===== STEP 1: GOOGLE LOGIN =====
 async function handleGoogleSignIn() {
