@@ -2186,59 +2186,61 @@ function logout() {
     }
 
     // ===== INIT =====
-    window.addEventListener('load', () => {
-        detectCurrency();
-        updateHeaderDate();
-        loadTheme();
-        createToastContainer();
-        document.getElementById('transDate').valueAsDate = new Date();
-        setType('expense');
-        updateCategoryOptions();
-        
-        // Load saved budgets
-        const savedMonthlyBudget = localStorage.getItem('monthlyBudget');
-        if (savedMonthlyBudget) {
-            monthlyBudget = parseFloat(savedMonthlyBudget);
-        }
+window.addEventListener('load', () => {
 
-        const savedCatBudgets = localStorage.getItem('categoryBudgets');
-        if (savedCatBudgets) {
-            categoryBudgets = JSON.parse(savedCatBudgets);
-        }
-        
-        // Check Firebase Auth State
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                isLoggedIn = true;
-                updateUserName();
-                loadTransactionsFromFirebase();
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('app').classList.remove('hidden');
-                updateDashboard();
-                updateBudgetDisplay();
-            }
-        });
+    detectCurrency();
+    updateHeaderDate();
+    loadTheme?.();
+    createToastContainer?.();
+
+    const dateInput = document.getElementById('transDate');
+    if (dateInput) dateInput.valueAsDate = new Date();
+
+    setType('expense'); // category update included
+
+    // ===== LOAD BUDGETS =====
+    const savedMonthly = localStorage.getItem('monthlyBudget');
+    if (savedMonthly) monthlyBudget = +savedMonthly;
+
+    const savedCats = localStorage.getItem('categoryBudgets');
+    if (savedCats) categoryBudgets = JSON.parse(savedCats);
+
+    // ===== AUTH STATE (SINGLE SOURCE) =====
+    auth.onAuthStateChanged(user => {
+        if (!user) return;
+
+        currentUser = user;
+        isLoggedIn = true;
+
+        updateUserName?.();
+        loadTransactionsFromFirebase();
+        updateDashboard();
+        updateBudgetDisplay?.();
+
+        document.getElementById('authScreen')?.classList.add('hidden');
+        document.getElementById('app')?.classList.remove('hidden');
     });
 
-    // Add animations
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideInRight {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(400px); opacity: 0; }
-        }
-        
-        .toast {
-            transition: all 0.3s ease;
-        }
-    `;
-    document.head.appendChild(style);
+    // ===== ADD ANIMATION STYLE ONCE =====
+    if (!document.getElementById('toast-animations')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animations';
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+            .toast { transition: all 0.3s ease; }
+        `;
+        document.head.appendChild(style);
+    }
+});
+    
+
 </script>
 </script>
 
