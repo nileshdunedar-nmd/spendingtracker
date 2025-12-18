@@ -2060,10 +2060,6 @@ function logout() {
         appId: "1:948139369692:web:7df339d507716a22864019"
     };
 
-    // Initialize Firebase
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
 
     // ===== LOAD FROM FIREBASE (SAFE) =====
 let transactionsRef = null;
