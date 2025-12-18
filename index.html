@@ -2065,26 +2065,41 @@ function logout() {
         firebase.initializeApp(firebaseConfig);
     }
 
-    // ===== LOAD FROM FIREBASE =====
-    function loadTransactionsFromFirebase() {
-        if (!isLoggedIn || !currentUser) {
-            loadSampleData();
-            return;
-        }
+    // ===== LOAD FROM FIREBASE (SAFE) =====
+let transactionsRef = null;
 
-        const userId = currentUser.uid;
-        firebase.database().ref('users/' + userId + '/transactions').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                transactions = Object.values(data);
-                updateDashboard();
-                renderLastTransactions();
-                updateHistory();
-            } else {
-                loadSampleData();
-            }
-        });
+function loadTransactionsFromFirebase() {
+
+    if (!currentUser) return;
+
+    const userId = currentUser.uid;
+
+    // 🔥 Remove old listener if exists
+    if (transactionsRef) {
+        transactionsRef.off();
     }
+
+    transactionsRef = firebase
+        .database()
+        .ref(`users/${userId}/transactions`);
+
+    // ✅ One-time load (recommended)
+    transactionsRef.once('value')
+        .then(snapshot => {
+            const data = snapshot.val();
+
+            transactions = data ? Object.values(data) : [];
+
+            updateDashboard();
+            renderLastTransactions?.();
+            updateHistory?.();
+        })
+        .catch(err => {
+            console.error('Firebase load error:', err);
+        });
+}
+
+
 
     // ===== SAMPLE DATA =====
     function loadSampleData() {
