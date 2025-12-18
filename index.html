@@ -2218,41 +2218,40 @@ function loadTransactionsFromFirebase() {
         }
     }
 
-    // ===== INIT =====
-/*window.addEventListener('load', () => {
+    // ===== INIT ====//
+    window.addEventListener('load', () => {
 
+    // UI init
     detectCurrency();
     updateHeaderDate();
-    loadTheme?.();
-    createToastContainer?.();
+    loadTheme();
+    createToastContainer();
 
-    const dateInput = document.getElementById('transDate');
-    if (dateInput) dateInput.valueAsDate = new Date();
+    // Date
+    document.getElementById('transDate').valueAsDate = new Date();
+    setType('expense');
+    updateCategoryOptions();
 
-    setType('expense'); // category update included
+    // Auth state
+    window.auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUser = user;
+            isLoggedIn = true;
+            updateUserName();
+            loadTransactionsFromFirebase();
+            updateDashboard();
+            updateBudgetDisplay();
 
-    // ===== LOAD BUDGETS =====
-    const savedMonthly = localStorage.getItem('monthlyBudget');
-    if (savedMonthly) monthlyBudget = +savedMonthly;
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+        } else {
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('app').classList.add('hidden');
+        }
+    });
+});
+    
 
-    const savedCats = localStorage.getItem('categoryBudgets');
-    if (savedCats) categoryBudgets = JSON.parse(savedCats);
-
-    // ===== AUTH STATE (SINGLE SOURCE) =====
-    auth.onAuthStateChanged(user => {
-        if (!user) return;
-
-        currentUser = user;
-        isLoggedIn = true;
-
-        updateUserName?.();
-        loadTransactionsFromFirebase();
-        updateDashboard();
-        updateBudgetDisplay?.();
-
-        document.getElementById('authScreen')?.classList.add('hidden');
-        document.getElementById('app')?.classList.remove('hidden');
-    });*/
 
     // ===== ADD ANIMATION STYLE ONCE =====
     if (!document.getElementById('toast-animations')) {
