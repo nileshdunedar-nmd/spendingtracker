@@ -1264,54 +1264,42 @@ function detectCurrency() {
     }
 }
 
-    
-    // ===== GOOGLE + PHONE (OTP) AUTH =====
+    // ===== AUTH SETUP =====
 const auth = firebase.auth();
 let googleUser = null;
 let confirmationResultGlobal = null;
+let recaptchaVerifier = null;
 
-// Login ke baad app initialise
+// ===== INIT AFTER LOGIN =====
 function initAppAfterLogin(user) {
     currentUser = user;
     isLoggedIn = true;
 
     loadTransactionsFromFirebase();
     updateDashboard();
-    updateBudgetDisplay();
     setDefaultDate();
-    if (typeof updateUserName === 'function') {
-        updateUserName();
-    }
+    updateUserName?.();
 
     document.getElementById('authScreen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
 }
 
-// reCAPTCHA setup
+// ===== RECAPTCHA (ONCE) =====
 function setupRecaptcha() {
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        size: 'invisible',
-        callback: function () {
-            console.log('reCAPTCHA solved');
-        }
-    });
+    if (recaptchaVerifier) return;
+
+    recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+        'recaptcha-container',
+        { size: 'invisible' }
+    );
 }
 
-// Page load par recaptcha + auth state
+// ===== PAGE LOAD =====
 window.addEventListener('load', () => {
-    detectCurrency();
-    updateHeaderDate();
-    loadTheme();
-    createToastContainer();
-    document.getElementById('transDate').valueAsDate = new Date();
-    setType('expense');
-    updateCategoryOptions();
-
     setupRecaptcha();
 
     auth.onAuthStateChanged(user => {
-        if (user) {
-            googleUser = user;
+        if (user && user.phoneNumber) {
             initAppAfterLogin(user);
         } else {
             document.getElementById('authScreen').classList.remove('hidden');
@@ -1320,82 +1308,53 @@ window.addEventListener('load', () => {
     });
 });
 
-// STEP 1: Google Sign-In
+// ===== STEP 1: GOOGLE LOGIN =====
 async function handleGoogleSignIn() {
     try {
         const provider = new firebase.auth.GoogleAuthProvider();
-        const result = await auth.signInWithPopup(provider);
-        googleUser = result.user;
+        const res = await auth.signInWithPopup(provider);
+        googleUser = res.user;
 
         document.getElementById('phoneStep').classList.remove('hidden');
         document.getElementById('authStatus').textContent =
-            'Google connected: ' + (googleUser.displayName || googleUser.email) +
-            '. Now verify your phone.';
-    } catch (err) {
-        console.error(err);
-        alert('Google sign-in failed: ' + err.message);
+            `Google connected: ${googleUser.email}`;
+    } catch (e) {
+        alert(e.message);
     }
 }
 
-// STEP 2: Send OTP
+// ===== STEP 2: SEND OTP (LINK) =====
 async function sendOtp() {
-    if (!googleUser) {
-        alert('Please sign in with Google first.');
-        return;
-    }
+    if (!googleUser) return alert('Login with Google first');
 
-    const phoneNumber = document.getElementById('phoneNumber').value.trim();
-    if (!phoneNumber) {
-        alert('Enter phone with country code, e.g. +91...');
-        return;
-    }
+    const phone = phoneNumber.value.trim();
+    if (!phone) return alert('Enter phone number with country code');
 
     try {
-        const appVerifier = window.recaptchaVerifier;
-        const confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, appVerifier);
-        confirmationResultGlobal = confirmationResult;
+        confirmationResultGlobal =
+            await googleUser.linkWithPhoneNumber(phone, recaptchaVerifier);
 
-        document.getElementById('authStatus').textContent =
-            'OTP sent to ' + phoneNumber + '. Enter the code.';
-    } catch (err) {
-        console.error(err);
-        alert('Error sending OTP: ' + err.message);
+        authStatus.textContent = 'OTP sent. Please verify.';
+    } catch (e) {
+        alert(e.message);
     }
 }
 
-// STEP 3: Verify OTP + link with Google account
+// ===== STEP 3: VERIFY OTP =====
 async function verifyOtp() {
-    if (!confirmationResultGlobal) {
-        alert('Please request OTP first.');
-        return;
-    }
-    const code = document.getElementById('otpCode').value.trim();
-    if (!code) {
-        alert('Enter OTP code.');
-        return;
-    }
+    if (!confirmationResultGlobal) return alert('Request OTP first');
+
+    const code = otpCode.value.trim();
+    if (!code) return alert('Enter OTP');
 
     try {
-        // confirm se phone user milta hai
-        const result = await confirmationResultGlobal.confirm(code);
-
-        // phone credential bana ke google user ke saath link karo
-        const cred = firebase.auth.PhoneAuthProvider.credential(
-            confirmationResultGlobal.verificationId,
-            code
-        );
-        const linkResult = await googleUser.linkWithCredential(cred);
-        const user = linkResult.user;
-
-        document.getElementById('authStatus').textContent =
-            'Phone verified: ' + (user.phoneNumber || '') + '. Loading app...';
-
-        initAppAfterLogin(user);
-    } catch (err) {
-        console.error(err);
-        alert('OTP verification failed: ' + err.message);
+        const res = await confirmationResultGlobal.confirm(code);
+        initAppAfterLogin(res.user);
+    } catch (e) {
+        alert('OTP failed: ' + e.message);
     }
 }
+
 
 // ===== LOGOUT (single function) =====
 function logout() {
