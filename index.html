@@ -2220,7 +2220,7 @@ window.addEventListener('load', () => {
     if (savedCats) categoryBudgets = JSON.parse(savedCats);
 
     // ===== AUTH STATE (SINGLE SOURCE) =====
-    auth.onAuthStateChanged(user => {
+   /* auth.onAuthStateChanged(user => {
         if (!user) return;
 
         currentUser = user;
@@ -2233,7 +2233,7 @@ window.addEventListener('load', () => {
 
         document.getElementById('authScreen')?.classList.add('hidden');
         document.getElementById('app')?.classList.remove('hidden');
-    });
+    });*/
 
     // ===== ADD ANIMATION STYLE ONCE =====
     if (!document.getElementById('toast-animations')) {
