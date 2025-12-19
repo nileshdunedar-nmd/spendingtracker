@@ -11,13 +11,25 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <!-- 2. Firebase init -->
-<script src="firebase-init.js"></script>
+<script>
+const firebaseConfig = {
+        apiKey: "AIzaSyCLnj8vRLLjgfWFlu9wU0gK8ZccmpA67GI",
+        authDomain: "spendingtracker-a3e9a.firebaseapp.com",
+        projectId: "spendingtracker-a3e9a",
+        storageBucket: "spendingtracker-a3e9a.firebasestorage.app",
+        messagingSenderId: "948139369692",
+        databaseURL: "https://spendingtracker-a3e9a-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        appId: "1:948139369692:web:7df339d507716a22864019"
+    };
+firebase.initializeApp(firebaseConfig);
+</script>
+
 
 <!-- 3. Auth setup -->
-<script src="auth.js"></script>
+<!-- <script src="auth.js"></script> -->
 
 <!-- 4. App logic -->
-<script src="app.js"></script>
+<!-- <script src="app.js"></script> -->
 
 <!-- 5. Chart library (if you use charts) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -1166,7 +1178,7 @@
 
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
-        <button class="nav-btn active" onclick="switchPage('dashboard')">
+        <button class="nav-btn active" onclick="switchPage('dashboard', this)">
             <img src="asset/dashboard.png" style="width:20px;height:20px;">
             <span class="nav-label">Dashboard</span>
         </button>
@@ -1278,8 +1290,12 @@ function detectCurrency() {
 }
 
     // ===== AUTH SETUP =====
-const auth = firebase.auth();
-window.auth = auth;
+let auth;
+window.addEventListener('load', () => {
+  auth = firebase.auth();
+  window.auth = auth;
+});
+
 let googleUser = null;
 let confirmationResultGlobal = null;
 let recaptchaVerifier = null;
@@ -1320,7 +1336,7 @@ window.addEventListener('load', () => {
     // Date
     document.getElementById('transDate').valueAsDate = new Date();
     setType('expense');
-    updateCategoryOptions();
+    renderCategoryOptions();
 
     // Auth state
     window.auth.onAuthStateChanged(user => {
@@ -1413,19 +1429,18 @@ function logout() {
     
 
     // ===== NAVIGATION =====
-    function switchPage(page) {
-        // Hide all pages
-        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        
-        // Show selected page
+    function switchPage(page, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
         document.getElementById(page + 'Page').classList.add('active');
-        event.target.closest('.nav-btn').classList.add('active');
-        
+        if (el) el.classList.add('active');
+
         if (page === 'history') updateHistory();
         if (page === 'analytics') updateAnalytics();
         if (page === 'budget') renderBudgetCategoryList();
     }
+
 
     // ===== DASHBOARD =====
     function setDefaultDate() {
@@ -1488,13 +1503,14 @@ function logout() {
 
         // Alert
         const alertEl = document.getElementById('alertText');
-        if (budgetUsed > 80) {
-            alertEl.textContent = '⚠️ You\'ve used 80% of your budget!';
-        } else if (budgetUsed > 100) {
-            alertEl.textContent = '❌ You\'ve exceeded your budget!';
+        if (budgetUsed > 100) {
+        alertEl.textContent = '❌ Budget exceeded!';
+        } else if (budgetUsed > 80) {
+        alertEl.textContent = '⚠️ 80% budget used!';
         } else {
-            alertEl.textContent = '✅ You\'re spending well! Keep it up.';
+        alertEl.textContent = '✅ You are within budget';
         }
+
 
         renderRecentTransactions();
         drawCharts();
@@ -1552,42 +1568,13 @@ function logout() {
     // ===== ADD TRANSACTION =====
     function setType(type) {
         currentType = type;
-
-        document.querySelectorAll('.type-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
         document.querySelector(`.type-btn[data-type="${type}"]`)?.classList.add('active');
-
-        renderCategoryOptions();   // यहाँ से category बदल जाएगी
+        renderCategoryOptions();
     }
 
-    function setTypeBtn(button, type) {
-        currentType = type;
-        
-        // सब से remove
-        document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
-        
-        // यह button active करो
-        button.classList.add('active');
-        
-        updateCategoryOptions();
-    }
 
-    function updateCategoryOptions() {
-        const categorySelect = document.getElementById('category');
-        const options = categorySelect.querySelectorAll('optgroup');
-        
-        if (currentType === 'income') {
-            // Hide expenses, show income
-            options[0].style.display = 'none';
-            options[1].style.display = 'block';
-        } else {
-            // Show expenses, hide income
-            options[0].style.display = 'block';
-            options[1].style.display = 'none';
-        }
-        categorySelect.value = '';
-    }
+
 
     function addTransaction() {
         const amount = parseFloat(document.getElementById('amount').value);
@@ -2071,51 +2058,22 @@ function logout() {
         URL.revokeObjectURL(url);
     }
 
-    // ===== FIREBASE CONFIG =====
-    const firebaseConfig = {
-        apiKey: "AIzaSyCLnj8vRLLjgfWFlu9wU0gK8ZccmpA67GI",
-        authDomain: "spendingtracker-a3e9a.firebaseapp.com",
-        projectId: "spendingtracker-a3e9a",
-        storageBucket: "spendingtracker-a3e9a.firebasestorage.app",
-        messagingSenderId: "948139369692",
-        databaseURL: "https://spendingtracker-a3e9a-default-rtdb.asia-southeast1.firebasedatabase.app/",
-        appId: "1:948139369692:web:7df339d507716a22864019"
-    };
-
 
     // ===== LOAD FROM FIREBASE (SAFE) =====
 let transactionsRef = null;
 
 function loadTransactionsFromFirebase() {
+        if (!currentUser) return;
 
-    if (!currentUser) return;
-
-    const userId = currentUser.uid;
-
-    // 🔥 Remove old listener if exists
-    if (transactionsRef) {
-        transactionsRef.off();
+        firebase.database()
+        .ref('users/' + currentUser.uid + '/transactions')
+        .once('value')
+        .then(snap => {
+            transactions = snap.exists() ? Object.values(snap.val()) : [];
+            updateDashboard();
+        });
     }
 
-    transactionsRef = firebase
-        .database()
-        .ref(`users/${userId}/transactions`);
-
-    // ✅ One-time load (recommended)
-    transactionsRef.once('value')
-        .then(snapshot => {
-            const data = snapshot.val();
-
-            transactions = data ? Object.values(data) : [];
-
-            updateDashboard();
-            renderLastTransactions?.();
-            updateHistory?.();
-        })
-        .catch(err => {
-            console.error('Firebase load error:', err);
-        });
-}
 
 
 
@@ -2218,40 +2176,6 @@ function loadTransactionsFromFirebase() {
         }
     }
 
-    // ===== INIT ====//
-    window.addEventListener('load', () => {
-
-    // UI init
-    detectCurrency();
-    updateHeaderDate();
-    loadTheme();
-    createToastContainer();
-
-    // Date
-    document.getElementById('transDate').valueAsDate = new Date();
-    setType('expense');
-    updateCategoryOptions();
-
-    // Auth state
-    window.auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUser = user;
-            isLoggedIn = true;
-            updateUserName();
-            loadTransactionsFromFirebase();
-            updateDashboard();
-            updateBudgetDisplay();
-
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-        } else {
-            document.getElementById('authScreen').classList.remove('hidden');
-            document.getElementById('app').classList.add('hidden');
-        }
-    });
-});
-    
-
 
     // ===== ADD ANIMATION STYLE ONCE =====
     if (!document.getElementById('toast-animations')) {
@@ -2270,7 +2194,7 @@ function loadTransactionsFromFirebase() {
         `;
         document.head.appendChild(style);
     }
-});
+
     
 
 </script>
