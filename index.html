@@ -1359,21 +1359,29 @@ window.addEventListener('load', () => {
     
 
 // ===== STEP 1: GOOGLE LOGIN =====
-async function handleGoogleSignIn() {
-    try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        const res = await auth.signInWithPopup(provider);
-        googleUser = res.user;
-
-        document.getElementById('phoneStep').classList.remove('hidden');
-        document.getElementById('authStatus').textContent =
-            `Google connected: ${googleUser.email}`;
-    } catch (e) {
-        alert(e.message);
-    }
+function handleGoogleSignIn() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithRedirect(provider);
 }
 
-// ===== STEP 2: SEND OTP (LINK) =====
+window.addEventListener('load', async () => {
+    try {
+        const result = await auth.getRedirectResult();
+        if (result.user) {
+            googleUser = result.user;
+
+            document.getElementById('phoneStep').classList.remove('hidden');
+            document.getElementById('authStatus').textContent =
+                `Google connected: ${googleUser.email}`;
+
+            setupRecaptcha(); // VERY IMPORTANT
+        }
+    } catch (e) {
+        console.error(e);
+        alert(e.message);
+    }
+});
+
 async function sendOtp() {
     if (!googleUser) return alert('Login with Google first');
 
@@ -1390,7 +1398,6 @@ async function sendOtp() {
     }
 }
 
-// ===== STEP 3: VERIFY OTP =====
 async function verifyOtp() {
     if (!confirmationResultGlobal) return alert('Request OTP first');
 
@@ -1403,6 +1410,15 @@ async function verifyOtp() {
     } catch (e) {
         alert('OTP failed: ' + e.message);
     }
+}
+
+function setupRecaptcha() {
+    if (recaptchaVerifier) return;
+
+    recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+        'recaptcha-container',
+        { size: 'invisible' }
+    );
 }
 
 
