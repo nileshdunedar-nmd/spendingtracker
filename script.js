@@ -1,115 +1,10 @@
 // ✅ Global state
 let transactions = [];
 let monthlyBudget = 0;
+let dailyExpenseChart = null;
+let monthlyExpenseChart = null;
 
-
-
-let locale = "en-US";
-
-if (window.androidLocale) {
-    locale = `${window.androidLocale.lang}-${window.androidLocale.region}`;
-} else {
-    locale = navigator.language || "en-US";
-}
-
-function getCurrencyFromLocale(loc) {
-    try {
-        const formatter = new Intl.NumberFormat(loc, { style: "currency", currency: "USD" });
-        return formatter.resolvedOptions().currency;
-    } catch (e) {
-        return "USD";
-    }
-}
-
-
-
-
-
-// --- Compatibility wrapper used by older code (keeps older calls working) ---
-function detectCurrency() {
-    // return same shape as previous implementations
-    try {
-        return detectCurrencyByRegion();
-    } catch (e) {
-        return { locale: (navigator.language||'en-US'), region: 'US', currency: 'USD', symbol: '$' };
-    }
-}
-
-// ----------------- CURRENCY GLOBALS (must be at top) -----------------
-let APP_CURRENCY = localStorage.getItem('APP_CURRENCY') || "";
-let currencySymbol = localStorage.getItem('APP_SYMBOL') || ""; // This was causing the error when undefined
-// --------------------------------------------------------------------
-
-// ------------------ REAL CURRENCY DETECTOR ------------------
-
-function detectCurrencyByRegion() {
-    const locale = navigator.language || "en-US";
-
-    // mapping: region -> currency
-    const regionToCurrency = {
-        "IN": "INR",
-        "US": "USD",
-        "GB": "GBP",
-        "JP": "JPY",
-        "KR": "KRW",
-        "FR": "EUR",
-        "DE": "EUR",
-        "SA": "SAR",
-        "RU": "RUB",
-        "ID": "IDR",
-        "BR": "BRL",
-        "CA": "CAD",
-        "AU": "AUD",
-        "CN": "CNY",
-        "TW": "TWD",
-        "SG": "SGD",
-        "AE": "AED",
-        "ZA": "ZAR"
-    };
-
-    let region = locale.split("-")[1];
-
-    // fallback: if device gives only "en" instead of "en-US"
-    if (!region) {
-        try {
-            region = Intl.DateTimeFormat().resolvedOptions().locale.split("-")[1];
-        } catch (e) {}
-    }
-
-    let currency = regionToCurrency[region] || "USD";
-
-    let symbol = currency;
-    try {
-        const parts = new Intl.NumberFormat(locale, {
-            style: "currency",
-            currency: currency,
-            currencyDisplay: "symbol"
-        }).formatToParts(1);
-        const cPart = parts.find(p => p.type === "currency");
-        if (cPart && cPart.value) symbol = cPart.value;
-    } catch (e) {
-        // fallback to currency code
-        symbol = currency;
-    }
-    return { locale, region, currency, symbol };
-}
-
-function detectAndUpdateCurrency() {
-    const out = detectCurrencyByRegion();
-
-    APP_CURRENCY = out.currency;
-    currencySymbol = out.symbol;
-
-    localStorage.setItem("APP_CURRENCY", APP_CURRENCY);
-    localStorage.setItem("APP_SYMBOL", currencySymbol);
-
-    console.log("DETECTED:", out.locale, "→", out.currency, out.symbol);
-}
-
-
-
-
-
+// let categoryBudgets = {};  // Empty initially, loaded from storage
 // ✅ 1. Global variables (TOP PE add karo)
 let categoryBudgets = {
     food: 0, groceries: 0, transport: 0, clothing: 0, 
@@ -118,157 +13,158 @@ let categoryBudgets = {
     education: 0, other: 0
 };
 
-document.addEventListener('DOMContentLoaded', function () {
 
-    // ---------- INITIAL SETUP ----------
+// --- PIN PROTECTION (LOCAL STORAGE ONLY) ---
+const PIN_KEY = 'st_local_pin';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const monthlyFilter = document.getElementById('monthlyCategoryFilter');
+    if (monthlyFilter) {
+        monthlyFilter.addEventListener('change', drawMonthlyExpenseChart);
+    }
+
+    initPinLock();
+});
+
+function initPinLock() {
+  const savedPin = localStorage.getItem(PIN_KEY);
+  const lockScreen = document.getElementById('pinLockScreen');
+  const setupArea = document.getElementById('pinSetupArea');
+  const loginArea = document.getElementById('pinLoginArea');
+  const subtitle = document.getElementById('pinSubtitle');
+
+  if (!lockScreen) return;
+
+  if (savedPin) {
+    // PIN already set → show login
+    setupArea.classList.add('hidden');
+    loginArea.classList.remove('hidden');
+    subtitle.textContent = 'Enter your PIN to unlock';
+  } else {
+    // First time → set PIN
+    setupArea.classList.remove('hidden');
+    loginArea.classList.add('hidden');
+    subtitle.textContent = 'Set a 4-digit PIN to protect your data';
+  }
+}
+
+function setPin() {
+  const pin1 = document.getElementById('newPin').value.trim();
+  const pin2 = document.getElementById('confirmPin').value.trim();
+
+  if (!pin1 || !pin2 || pin1.length !== 4 || pin2.length !== 4 || isNaN(pin1) || isNaN(pin2)) {
+    showToast('Enter valid 4-digit PIN in both fields');
+    return;
+  }
+  if (pin1 !== pin2) {
+    showToast('PINs do not match');
+    return;
+  }
+
+  localStorage.setItem(PIN_KEY, pin1);
+  showToast('PIN set successfully');
+  document.getElementById('newPin').value = '';
+  document.getElementById('confirmPin').value = '';
+
+  initPinLock(); // switch to login view
+}
+
+function verifyPin() {
+  const savedPin = localStorage.getItem(PIN_KEY);
+  const entered = document.getElementById('loginPin').value.trim();
+
+  if (!entered || entered.length !== 4) {
+    showToast('Enter your 4-digit PIN');
+    return;
+  }
+  if (entered !== savedPin) {
+    showToast('Wrong PIN');
+    return;
+  }
+
+  document.getElementById('pinLockScreen').classList.add('hidden');
+  showToast('Unlocked');
+}
+
+function resetAllData() {
+  customConfirm('Reset all data and PIN?').then(ok => {
+    if (!ok) return;
+    localStorage.clear();
+    transactions = [];
+    monthlyBudget = 0;
+    updateDashboard();
+    updateBudgetView && updateBudgetView();
+    updateCategoryBudgetUI && updateCategoryBudgetUI();
+    document.getElementById('loginPin').value = '';
+    document.getElementById('newPin').value = '';
+    document.getElementById('confirmPin').value = '';
+    localStorage.removeItem(PIN_KEY);
+    initPinLock();
+    showToast('App reset. Set new PIN.');
+  });
+}
+
+
+// ✅ Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
     currentType = 'expense';
-    detectAndUpdateCurrency();      // Set correct symbol first
-    loadFromLocalStorage();         // Load all saved data
-    setDefaultDate();               // Set date fields
-    updateCategoryOptions();        // Set category based on type
-    updateDashboard();              // Update home stats
-    setFilterMonth();               // Set current month
-    updateBudgetView();             // Budget UI
-    updateCategoryBudgetUI();       // Category budget UI
-    filterTransactions();           // Show initial transactions
-    
-    
-
-    // ---------- SEARCH + FILTER EVENTS ----------
+    updateCategoryOptions();  // ✅ initial state
+    loadFromLocalStorage();  // Load ALL data first
+    setDefaultDate();
+    updateDashboard();
+    setFilterMonth();
+    updateBudgetView();      // Refresh budgets
+    updateCategoryBudgetUI(); // Show category inputs
+    // ✅ Search events
     const searchInput = document.getElementById('transactionSearch');
     const monthFilter = document.getElementById('filterMonth');
-
+    
     if (searchInput) {
         searchInput.addEventListener('input', filterTransactions);
     }
     if (monthFilter) {
         monthFilter.addEventListener('change', filterTransactions);
     }
-
-
-    // ---------- CUSTOM CONFIRM BUTTON EVENTS ----------
-    const yesBtn = document.getElementById('confirmYes');
-    const noBtn = document.getElementById('confirmNo');
-    const dialog = document.getElementById('confirmDialog');
-    const msg = document.getElementById('confirmMessage');
-
-    if (yesBtn) {
-        yesBtn.onclick = () => {
-            dialog.style.display = 'none';
-            if (confirmResolve) confirmResolve(true);
-        };
-    }
-
-    if (noBtn) {
-        noBtn.onclick = () => {
-            dialog.style.display = 'none';
-            if (confirmResolve) confirmResolve(false);
-        };
-    }
-
-    // Escape key closes dialog
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && dialog.style.display === 'flex') {
-            if (noBtn) noBtn.click();
-        }
-    });
-
+    
+    // Initial load
+    filterTransactions();
 });
 
-function formatMoney(amount) {
-    // ensure currencySymbol is present; if not, run detection synchronously
-    if (!currencySymbol) {
-        const tmp = detectCurrency();
-        APP_CURRENCY = tmp.currency;
-        currencySymbol = tmp.symbol || tmp.currency || "$";
-    }
+// Currency functions (TOP PE - FIXED)
+let currencySymbol = getCurrencySymbol();
 
-    const absAmount = Math.abs(amount || 0);
-    const formattedAmount = (absAmount % 1 === 0) ? Math.round(absAmount).toString() : absAmount.toFixed(2);
+function getCurrencySymbol() {
+    // Method 1: Check if India timezone/location
+    const isIndia = Intl.DateTimeFormat().resolvedOptions().timeZone.includes('Asia/Kolkata') ||
+                    navigator.language?.includes('IN');
+    
+    if (isIndia) return '₹';
+    
+    // Method 2: Intl automatic detection
+    try {
+        // Try INR first (India), fallback to USD
+        return new Intl.NumberFormat('default', { 
+            style: 'currency', 
+            currency: 'INR' 
+        }).formatToParts(1)[0].value;
+    } catch (e) {
+        return '$'; // Final fallback
+    }
+}
+
+function formatMoney(amount) {
+    const absAmount = Math.abs(amount);
+    
+    // Agar integer hai (.00) to sirf whole number dikhao
+    const formattedAmount = absAmount % 1 === 0 
+        ? Math.round(absAmount).toString() 
+        : absAmount.toFixed(2);
+    
     const sign = amount < 0 ? '-' : '';
     return sign + currencySymbol + ' ' + formattedAmount;
 }
 
 
-function updateBudgetArc(total, spent) {
-    const left = total - spent;
-    const percent = total > 0 ? (spent / total) * 100 : 0;
-
-    document.getElementById("arcTotal").innerText = formatMoney(total);
-    document.getElementById("arcSpent").innerText = formatMoney(spent);
-    document.getElementById("arcLeft").innerText = formatMoney(left);
-
-    const arc = document.getElementById("arc-progress");
-    const L = 126; // arc length
-    arc.style.strokeDashoffset = L - (L * percent / 100);
-}
-
-
-
-
-
-// Clear all data (safe, uses existing customConfirm and showToast)
-async function clearAllData() {
-    try {
-        // Ask user for confirmation using existing customConfirm()
-        const confirmed = await customConfirm('This will DELETE all transactions and budgets from this device. Are you sure?');
-        if (!confirmed) return;
-
-        // Clear local variables
-        transactions = [];
-        monthlyBudget = 0;
-        // Reset category budgets to defaults (keeps same keys)
-        categoryBudgets = {
-            food: 0, groceries: 0, transport: 0, clothing: 0,
-            debt: 0, savings: 0, shopping: 0, utilities: 0,
-            health: 0, travel: 0, housing: 0, entertainment: 0,
-            education: 0, other: 0
-        };
-
-        // Remove from localStorage
-        try {
-            localStorage.removeItem('spendingTrackerData');
-        } catch (e) {
-            console.warn('Could not remove localStorage key:', e);
-        }
-
-        // If Firebase available, try to delete docs (best-effort, guarded)
-        if (typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firebaseReady !== 'undefined' && firebaseReady) {
-            try {
-                // Warning: deleting many docs could be slow / costly — we do best-effort
-                const snapshot = await db.collection('transactions').get();
-                const batch = db.batch ? db.batch() : null;
-                if (snapshot && !snapshot.empty) {
-                    if (batch) {
-                        snapshot.forEach(doc => batch.delete(doc.ref));
-                        await batch.commit();
-                    } else {
-                        // if no batch API available, delete one-by-one
-                        const deletes = [];
-                        snapshot.forEach(doc => deletes.push(db.collection('transactions').doc(doc.id).delete()));
-                        await Promise.all(deletes);
-                    }
-                }
-                console.log('Firebase: all transactions deleted (if any).');
-            } catch (e) {
-                console.warn('Firebase clear error (ignored):', e);
-            }
-        }
-
-        // Update UI safely (check elements exist)
-        saveToLocalStorage(); // save cleared state (keeps consistent)
-        updateDashboard();
-        updateBudgetView();
-        updateCategoryBudgetUI();
-        updateRecentTransactions();
-        filterTransactions();
-
-        showToast('All data cleared.', 'success', 3500);
-    } catch (err) {
-        console.error('clearAllData error:', err);
-        showToast('Error clearing data. See console.', 'error', 4000);
-    }
-}
 
 // Toast function
 function showToast(message, type = 'info', duration = 3000) {
@@ -296,6 +192,38 @@ function customConfirm(message) {
     document.getElementById('confirmDialog').style.display = 'flex';
   });
 }
+
+// Dialog event listeners
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('confirmYes').onclick = () =>{
+    document.getElementById('confirmDialog').style.display = 'none';
+    if (confirmResolve) confirmResolve(true);
+  };
+
+  document.getElementById('confirmNo').onclick = () => {
+    document.getElementById('confirmDialog').style.display = 'none';
+    if (confirmResolve) confirmResolve(false);
+  };
+
+  // ESC key support
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('confirmDialog').style.display === 'flex') {
+      document.getElementById('confirmNo').click();
+    }
+  });
+
+  // ✅ SEARCH LISTENERS
+    document.getElementById('transactionSearch').addEventListener('input', function() {
+        filterTransactions();
+    });
+    
+    document.getElementById('filterMonth').addEventListener('change', filterTransactions);
+    
+    // Initial load
+    setFilterMonth();
+    filterTransactions();
+});
+
 
 // updateDashboard me ye add karo:
 function updateDashboard() {
@@ -337,21 +265,150 @@ function updateDashboard() {
     budgetLeftEl.className = budgetLeft >= 0 ? 'stat-value positive' : 'stat-value negative';
     
     updateRecentTransactions();
-    updateArcBudget(monthlyBudget, monthlyExpense);
-    updateBudgetArc(10000, 3500);
-
+    drawDailyExpenseChart();
+    drawMonthlyExpenseChart();
 }
+
+function drawDailyExpenseChart() {
+  const ctx = document.getElementById('dailyExpenseChart');
+  if (!ctx) return;
+
+  const currentMonth = new Date().toISOString().substring(0, 7);
+  const dayMap = {};
+
+  transactions.forEach(t => {
+    if (t.type === 'expense' && t.date.substring(0, 7) === currentMonth) {
+      const day = parseInt(t.date.split('-')[2], 10);
+      dayMap[day] = (dayMap[day] || 0) + t.amount;
+    }
+  });
+
+  const days = Object.keys(dayMap).sort((a, b) => a - b);
+  const values = days.map(d => dayMap[d]);
+
+  if (dailyExpenseChart) dailyExpenseChart.destroy();
+
+  dailyExpenseChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [{
+        label: 'Daily Expense',
+        data: values,
+        borderColor: '#FF6B6B',
+        backgroundColor: 'rgba(255,107,107,0.15)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#6b7280', font: { size: 10 } },
+          grid: { color: 'rgba(209,213,219,0.5)' }
+        },
+        x: {
+          ticks: { color: '#6b7280', font: { size: 9 } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function drawMonthlyExpenseChart() {
+  const ctx = document.getElementById('monthlyExpenseChart');
+  if (!ctx) return;
+
+  const filterSelect = document.getElementById('monthlyCategoryFilter');
+  const selectedCategory = filterSelect ? filterSelect.value : '';
+
+  const labels = [];
+  const data = [];
+  const now = new Date();
+
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = d.toISOString().substring(0, 7); // YYYY-MM
+    const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+    labels.push(label);
+
+    let monthTotal = 0;
+    transactions.forEach(t => {
+      if (t.type === 'expense' && t.date.substring(0, 7) === key) {
+        if (!selectedCategory || t.category === selectedCategory) {
+          monthTotal += t.amount;
+        }
+      }
+    });
+    data.push(monthTotal);
+  }
+
+  if (monthlyExpenseChart) monthlyExpenseChart.destroy();
+
+  const labelText = selectedCategory ? `${selectedCategory} expense` : 'All expenses';
+
+  monthlyExpenseChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: labelText,
+        data,
+        backgroundColor: 'rgba(10,132,255,0.7)',
+        borderColor: '#0A84FF',
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#6b7280', font: { size: 10 } },
+          grid: { color: 'rgba(209,213,219,0.5)' }
+        },
+        x: {
+          ticks: { color: '#6b7280', font: { size: 9 } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+
+// ✅ INITIALIZE APP (combined)
+    setDefaultDate();
+    loadFromLocalStorage();
+    updateDashboard();
+    setFilterMonth();
+
+    // Currency check har 2 sec
+    setInterval(detectAndUpdateCurrency, 2000);
+
+// Load data on startup
+window.addEventListener('DOMContentLoaded', () => {
+    setDefaultDate();
+    loadFromLocalStorage();
+    updateDashboard();
+    setFilterMonth();
+});
 
 // Set default date to today
 function setDefaultDate() {
-    const today = new Date().toISOString().split("T")[0];
-    document.getElementById("date").value = today;
-
-    const options = { weekday: "short", year: "numeric", month: "short", day: "numeric" };
-    const dateLabel = document.getElementById("currentDate");
-    if (dateLabel) {
-        dateLabel.textContent = new Date().toLocaleDateString("en-IN", options);
-    }
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+    
+    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', options);
 }
 
 // Set filter month to current
@@ -362,33 +419,32 @@ function setFilterMonth() {
 }
 
 // Switch tabs
-function switchTab(tabName, e) {
-    // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
+function switchTab(tabName, event) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+  });
 
-    // Remove active from all buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+  // Remove active from all nav buttons
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
 
-    // Show selected tab
-    const tabEl = document.getElementById(tabName);
-    if (tabEl) tabEl.classList.add('active');
+  // Show selected tab
+  document.getElementById(tabName).classList.add('active');
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
 
-    // mark clicked button active if event provided
-    if (e && e.target) e.target.classList.add('active');
-
-    // Refresh content
-    if (tabName === 'dashboard') updateDashboard();
-    else if (tabName === 'budget') updateBudgetView();
-    else if (tabName === 'history') filterTransactions();
-    else if (tabName === 'add') {
-        currentType = "expense";
-        updateCategoryOptions();
-        resetForm();
-    }
+  // Refresh content per tab
+  if (tabName === 'dashboard') updateDashboard();
+  else if (tabName === 'budget') updateBudgetView();
+  else if (tabName === 'history') filterTransactions();
+  else if (tabName === 'add') {
+    currentType = 'expense';
+    updateCategoryOptions();
+    resetForm && resetForm();
+  }
 }
 
 
@@ -452,88 +508,33 @@ let currentType = 'expense';  // TOP pe hona chahiye
 
 function setType(type) {
     currentType = type;
-
+    
     document.querySelectorAll('[data-type]').forEach(btn => {
         btn.classList.remove('selected');
     });
-
     event.target.classList.add('selected');
 
-    updateCategoryOptions();  // must rebuild options
+    updateCategoryOptions();   // ✅ Ye call hona zaruri hai
 }
-
-// function setType(type) {
-//     currentType = type;
-
-//     // remove selected class from all category badges (use class selector)
-//     document.querySelectorAll('.category-badge').forEach(btn => btn.classList.remove('selected'));
-
-//     // try find button by id pattern `type-<type>`
-//     const btn = document.getElementById('type-' + type);
-//     if (btn) btn.classList.add('selected');
-
-//     updateCategoryOptions();
-// }
-
-
-
-
 
 function updateCategoryOptions() {
     const categorySelect = document.getElementById("category");
+    const groups = categorySelect.querySelectorAll("optgroup");
 
-    const expenseOptions = `
-        <option value="food">🍔 Food & Dining</option>
-        <option value="groceries">🛒 Groceries</option>
-        <option value="transport">🚗 Transport</option>
-        <option value="clothing">👗 Clothing</option>
-        <option value="debt">💳 Debt</option>
-        <option value="savings">💰 Savings</option>
-        <option value="shopping">🛍️ Shopping</option>
-        <option value="utilities">💡 Utilities</option>
-        <option value="health">🏥 Health</option>
-        <option value="travel">✈️ Travel</option>
-        <option value="housing">🏠 Housing</option>
-        <option value="entertainment">🎬 Entertainment</option>
-        <option value="education">📚 Education</option>
-        <option value="other">📌 Other</option>
-    `;
+    // groups[0] = Expenses
+    // groups[1] = Income
 
-    const incomeOptions = `
-        <option value="salary">💼 Salary</option>
-        <option value="freelance">💻 Freelance</option>
-        <option value="investment">📈 Investment</option>
-        <option value="bonus">🎁 Bonus</option>
-        <option value="other-income">➕ Other Income</option>
-    `;
-
-    // Always replace full list
-    categorySelect.innerHTML = `<option value="">Select Category</option>` +
-        (currentType === "income" ? incomeOptions : expenseOptions);
+    if (currentType === "income") {
+        groups[0].style.display = "none";   // hide expenses
+        groups[1].style.display = "block";  // show income
+    } else {
+        groups[0].style.display = "block";  // show expenses
+        groups[1].style.display = "none";   // hide income
+    }
 
     categorySelect.value = "";
 }
 
-
-// function updateCategoryOptions() {
-//     const categorySelect = document.getElementById("category");
-
-//     // Detect optgroups by label (Correct for all devices)
-//     const expenseGroup = categorySelect.querySelector('optgroup[label="Expenses"]');
-//     const incomeGroup = categorySelect.querySelector('optgroup[label="Income"]');
-
-//     if (!expenseGroup || !incomeGroup) return;
-
-//     if (currentType === "income") {
-//         expenseGroup.style.display = "none";
-//         incomeGroup.style.display = "block";
-//     } else {
-//         expenseGroup.style.display = "block";
-//         incomeGroup.style.display = "none";
-//     }
-
-//     categorySelect.value = "";
-// }
 
 // Add transaction
 function addTransaction() {
@@ -564,7 +565,7 @@ function addTransaction() {
     showToast('Transaction added successfully!', 'success');
 }
 // Reset form
-function resetForm() {
+    function resetForm() {
     document.getElementById('amount').value = '';
     document.getElementById('category').value = '';
     document.getElementById('description').value = '';
@@ -578,19 +579,13 @@ function resetForm() {
 // Total Budget
 function setBudget() {
     const budget = parseFloat(document.getElementById('budgetAmount').value);
-
     if (!budget || budget <= 0) {
         showToast('Please enter valid budget', 'error');
         return;
     }
-
     monthlyBudget = budget;
-
-    saveToLocalStorage();
-
-    updateBudgetView();       // 🔥 Budget Overview refresh
-    updateCategoryBreakdown(); // 🔥 Breakdown refresh
-
+    saveToLocalStorage();  // ✅ Save immediately
+    updateBudgetView();
     showToast(`Budget set: ${formatMoney(budget)}`, 'success');
 }
 
@@ -673,9 +668,10 @@ function getCategoryEmoji(category) {
     return emojis[category] || '📌';
 }
 
+
 // 2. Load on startup
-// loadCategoryBudgets();
-// updateCategoryBudgetUI(); // Show UI
+loadCategoryBudgets();
+updateCategoryBudgetUI(); // Show UI
 
 function loadCategoryBudgets() {
     const data = JSON.parse(localStorage.getItem('spendingTrackerData') || '{}');
@@ -685,80 +681,47 @@ function loadCategoryBudgets() {
 function updateCategoryBudgetUI() {
     const container = document.getElementById('categoryBudgetList');
     if (!container) return;
-    const totalRow = `
-    <div class="expense-item">
-        <div class="total-budget-row">
-            <div class="category-name"><strong>Total Budget</strong></div>
-            <div class="budget-input-wrapper">
-                <strong id="totalCategoryBudget" style="font-size: 12px;">
-                    ${formatMoney(monthlyBudget)}
-                </strong>
-            </div>
-        </div>
-    </div>
-    `;
-    const categoryRows = Object.entries(categoryBudgets).map(([cat, budget]) => `
+
+    container.innerHTML = Object.entries(categoryBudgets).map(([cat, budget]) => `
         <div class="category-budget-row">
             <div class="category-name">${getCategoryEmoji(cat)} ${cat}</div>
             <div class="budget-input-wrapper">
                 <input type="number"
-                    id="budget-${cat}"
-                    name="budget-${cat}"
                     value="${budget}"
                     min="0"
                     step="100"
                     class="budget-input"
-                    oninput="updateCategoryValue('${cat}', this.value)">
+                    onchange="setCategoryBudget('${cat}', parseFloat(this.value) || 0)">
                 <span class="currency-symbol">${currencySymbol}</span>
             </div>
         </div>
-    `).join('');
-
-    container.innerHTML = totalRow + categoryRows;
+    `).join('') + `
+        <div class="total-budget-row">
+            <div class="category-name"><strong>Total Budget</strong></div>
+            <div class="budget-input-wrapper">
+                <strong id="totalCategoryBudget" style='font-size: 12px;'>${formatMoney(monthlyBudget)}</strong>
+            </div>
+        </div>
+    `;
 }
 
-
-function updateCategoryValue(category, value) {
-    categoryBudgets[category] = parseFloat(value) || 0;
-
-    updateTotalBudgetFromCategories(); // total auto update
-    updateBudgetView();                // overview update
-    // updateCategoryBreakdown();         // breakdown update
-    // updateDashboard();                 // dashboard update
+function setCategoryBudget(category, budget) {
+    categoryBudgets[category] = budget;
+    updateTotalBudgetFromCategories();  // yahi total update + UI + save sab karega
 }
-
-
-// function setCategoryBudget(category, budget) {
-//     categoryBudgets[category] = budget;
-// }
 
 function updateCategoryBudget(category, value) {
     categoryBudgets[category] = parseFloat(value) || 0;
-    updateTotalBudgetFromCategories();   // recompute total and update UI
+    // updateTotalBudgetDisplay();
+    updateTotalBudgetFromCategories();   // ✅ har change pe total auto update
+
 }
-
-function updateTotalBudgetDisplay() {
-    // convenience: shows computed total in budgetAmount + totalCategoryBudget label
-    const total = Object.values(categoryBudgets).reduce((s, v) => s + (parseFloat(v) || 0), 0);
-    monthlyBudget = total;
-    const budgetInput = document.getElementById('budgetAmount');
-    const totalLabel = document.getElementById('totalCategoryBudget');
-
-    if (budgetInput) budgetInput.value = total.toFixed(0);
-    if (totalLabel) totalLabel.textContent = formatMoney(total);
-}
-
 
 // Category Budgets Save
 function saveCategoryBudgets() {
-    updateTotalBudgetFromCategories(); // updates monthlyBudget
-
-    saveToLocalStorage();
-
-    updateBudgetView();        // 🔥 Budget Overview refresh
-    updateCategoryBreakdown(); // 🔥 Breakdown refresh
-
-    showToast('Category budgets updated!', 'success');
+    updateTotalBudgetFromCategories();
+    saveToLocalStorage();  // ✅ Save everything
+    showToast('✅ All budgets saved!', 'success');
 }
 
 // ✅ 4. Category Breakdown (separate function)
@@ -797,22 +760,18 @@ function updateCategoryBreakdown() {
 // Auto-calculate total budget from categories
 function updateTotalBudgetFromCategories() {
     const total = Object.values(categoryBudgets)
-        .reduce((sum, v) => sum + (parseFloat(v) || 0), 0);
+        .reduce((sum, budget) => sum + budget, 0);
 
     monthlyBudget = total;
+    
+    const budgetInput = document.getElementById('budgetAmount');
+    const totalLabel = document.getElementById('totalCategoryBudget');
 
-    // UI update
-    const label = document.getElementById("totalCategoryBudget");
-    const input = document.getElementById("budgetAmount");
-
-    if (label) label.textContent = formatMoney(total);
-    if (input) input.value = total;
+    if (budgetInput) budgetInput.value = total.toFixed(0);
+    if (totalLabel) totalLabel.textContent = formatMoney(total);
 
     saveToLocalStorage();
-
-    updateBudgetView();        // Budget Overview
-    // updateCategoryBreakdown(); // Breakdown
-    // updateDashboard();         // Dashboard
+    updateBudgetView();
 }
 
 
@@ -820,7 +779,7 @@ function updateTotalBudgetFromCategories() {
 function getCategoryMonthlySpent(category) {
     const currentMonth = new Date().toISOString().substring(0, 7);
     return transactions
-        .filter(t => t.date.substring(0, 7) === currentMonth &&                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+        .filter(t => t.date.substring(0, 7) === currentMonth && 
                     t.type === 'expense' && t.category === category)
         .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 }
@@ -1041,6 +1000,7 @@ function exportData() {
     URL.revokeObjectURL(url);
 }
 
+
 function downloadBlob(filename, blob) {
     const reader = new FileReader();
     reader.onload = function () {
@@ -1061,7 +1021,7 @@ function exportDataAsPDF() {
     let content = "";
     content += "SPENDING TRACKER REPORT\n";
     content += "==================================================\n\n";
-    content += `Generated: ${new Date().toLocaleDateString()}\n\n`;
+    content += `Generated: ${new Date().toLocaleDateString('en-IN')}\n\n`;
 
     let totalIncome = 0, totalExpenses = 0;
     transactions.forEach(t => {
@@ -1071,28 +1031,32 @@ function exportDataAsPDF() {
 
     content += "SUMMARY\n";
     content += "--------------------------------------------------\n";
-    content += `Total Income: ${currencySymbol} ${totalIncome.toFixed(2)}\n`;
-    content += `Total Expenses: ${currencySymbol} ${totalExpenses.toFixed(2)}\n`;
-    content += `Balance: ${currencySymbol} ${(totalIncome - totalExpenses).toFixed(2)}\n`;
-    content += `Monthly Budget: ${currencySymbol} ${monthlyBudget.toFixed(2)}\n\n`;
+    content += `Total Income: ₹${totalIncome.toFixed(2)}\n`;
+    content += `Total Expenses: ₹${totalExpenses.toFixed(2)}\n`;
+    content += `Balance: ₹${(totalIncome - totalExpenses).toFixed(2)}\n`;
+    content += `Monthly Budget: ₹${monthlyBudget.toFixed(2)}\n\n`;
 
     content += "ALL TRANSACTIONS\n";
     content += "--------------------------------------------------\n";
 
     transactions.slice().reverse().forEach(t => {
-        const sign = t.type === 'income' ? '+' : '-';
-        content += `${new Date(t.date).toLocaleDateString()} | ${t.category} | ${t.description || ''} | ${sign}${currencySymbol} ${t.amount.toFixed(2)}\n`;
+        content += `${new Date(t.date).toLocaleDateString('en-IN')} | ${t.category} | ${t.description} | ${t.type === 'income' ? '+' : '-'}₹${t.amount.toFixed(2)}\n`;
     });
 
+    // CREATE PDF-BLOB
     const blob = new Blob([content], { type: "application/pdf" });
     const fileName = `spending-report-${new Date().toISOString().split('T')[0]}.pdf`;
 
+    // ANDROID WEBVIEW EXPORT (BLOB → BASE64)
     if (typeof Android !== "undefined" && Android.downloadFile) {
+
         blobToBase64(blob, function (base64) {
             Android.downloadFile(fileName, base64, "application/pdf");
             showToast("📄 PDF Downloading...");
         });
+
     } else {
+        // NORMAL BROWSER DOWNLOAD
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -1135,3 +1099,20 @@ function exportDataAsExcel() {
         showToast("📊 Excel Downloaded!");
     }
 }
+
+
+// ✅ FIXED: Currency LIVE detect
+function detectAndUpdateCurrency() {
+    const newSymbol = getCurrencySymbol();
+    if (newSymbol !== currencySymbol) {
+        currencySymbol = newSymbol;
+        updateDashboard();
+        updateBudgetView();
+        filterByMonth();
+        updateRecentTransactions();
+    }
+}
+
+
+// Har 2 second me check karo (user location change ho sakti hai)
+setInterval(detectAndUpdateCurrency, 2000);

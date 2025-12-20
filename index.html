@@ -1,370 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Spending Tracker - Phone Auth</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spending Tracker Pro</title>
+    <meta name="theme-color" content="#2196F3">
+    <meta name="description" content="Track your expenses with ease">
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Firebase compat JS -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
-
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --primary: #0A4174;
-      --accent: #6EA2B3;
-      --success: #10B981;
-      --danger: #EF4444;
-      --gray-50: #F9FAFB;
-      --gray-100: #F3F4F6;
-      --gray-200: #E5E7EB;
-      --gray-300: #D1D5DB;
-      --gray-600: #4B5563;
-      --gray-700: #374151;
-      --gray-900: #111827;
-    }
-
-    body {
-      min-height: 100vh;
-      font-family: -apple-system, system-ui, BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background: var(--gray-100);
-      color: var(--gray-900);
-      overflow-x: hidden;
-      padding-bottom: 80px;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 12px;
-      padding-bottom: 90px;
-    }
-
-    /* Header */
-    .header {
-      background: #FFFFFF;
-      border-bottom: 1px solid var(--gray-200);
-      box-shadow: 0 1px 3px rgba(15,23,42,0.08);
-      padding: 12px 16px;
-      border-radius: 0 0 12px 12px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-    .header-content {
-      max-width: 600px;
-      margin: 0 auto;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-    }
-    .header-left { display:flex; align-items:center; gap:8px; }
-    .header-icon {
-      width:32px;height:32px;border-radius:8px;
-      background:var(--primary);color:#fff;
-      display:flex;align-items:center;justify-content:center;
-      font-size:16px;
-    }
-    .header-text h2 { font-size:16px;font-weight:600;color:var(--gray-900); }
-    .header-text p { font-size:11px;color:var(--gray-600); }
-    .header-btn {
-      width:32px;height:32px;border-radius:999px;border:none;
-      background:var(--gray-100);color:var(--gray-700);
-      font-size:16px;cursor:pointer;
-    }
-
-    /* Cards */
-    .glass,
-    .glass-card,
-    .stat-card,
-    .transaction-item,
-    .settings-item {
-      background:#fff;
-      border-radius:12px;
-      border:1px solid var(--gray-200);
-      box-shadow:0 1px 3px rgba(15,23,42,0.08);
-    }
-
-    /* Alert */
-    .alert {
-      display:flex;align-items:flex-start;gap:8px;
-      padding:10px 12px;border-radius:10px;
-      background:#ECFDF5;border:1px solid #A7F3D0;
-      margin-bottom:12px;
-    }
-    .alert-icon{font-size:18px;}
-    .alert-text h4{font-size:12px;margin-bottom:2px;color:var(--success);}
-    .alert-text p{font-size:11px;color:var(--gray-700);}
-
-    /* Stats */
-    .stats-grid{
-      display:grid;grid-template-columns:1fr 1fr;
-      gap:10px;margin-bottom:12px;
-    }
-    .stat-card{padding:10px;}
-    .stat-label{font-size:11px;color:var(--gray-600);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
-    .stat-value{font-size:18px;font-weight:600;margin-bottom:2px;}
-    .stat-change{font-size:10px;color:var(--gray-600);}
-    .stat-change.positive{color:var(--success);}
-    .stat-change.negative{color:var(--danger);}
-
-    /* Progress */
-    .progress-section{margin-bottom:12px;}
-    .progress-header{display:flex;justify-content:space-between;margin-bottom:4px;}
-    .progress-label{font-size:11px;font-weight:500;color:var(--gray-900);}
-    .progress-percent{font-size:11px;color:var(--gray-600);}
-    .progress-bar{width:100%;height:6px;border-radius:999px;background:var(--gray-200);}
-    .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .3s;}
-
-    /* Charts */
-    .chart-container{position:relative;height:220px;margin-bottom:10px;}
-    .chart-title{font-size:12px;font-weight:600;margin-bottom:6px;color:var(--gray-900);}
-
-    /* Transactions */
-    .transaction-item{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:10px;margin-bottom:6px;
-    }
-    .transaction-left{display:flex;align-items:center;gap:8px;}
-    .transaction-icon{
-      width:32px;height:32px;border-radius:10px;
-      background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:16px;
-    }
-    .transaction-info h4{font-size:12px;margin-bottom:2px;}
-    .transaction-info p{font-size:10px;color:var(--gray-600);}
-    .transaction-amount .amount{font-size:13px;font-weight:600;}
-    .amount.positive{color:var(--success);}
-    .amount.negative{color:var(--danger);}
-
-    /* Forms */
-    .form-group{margin-bottom:10px;}
-    .form-label{display:block;font-size:11px;font-weight:500;margin-bottom:4px;color:var(--gray-900);}
-    .form-input,.form-select{
-      width:100%;padding:8px 10px;border-radius:8px;
-      border:1px solid var(--gray-300);font-size:12px;color:var(--gray-900);background:#fff;
-    }
-    .form-input::placeholder{color:#9CA3AF;}
-
-    .type-toggle{display:flex;gap:6px;margin-bottom:10px;}
-    .type-btn{
-      flex:1;padding:8px;border-radius:999px;border:1px solid var(--gray-200);
-      background:#fff;font-size:12px;font-weight:500;color:var(--gray-700);cursor:pointer;
-    }
-    .type-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
-    .btn-add{
-      width:100%;padding:10px;border-radius:10px;border:none;
-      background:var(--primary);color:#fff;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;
-    }
-
-    /* Search */
-    .search-box{position:relative;margin-bottom:10px;}
-    .search-box input{
-      width:100%;padding:8px 10px 8px 30px;border-radius:999px;
-      border:1px solid var(--gray-300);font-size:12px;
-    }
-    .search-box::before{
-      content:"🔍";position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;
-    }
-
-    /* Settings */
-    .settings-item{
-      padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;
-    }
-    .settings-item-left h4{font-size:12px;margin-bottom:2px;}
-    .settings-item-left p{font-size:10px;color:var(--gray-600);}
-    .settings-toggle{
-      width:44px;height:24px;border-radius:999px;border:none;background:var(--gray-200);cursor:pointer;
-    }
-    .settings-toggle.on{background:var(--success);}
-
-    /* Bottom nav */
-    .bottom-nav{
-      position:fixed;bottom:0;left:0;right:0;
-      background:#fff;border-top:1px solid var(--gray-200);
-      box-shadow:0 -1px 3px rgba(15,23,42,0.08);
-      display:flex;justify-content:space-around;padding:6px 0;z-index:40;
-    }
-    .nav-btn{
-      background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;
-      padding:4px 6px;font-size:18px;color:var(--gray-600);cursor:pointer;
-    }
-    .nav-btn.active{color:var(--primary);}
-    .nav-label{font-size:10px;font-weight:500;}
-
-    .page{display:none;}
-    .page.active{display:block;}
-
-    /* Auth (phone + OTP) */
-    .auth-screen{
-      position:fixed;inset:0;background:var(--gray-100);
-      display:flex;align-items:center;justify-content:center;z-index:1000;
-    }
-    .auth-card{
-      width:92%;max-width:360px;background:#fff;padding:20px 16px;
-      border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,0.12);text-align:left;
-    }
-    .auth-card h1{font-size:20px;margin-bottom:4px;color:var(--gray-900);}
-    .auth-card p{font-size:12px;color:var(--gray-600);margin-bottom:16px;}
-    .auth-input{
-      width:100%;padding:8px 10px;margin-bottom:10px;border-radius:8px;
-      border:1px solid #D1D5DB;font-size:12px;color:var(--gray-900);background:#fff;
-    }
-    .auth-input::placeholder{color:#9CA3AF;}
-    .auth-btn{
-      width:100%;padding:10px;border-radius:8px;border:none;
-      background:var(--primary);color:#fff;font-size:13px;font-weight:600;cursor:pointer;
-    }
-    .auth-toggle{margin-top:10px;font-size:11px;color:var(--gray-600);}
-    .auth-toggle a{color:var(--primary);cursor:pointer;text-decoration:none;font-weight:600;}
-
-    .hidden{display:none !important;}
-
-    /* reCAPTCHA container */
-    #recaptcha-container{
-      margin-bottom:8px;
-    }
-
-    /* Toast */
-    .toast{
-      position:fixed;right:12px;bottom:80px;background:#111827;color:#fff;
-      padding:8px 10px;border-radius:8px;font-size:11px;opacity:0;
-      transform:translateY(8px);transition:all .2s;z-index:60;
-    }
-    .toast.show{opacity:1;transform:translateY(0);}
-
-    @media (max-width:480px){
-      .header{padding:10px 12px;}
-      .container{padding:10px;}
-    }
-  </style>
 </head>
 <body>
-  <!-- AUTH SCREEN: Phone + OTP -->
-  <div id="authScreen" class="auth-screen">
-    <div class="auth-card">
-      <h1 id="authTitle">Phone Login</h1>
-      <p id="authSubtitle">Sign in with your mobile number</p>
 
-      <input type="text" class="auth-input" id="authName" placeholder="Full name (for first time)" />
+    <!-- PIN LOCK SCREEN -->
+    <div id="pinLockScreen" class="auth-screen">
+        <div class="auth-card">
+        <h2>Spending Tracker</h2>
+        <p id="pinSubtitle">Set a 4-digit PIN to protect your data</p>
 
-      <input type="tel" class="auth-input" id="phoneNumber" placeholder="+91XXXXXXXXXX" />
-
-      <!-- reCAPTCHA container -->
-      <div id="recaptcha-container"></div>
-
-      <button class="auth-btn" type="button" onclick="sendOtp()">Send OTP</button>
-
-      <input type="text" class="auth-input" id="otpCode" placeholder="Enter OTP" />
-
-      <button class="auth-btn" type="button" onclick="verifyOtp()">Verify OTP & Login</button>
-    </div>
-  </div>
-
-  <!-- APP -->
-  <div id="app" class="hidden">
-    <!-- Header -->
-    <div class="header">
-      <div class="header-content">
-        <div class="header-left">
-          <div class="header-icon">₹</div>
-          <div class="header-text">
-            <h2>Spending Tracker</h2>
-            <p id="headerDate"></p>
-          </div>
+        <!-- NEW PIN (first time) -->
+        <div id="pinSetupArea">
+            <input type="password" id="newPin" class="auth-input" maxlength="4" placeholder="Set 4-digit PIN">
+            <input type="password" id="confirmPin" class="auth-input" maxlength="4" placeholder="Confirm PIN">
+            <button class="auth-btn" onclick="setPin()">Set PIN</button>
         </div>
-        <button class="header-btn" onclick="logout()">⏏</button>
-      </div>
+
+        <!-- LOGIN PIN (after set) -->
+        <div id="pinLoginArea" class="hidden">
+            <input type="password" id="loginPin" class="auth-input" maxlength="4" placeholder="Enter PIN">
+            <button class="auth-btn" onclick="verifyPin()">Unlock</button>
+            <button class="auth-btn auth-btn-secondary" onclick="resetAllData()">Reset App</button>
+        </div>
+        </div>
     </div>
 
-    <!-- Main Container -->
     <div class="container">
-      <!-- Dashboard -->
-      <div id="dashboardPage" class="page active">
-        <div class="alert">
-          <div class="alert-icon">💡</div>
-          <div class="alert-text">
-            <h4>Budget Alert</h4>
-            <p id="alertText">You're spending well! Keep it up.</p>
-          </div>
+        <!-- Header -->
+        <div class="header">
+        <div class="header-top">
+            <!-- LEFT: Icon + Heading + Date -->
+            <div class="header-left">
+            <img src="icon.png" alt="App Icon">
+            <div class="header-title">
+                <h1>Spending Tracker</h1>
+                <div id="currentDate" class="header-date"></div>
+            </div>
+            </div>
+
+            <!-- RIGHT: Settings button -->
+            <button class="header-settings-btn" onclick="switchTab('settings', event)">
+            ⚙️
+            </button>
+        </div>
         </div>
 
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">Total Balance</div>
-            <div class="stat-value" id="totalBalance">0</div>
-            <div class="stat-change" id="balanceChange">This month</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">This Month</div>
-            <div class="stat-value" id="monthlyExpense">0</div>
-            <div class="stat-change negative" id="expenseChange">-</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Income</div>
-            <div class="stat-value" id="totalIncome">0</div>
-            <div class="stat-change positive">2 transactions</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Budget Left</div>
-            <div class="stat-value" id="budgetLeft">0</div>
-            <div class="stat-change" id="budgetPercent2">0% remaining</div>
-          </div>
+
+
+
+        <!-- Ad Container -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-4018280178767791"
+                data-ad-slot="7919063294"
+                data-ad-format="horizontal"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
 
-        <div class="glass-card progress-section">
-          <div class="progress-header">
-            <div class="progress-label">Monthly Budget</div>
-            <div class="progress-percent" id="budgetPercent">0%</div>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="budgetBar"></div>
-          </div>
-        </div>
+        <!-- Tabs -->
+        <!-- <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('add')">Add Expense</button>
+            <button class="tab-btn" onclick="switchTab('budget')">Budget</button>
+            <button class="tab-btn" onclick="switchTab('history')">History</button>
+            <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
+            
+        </div> -->
 
-        <div class="glass-card">
-          <div class="chart-title">Monthly Expense</div>
-          <div class="chart-container">
-            <canvas id="expenseChart"></canvas>
-          </div>
-        </div>
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="card">
+                <div class="stat-box">
+                    <div class="stat-label">Total Balance</div>
+                    <div class="stat-value" style="font-size: 20px" id="totalBalance">₹0.00</div>
+                </div>
 
-        <div class="glass-card">
-          <div class="chart-title">Category Distribution</div>
-          <div class="chart-container">
-            <canvas id="categoryChart"></canvas>
-          </div>
-        </div>
+                <div class="stat-row">
+                    <div class="stat-small">
+                        <div class="stat-small-label">Total Income</div>
+                        <div class="stat-small-value" id="totalIncome">₹0.00</div>
+                    </div>
+                    <div class="stat-small">
+                        <div class="stat-small-label">Total Expenses</div>
+                        <div class="stat-small-value" id="totalExpenses">₹0.00</div>
+                    </div>
+                </div>
 
-        <div class="glass-card">
-          <div class="chart-title">Recent Transactions</div>
-          <div id="recentTransactions">
-            <p style="font-size:11px;color:#6B7280;">No transactions yet</p>
-          </div>
-        </div>
-      </div>
+                <div class="stat-row">
+                    <div class="stat-small">
+                        <div class="stat-small-label">Monthly Expenses</div>
+                        <div class="stat-small-value" id="monthlyExpense">₹0.00</div>
+                    </div>
+                    <div class="stat-small">
+                        <div class="stat-small-label">Budget Left</div>
+                        <div class="stat-small-value" id="budgetLeft">₹0.00</div>
+                    </div>
+                </div>
+                
+                <div class="card-comman">
+                    <h3 style="margin-bottom: 5px; font-size: 12px;">Budget Overview</h3>
+                    <div id="budgetOverview">
+                        <div class="empty-state">
+                            <div class="empty-icon">📊</div>
+                            <div class="empty-text">No budget set</div>
+                            <div class="empty-subtext">Set a monthly budget to track your spending</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-      <!-- Add -->
-      <div id="addPage" class="page">
-        <div class="glass-card" style="padding:12px;">
-          <h3 style="font-size:14px;margin-bottom:10px;">Add Transaction</h3>
+            <div class="card" style="height:220px;">
+            <h3 style="font-size:12px;margin-bottom:4px;">Daily Expense (Current Month)</h3>
+            <div style="height:170px;">
+                <canvas id="dailyExpenseChart"></canvas>
+            </div>
+            </div>
 
-          <div class="type-toggle">
-            <button class="type-btn active" onclick="setType('expense',event)">Expense</button>
-            <button class="type-btn" onclick="setType('income',event)">Income</button>
-          </div>
+            <div class="card">
+            <h3 style="font-size:12px;margin-bottom:4px;">Monthly Expense</h3>
 
-          <div class="form-group">
-            <label class="form-label">Category</label>
-            <select class="form-select" id="category">
-              <optgroup label="Expenses">
-                <option value="">Select category</option>
+            <!-- Category filter -->
+            <div style="margin-bottom:6px;">
+                <select id="monthlyCategoryFilter" class="form-select" style="font-size:10px;padding:4px 8px;">
+                <option value="">All Categories</option>
                 <option value="food">Food & Dining</option>
                 <option value="groceries">Groceries</option>
                 <option value="transport">Transport</option>
@@ -379,749 +151,329 @@
                 <option value="entertainment">Entertainment</option>
                 <option value="education">Education</option>
                 <option value="other">Other</option>
-              </optgroup>
-              <optgroup label="Income">
-                <option value="salary">Salary</option>
-                <option value="freelance">Freelance</option>
-                <option value="investment">Investment</option>
-                <option value="bonus">Bonus</option>
-                <option value="other-income">Other Income</option>
-              </optgroup>
-            </select>
-          </div>
+                </select>
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">Amount</label>
-            <input type="number" id="amount" class="form-input" placeholder="0.00">
-          </div>
+            <div style="height:170px;">
+                <canvas id="monthlyExpenseChart"></canvas>
+            </div>
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">Date</label>
-            <input type="date" id="transDate" class="form-input">
-          </div>
 
-          <div class="form-group">
-            <label class="form-label">Note</label>
-            <input type="text" id="note" class="form-input" placeholder="Add a note...">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Tags (comma separated)</label>
-            <input type="text" id="tags" class="form-input" placeholder="e.g., work, recurring">
-          </div>
-
-          <button class="btn-add" onclick="addTransaction()">Add Transaction</button>
-          <button class="btn-add" style="background:#6EA2B3;margin-top:6px;" onclick="resetAddForm()">Clear</button>
+            <div class="card">
+            <div class="card-comman">
+                <h3 style="margin-bottom: 5px; font-size: 12px;">Category Breakdown</h3>
+                <div id="categoryBreakdown">
+                    <div class="empty-state">
+                        <div class="empty-icon">📈</div>
+                        <div class="empty-text">No expenses yet</div>
+                    </div>
+                </div>
+            </div>
+            </div>
         </div>
 
-        <div class="glass-card" style="margin-top:12px;padding:12px;">
-          <h3 style="font-size:14px;margin-bottom:10px;">Quick Stats</h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div style="padding:10px;border-radius:10px;background:var(--gray-50);text-align:center;">
-              <div style="font-size:11px;color:var(--gray-600);margin-bottom:4px;">Total Added</div>
-              <div id="totalAddedToday" style="font-size:18px;font-weight:600;color:var(--success);">0</div>
-            </div>
-            <div style="padding:10px;border-radius:10px;background:var(--gray-50);text-align:center;">
-              <div style="font-size:11px;color:var(--gray-600);margin-bottom:4px;">Transactions</div>
-              <div id="transactionCount" style="font-size:18px;font-weight:600;color:var(--primary);">0</div>
-            </div>
-          </div>
+        <!-- Add Expense Tab -->
+        <div id="add" class="tab-content">
+            <div class="card">
+                <div class="card-comman">
+                <h3 style="margin-bottom: 5px; font-size: 12px;">Add Transaction</h3>
 
-          <h3 style="font-size:14px;margin:10px 0 6px;">Last 5 Transactions</h3>
-          <div id="lastTransactions">
-            <p style="font-size:11px;color:#6B7280;">No transactions yet</p>
-          </div>
+                <div class="form-group">
+                    <!-- <label>Type</label> -->
+                    <div class="category-badges" style="gap: 12px; font-size: 10; margin-top: 0;">
+                        <button class="category-badge selected" onclick="setType('expense')" data-type="expense">Expense</button>
+                        <button class="category-badge" onclick="setType('income')" data-type="income">Income</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category" required>
+                        <!-- <option value="">Select Category</option> -->
+                        <optgroup label="Expenses">
+                            <option value="food">🍔 Food & Dining</option>
+                            <option value="groceries">🛒 Groceries</option>
+                            <option value="transport">🚗 Transport</option>
+                            <option value="clothing">👗 Clothing</option>
+                            <option value="debt">💳 Debt</option>
+                            <option value="savings">💰 Savings</option>
+                            <option value="shopping">🛍️ Shopping</option>
+                            <option value="utilities">💡 Utilities</option>
+                            <option value="health">🏥 Health</option>
+                            <option value="travel">✈️ Travel</option>
+                            <option value="housing">🏠 housing </option>
+                            <option value="entertainment">🎬 Entertainment</option>
+                            <option value="education">📚 Education</option>
+                            <option value="other">📌 Other</option>
+                        </optgroup>
+                        <optgroup label="Income">
+                            <option value="salary">💼 Salary</option>
+                            <option value="freelance">💻 Freelance</option>
+                            <option value="investment">📈 Investment</option>
+                            <option value="bonus">🎁 Bonus</option>
+                            <option value="other-income">➕ Other Income</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" placeholder="Add notes..." rows="2" maxlength="100"></textarea>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
+                    <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-comman">
+                <h3 style="margin-bottom: 5px; font-size: 12px;">Recent Transactions</h3>
+                <div id="recentTransactions">
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <div class="empty-text">No transactions yet</div>
+                        <div class="empty-subtext">Start by adding your first expense or income</div>
+                    </div>
+                </div>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <!-- Analytics -->
-      <div id="analyticsPage" class="page">
-        <div class="glass-card" style="padding:12px;">
-          <h3 style="font-size:14px;margin-bottom:8px;">Monthly Report</h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-            <div style="background:var(--gray-50);padding:10px;border-radius:10px;text-align:center;">
-              <div style="font-size:11px;color:var(--gray-600);margin-bottom:4px;">Total Budget</div>
-              <div id="reportTotalBudget" style="font-size:18px;font-weight:600;color:var(--primary);">0</div>
+        <!-- Category Budget Tab -->
+            <div id="budget" class="tab-content">
+            <!-- Existing Total Budget -->
+            <div class="card">
+                <div class="card-comman">
+                <h3 style="margin-bottom: 5px; font-size: 12px;">Set Monthly Budget</h3>
+                    <div class="form-group">
+                        <!-- <label style="font-size: 12px;">Total Monthly Budget Limit</label> -->
+                        <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0">
+                    </div>
+                    <button class="btn btn-primary" onclick="setBudget()">Set Total Budget</button>
+                </div>
             </div>
-            <div style="background:var(--gray-50);padding:10px;border-radius:10px;text-align:center;">
-              <div style="font-size:11px;color:var(--gray-600);margin-bottom:4px;">Spent This Month</div>
-              <div id="reportMonthlySpent" style="font-size:18px;font-weight:600;color:var(--danger);">0</div>
+
+            <!-- Category Budgets - Sirf Budget Input -->
+            <div class="card">
+                <h3 style='margin-bottom: 5px; font-size: 12px;'>Category Budgets</h3>
+                    <div id="categoryBudgetList">
+                    <!-- Dynamic inputs here -->
+                </div>
+                <button class="btn btn-primary" onclick="saveCategoryBudgets()">Set All Budgets</button>
             </div>
-          </div>
-
-          <div style="margin-bottom:10px;">
-            <label class="form-label">View Category Trend</label>
-            <select class="form-select" id="categorySelect" onchange="updateCategoryReport()">
-              <option value="">Overall - All Categories</option>
-              <option value="food">Food & Dining</option>
-              <option value="groceries">Groceries</option>
-              <option value="transport">Transport</option>
-              <option value="clothing">Clothing</option>
-              <option value="debt">Debt</option>
-              <option value="savings">Savings</option>
-              <option value="shopping">Shopping</option>
-              <option value="utilities">Utilities</option>
-              <option value="health">Health & Medical</option>
-              <option value="travel">Travel</option>
-              <option value="housing">Housing</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="education">Education</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div style="height:220px;margin-bottom:8px;">
-            <canvas id="monthlyReportChart"></canvas>
-          </div>
+        
         </div>
 
-        <div class="glass-card" style="margin-top:10px;padding:12px;">
-          <h3 style="font-size:14px;margin-bottom:8px;">Category Budget Breakdown</h3>
-          <div id="categoryBudgetList"></div>
-        </div>
-      </div>
-
-      <!-- History -->
-      <div id="historyPage" class="page">
-        <div class="glass-card" style="padding:12px;">
-          <h3 style="font-size:14px;margin-bottom:8px;">Search Transactions</h3>
-          <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search transactions..." onkeyup="updateHistory()">
-          </div>
-          <div style="display:flex;gap:6px;margin-bottom:8px;">
-            <button class="btn-add" style="flex:1;background:var(--success);" onclick="exportDataTXT()">Export TXT</button>
-            <button class="btn-add" style="flex:1;background:var(--accent);" onclick="exportDataCSV()">Export CSV</button>
-          </div>
-          <div id="historyList">
-            <div style="font-size:11px;color:#6B7280;text-align:center;padding:10px;">No transactions found</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Settings -->
-      <div id="settingsPage" class="page">
-        <div class="glass-card" style="padding:12px;">
-          <h3 style="font-size:14px;margin-bottom:8px;">Settings</h3>
-
-          <div class="settings-item">
-            <div class="settings-item-left">
-              <h4>Notifications</h4>
-              <p>Toast alerts enabled</p>
+        <!-- History Tab - sirf SEARCH INPUT add karo -->
+        <div id="history" class="tab-content">
+            <div class="card">
+                <h3 style='margin-bottom: 5px; font-size: 12px;'>All Transactions</h3>
+                
+                <!-- ✅ NEW SEARCH BAR -->
+                <div class="form-group">
+                    <input type="text" id="transactionSearch" placeholder="🔍 Search category, description, amount...">
+                </div>
+                
+                <!-- Existing month filter -->
+                <div class="form-group">
+                    <label>Filter by Month</label>
+                    <input type="month" id="filterMonth">
+                </div>
+                
+                <div id="allTransactions"></div>
             </div>
-            <button class="settings-toggle on"></button>
-          </div>
+        </div>
 
-          <div class="settings-item">
-            <div class="settings-item-left">
-              <h4>Monthly Budget</h4>
-              <p id="settingsBudget" style="color:var(--success);font-weight:600;">0</p>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h3 style="margin-bottom: 5px; font-size: 12px;">Settings</h3>
+
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-label">Clear All Data</div>
+                        <div class="settings-value">Delete all transactions</div>
+                    </div>
+                    <button class="btn btn-danger" style="color: white; padding: 8px; background-color: red;" onclick="resetAllData()">Clear</button>
+                </div>
+
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-label">Data Storage</div>
+                        <div class="settings-value">Using Browser LocalStorage</div>
+                    </div>
+                </div>
+
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-label">Export Data</div>
+                        <div class="settings-value">Download as PDF or Excel</div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportDataAsPDF()">PDF</button>
+                        <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportDataAsExcel()">Excel</button>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <button class="btn-add" style="margin-top:12px;background:#EF4444;" onclick="logout()">Logout</button>
+            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h3 style="color: white;font-size: 14px; margin-bottom: 12px;">About Spending Tracker</h3>
+                <p style="font-size: 12px; padding: 10px 10px; line-height: 1.6; margin: 0;">
+                    <strong>Version 1.0</strong><br>
+                    Track your expenses efficiently with a beautiful, intuitive interface.<br><br>
+                    ✓ Budget Management<br>
+                    ✓ Category Tracking<br>
+                    ✓ Transaction History<br>
+                    ✓ Data Export<br><br>
+                    Made by SharweenSoft with ❤️ for smart spenders
+                </p>
+            </div>
+
+            <div id="firebaseGuideModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; padding: 16px;">
+                <div style="background: white; border-radius: 8px; padding: 20px; max-width: 500px; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h2 style="margin: 0; font-size: 18px; color: #2196F3;">Firebase Setup</h2>
+                        <button onclick="closeFirebaseGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+                    </div>
+                    
+                    <div style="font-size: 13px; line-height: 1.8; color: #212121;">
+                        <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 14px;">Step 1: Go to Firebase Console</h3>
+                        <p style="margin: 0 0 8px 0;">Visit <strong>console.firebase.google.com</strong> with Google account</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 2: Create New Project</h3>
+                        <p style="margin: 0 0 4px 0;">• Click <strong>Create Project</strong></p>
+                        <p style="margin: 0 0 4px 0;">• Project name: <strong>Spending Tracker</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Select region & create</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 3: Add Web App</h3>
+                        <p style="margin: 0 0 4px 0;">• Click <strong>&lt;/&gt;</strong> icon to add web app</p>
+                        <p style="margin: 0 0 4px 0;">• App nickname: <strong>Spending Tracker Web</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Copy the config object (apiKey, projectId, etc.)</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 4: Get Firebase Config</h3>
+                        <p style="margin: 0 0 4px 0;">Config keys needed:</p>
+                        <p style="margin: 0 0 4px 0;">✓ apiKey</p>
+                        <p style="margin: 0 0 4px 0;">✓ authDomain</p>
+                        <p style="margin: 0 0 4px 0;">✓ projectId</p>
+                        <p style="margin: 0 0 8px 0;">✓ storageBucket</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 5: Setup Firestore Database</h3>
+                        <p style="margin: 0 0 4px 0;">• Go to <strong>Firestore Database</strong></p>
+                        <p style="margin: 0 0 4px 0;">• Click <strong>Create Database</strong></p>
+                        <p style="margin: 0 0 4px 0;">• Start in <strong>Test Mode</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Select region & enable</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 6: Update App Code</h3>
+                        <p style="margin: 0;">Replace YOUR_API_KEY, YOUR_PROJECT_ID etc. in the app's script section with values from Step 4</p>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="closeFirebaseGuide()" style="margin-top: 16px;">Understood!</button>
+                </div>
+            </div>
+
+            <div id="githubGuideModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; padding: 16px;">
+                <div style="background: white; border-radius: 8px; padding: 20px; max-width: 500px; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h2 style="margin: 0; font-size: 18px; color: #2196F3;">GitHub Pages Setup</h2>
+                        <button onclick="closeGitHubGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+                    </div>
+                    
+                    <div style="font-size: 13px; line-height: 1.8; color: #212121;">
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 1: Create GitHub Account</h3>
+                        <p style="margin: 0 0 8px 0;">Go to <strong>github.com</strong> and create a free account</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 2: Create New Repository</h3>
+                        <p style="margin: 0 0 4px 0;">• Click <strong>+</strong> icon → <strong>New repository</strong></p>
+                        <p style="margin: 0 0 4px 0;">• Repository name: <strong>spending-tracker</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Check: <strong>Add a README file</strong></p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 3: Upload HTML File</h3>
+                        <p style="margin: 0 0 4px 0;">• Click <strong>Add file</strong> → <strong>Upload files</strong></p>
+                        <p style="margin: 0 0 4px 0;">• Rename to: <strong>index.html</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Paste the entire app code</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 4: Enable GitHub Pages</h3>
+                        <p style="margin: 0 0 4px 0;">• Go to <strong>Settings</strong> tab</p>
+                        <p style="margin: 0 0 4px 0;">• Scroll to <strong>Pages</strong> section</p>
+                        <p style="margin: 0 0 4px 0;">• Source: Select <strong>main branch</strong></p>
+                        <p style="margin: 0 0 8px 0;">• Save ✓</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 5: Get Your Link!</h3>
+                        <p style="margin: 0 0 4px 0;">Link format:</p>
+                        <p style="margin: 0; padding: 8px; background: #F5F5F5; border-radius: 4px; font-family: monospace; font-size: 12px; word-break: break-all;">
+                            https://yourusername.github.io/spending-tracker
+                        </p>
+                        <p style="margin: 8px 0 0 0; font-size: 12px; color: #757575;">⏱️ Takes 5-10 minutes to go live</p>
+
+                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">💡 Share With Anyone!</h3>
+                        <p style="margin: 0;">Once live, share the link with friends/family. They can use it directly without installing anything.</p>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="closeGitHubGuide()" style="margin-top: 16px;">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Budget Tab, History Tab, Settings Tab, Modals - Complete HTML from your file -->
+    <!-- Copy all remaining HTML sections from index.html -->
+
+    <!-- Custom Confirm Dialog -->
+    <div id="confirmDialog" class="dialog-overlay" style="display: none;">
+      <div class="dialog-box">
+        <div class="dialog-content">
+          <h3>⚠️ Confirmation</h3>
+          <p id="confirmMessage">Are you sure?</p>
+          <div class="dialog-buttons">
+            <button id="confirmYes" class="btn-yes">YES</button>
+            <button id="confirmNo" class="btn-no">NO</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-      <button class="nav-btn active" onclick="switchPage('dashboard',event)">
-        <span>🏠</span><span class="nav-label">Dashboard</span>
-      </button>
-      <button class="nav-btn" onclick="switchPage('add',event)">
-        <span>➕</span><span class="nav-label">Add</span>
-      </button>
-      <button class="nav-btn" onclick="switchPage('analytics',event)">
-        <span>📊</span><span class="nav-label">Budget</span>
-      </button>
-      <button class="nav-btn" onclick="switchPage('history',event)">
-        <span>📜</span><span class="nav-label">History</span>
-      </button>
-      <button class="nav-btn" onclick="switchPage('settings',event)">
-        <span>⚙️</span><span class="nav-label">Settings</span>
-      </button>
-    </div>
+    <!-- Toast container -->
+    <div id="toast"></div>
   </div>
 
-  <div id="toast" class="toast"></div>
+    <div class="bottom-nav">
+        <button class="nav-btn active" onclick="switchTab('dashboard', event)">
+            <span>🏠</span>
+            <span class="nav-btn-label">Home</span>
+        </button>
 
-  <script>
-    // ----- GLOBAL STATE -----
-    let isLoggedIn = false;
-    let currentUser = null;
-    let currentType = 'expense';
-    let transactions = [];
-    let monthlyBudget = 50000;
-    let categoryBudgets = {
-      food: 5000, groceries: 4000, transport: 3000, clothing: 2000,
-      debt: 4000, savings: 5000, shopping: 3000, utilities: 2500,
-      health: 2000, travel: 6000, housing: 8000, entertainment: 2500,
-      education: 3000, other: 2000
-    };
-    let expenseChart = null;
-    let categoryChart = null;
-    let monthlyReportChart = null;
-    let currencySymbol = '₹';
-    let confirmationResult = null; // phone auth OTP result
+        <button class="nav-btn" onclick="switchTab('add', event)">
+            <span>➕</span>
+            <span class="nav-btn-label">Add</span>
+        </button>
 
-    const categoryEmojis = {
-      food:'🍽️',groceries:'🛒',transport:'🚗',clothing:'👕',debt:'📉',
-      savings:'💾',shopping:'🛍️',utilities:'💡',health:'⚕️',travel:'✈️',
-      housing:'🏠',entertainment:'🎬',education:'📚',other:'🧩',
-      salary:'💼',freelance:'🧑‍💻',investment:'📈',bonus:'🎁','other-income':'💸'
-    };
+        <button class="nav-btn" onclick="switchTab('budget', event)">
+            <span>📊</span>
+            <span class="nav-btn-label">Budget</span>
+        </button>
 
-    function detectCurrency(){
-      try{
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-        if(tz.includes('Asia/Kolkata')) currencySymbol='₹';
-        else if(tz.includes('America')||tz.includes('UTC')) currencySymbol='$';
-        else if(tz.includes('Europe')) currencySymbol='€';
-        else currencySymbol='₹';
-      }catch(e){
-        currencySymbol='₹';
-      }
-    }
+        <button class="nav-btn" onclick="switchTab('history', event)">
+            <span>📜</span>
+            <span class="nav-btn-label">History</span>
+        </button>
+    </div>
 
-    function showNotification(msg){
-      const toast=document.getElementById('toast');
-      toast.textContent=msg;
-      toast.classList.add('show');
-      setTimeout(()=>toast.classList.remove('show'),2000);
-    }
-
-    function updateHeaderDate(){
-      const options={weekday:'short',month:'short',day:'numeric'};
-      document.getElementById('headerDate').textContent =
-        new Date().toLocaleDateString('en-IN',options);
-    }
-
-    function setDefaultDate(){
-      const el=document.getElementById('transDate');
-      if(el) el.value=new Date().toISOString().split('T')[0];
-    }
-
-    // ----- NAVIGATION -----
-    function switchPage(page,event){
-      document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(btn=>btn.classList.remove('active'));
-      document.getElementById(page+'Page').classList.add('active');
-      event.currentTarget.classList.add('active');
-      if(page==='history') updateHistory();
-      if(page==='analytics') updateAnalytics();
-    }
-
-    // ----- PHONE AUTH + reCAPTCHA -----
-    function initRecaptcha(){
-      // visible widget example from Firebase docs [web:2][web:5]
-      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        'size': 'normal',
-        'callback': function(response) {
-          console.log('reCAPTCHA solved');
-        },
-        'expired-callback': function() {
-          showNotification('reCAPTCHA expired, please try again');
-        }
-      });
-      recaptchaVerifier.render().then(function(widgetId){
-        window.recaptchaWidgetId = widgetId;
-      });
-    }
-
-    function sendOtp(){
-      const phoneInput=document.getElementById('phoneNumber');
-      const phoneNumber=phoneInput.value.trim();
-      if(!phoneNumber){
-        alert('Enter phone number with country code, e.g. +91XXXXXXXXXX');
-        return;
-      }
-
-      const appVerifier = window.recaptchaVerifier;
-      firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-        .then((result)=>{
-          confirmationResult = result;
-          showNotification('OTP sent to '+phoneNumber);
-        })
-        .catch((error)=>{
-          console.error(error);
-          alert('Error sending OTP: '+error.message);
-        });
-    }
-
-    function verifyOtp(){
-      const code=document.getElementById('otpCode').value.trim();
-      const name=document.getElementById('authName').value.trim();
-      if(!confirmationResult){
-        alert('Please send OTP first');
-        return;
-      }
-      if(!code){
-        alert('Enter OTP');
-        return;
-      }
-
-      confirmationResult.confirm(code)
-        .then((result)=>{
-          currentUser = result.user;
-          isLoggedIn = true;
-
-          // Save profile on first time (optional)
-          const uid=currentUser.uid;
-          if(name){
-            firebase.database().ref('users/'+uid+'/profile').update({
-              name,
-              phone: currentUser.phoneNumber
-            });
-          }
-
-          document.getElementById('authScreen').classList.add('hidden');
-          document.getElementById('app').classList.remove('hidden');
-
-          loadTransactionsFromFirebase();
-          updateBudgetDisplay();
-          setDefaultDate();
-          updateHeaderDate();
-          showNotification('Logged in successfully');
-        })
-        .catch((error)=>{
-          console.error(error);
-          alert('OTP verification failed: '+error.message);
-        });
-    }
-
-    function logout(){
-      firebase.auth().signOut().then(()=>{
-        isLoggedIn=false;
-        currentUser=null;
-        transactions=[];
-        document.getElementById('authScreen').classList.remove('hidden');
-        document.getElementById('app').classList.add('hidden');
-        document.getElementById('otpCode').value='';
-        showNotification('Logged out');
-      }).catch(err=>{
-        alert('Logout error: '+err.message);
-      });
-    }
-
-    // ----- ADD TRANSACTION (Firebase DB same structure) -----
-    function setType(type,e){
-      currentType=type;
-      document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
-      e.currentTarget.classList.add('active');
-      const select=document.getElementById('category');
-      const groups=select.querySelectorAll('optgroup');
-      if(type==='income'){
-        groups[0].style.display='none';
-        groups[1].style.display='block';
-      }else{
-        groups[0].style.display='block';
-        groups[1].style.display='none';
-      }
-      select.value='';
-    }
-
-    function addTransaction(){
-      const amount=parseFloat(document.getElementById('amount').value);
-      const category=document.getElementById('category').value;
-      const date=document.getElementById('transDate').value;
-      const note=document.getElementById('note').value;
-      const tags=document.getElementById('tags').value;
-
-      if(!amount || !category || !date){
-        alert('Please fill all required fields');
-        return;
-      }
-
-      const t={
-        id: Date.now(),
-        type: currentType,
-        amount,
-        category: category.toLowerCase(),
-        date,
-        note,
-        tags: tags ? tags.split(',').map(x=>x.trim()).filter(Boolean) : [],
-        timestamp: new Date().toISOString()
-      };
-
-      transactions.push(t);
-
-      if(isLoggedIn && currentUser){
-        const uid=currentUser.uid;
-        firebase.database().ref('users/'+uid+'/transactions/'+t.id)
-          .set(t)
-          .then(()=>showNotification('Saved to cloud!'))
-          .catch(err=>{
-            console.error(err);
-            showNotification('Saved locally only');
-          });
-      }
-
-      resetAddForm(false);
-      updateDashboard();
-      renderLastTransactions();
-      updateHistory();
-    }
-
-    function resetAddForm(resetType=true){
-      document.getElementById('amount').value='';
-      document.getElementById('note').value='';
-      document.getElementById('tags').value='';
-      document.getElementById('category').value='';
-      if(resetType) currentType='expense';
-      setDefaultDate();
-    }
-
-    // ----- DASHBOARD / ANALYTICS (same logic as pehle) -----
-    function updateDashboard(){
-      const currentMonth=new Date().toISOString().substring(0,7);
-      let totalIncome=0,totalExpenses=0,monthlyExpenses=0;
-
-      transactions.forEach(t=>{
-        if(t.type==='income') totalIncome+=t.amount;
-        else totalExpenses+=t.amount;
-        if(t.type==='expense' && t.date.substring(0,7)===currentMonth){
-          monthlyExpenses+=t.amount;
-        }
-      });
-
-      const balance=totalIncome-totalExpenses;
-      const budgetUsed = monthlyExpenses/monthlyBudget*100;
-      const budgetLeft = monthlyBudget-monthlyExpenses;
-
-      document.getElementById('totalBalance').textContent = currencySymbol+balance.toLocaleString('en-IN');
-      document.getElementById('totalIncome').textContent = currencySymbol+totalIncome.toLocaleString('en-IN');
-      document.getElementById('monthlyExpense').textContent = currencySymbol+monthlyExpenses.toLocaleString('en-IN');
-      document.getElementById('budgetLeft').textContent = currencySymbol+Math.max(budgetLeft,0).toLocaleString('en-IN');
-      document.getElementById('budgetPercent').textContent = Math.round(budgetUsed)+'%';
-      document.getElementById('budgetPercent2').textContent = Math.round(100-budgetUsed)+'% remaining';
-      document.getElementById('budgetBar').style.width = Math.min(budgetUsed,100)+'%';
-
-      const alertEl=document.getElementById('alertText');
-      if(budgetUsed>=100) alertEl.textContent='You have exceeded your budget!';
-      else if(budgetUsed>=80) alertEl.textContent='You have used 80% of your budget!';
-      else alertEl.textContent="You're spending well! Keep it up.";
-
-      renderRecentTransactions();
-      drawCharts();
-    }
-
-    function renderRecentTransactions(){
-      const recent=transactions.slice(-5).reverse();
-      const container=document.getElementById('recentTransactions');
-      if(!recent.length){
-        container.innerHTML='<p style="font-size:11px;color:#6B7280;">No transactions yet</p>';
-        return;
-      }
-      container.innerHTML=recent.map(t=>`
-        <div class="transaction-item">
-          <div class="transaction-left">
-            <div class="transaction-icon">${categoryEmojis[t.category] || '💸'}</div>
-            <div class="transaction-info">
-              <h4>${t.category}</h4>
-              <p>${t.date}</p>
-            </div>
-          </div>
-          <div class="transaction-amount">
-            <div class="amount ${t.type==='income'?'positive':'negative'}">
-              ${t.type==='income'?'+':'-'}${currencySymbol}${t.amount.toLocaleString('en-IN')}
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderLastTransactions(){
-      const last=transactions.slice(-5).reverse();
-      const container=document.getElementById('lastTransactions');
-      if(!last.length){
-        container.innerHTML='<p style="font-size:11px;color:#6B7280;">No transactions yet</p>';
-        return;
-      }
-      container.innerHTML=last.map(t=>`
-        <div class="transaction-item">
-          <div class="transaction-left">
-            <div class="transaction-icon">${categoryEmojis[t.category] || '💸'}</div>
-            <div class="transaction-info">
-              <h4>${t.category}</h4>
-              <p>${t.date}${t.note ? ' · '+t.note : ''}</p>
-            </div>
-          </div>
-          <div class="transaction-amount">
-            <div class="amount ${t.type==='income'?'positive':'negative'}">
-              ${t.type==='income'?'+':'-'}${currencySymbol}${t.amount.toLocaleString('en-IN')}
-            </div>
-          </div>
-        </div>
-      `).join('');
-
-      const today=new Date().toISOString().split('T')[0];
-      const totalAdded=transactions
-        .filter(t=>t.date===today && t.type==='expense')
-        .reduce((s,t)=>s+t.amount,0);
-      document.getElementById('totalAddedToday').textContent = currencySymbol+totalAdded.toLocaleString('en-IN');
-      document.getElementById('transactionCount').textContent = transactions.length;
-    }
-
-    function updateHistory(){
-      const search=document.getElementById('searchInput').value.toLowerCase();
-      const filtered=transactions.filter(t=>{
-        const match=!search ||
-          t.category.toLowerCase().includes(search) ||
-          (t.note && t.note.toLowerCase().includes(search)) ||
-          t.date.includes(search) ||
-          t.amount.toString().includes(search);
-        return match;
-      }).reverse();
-
-      const container=document.getElementById('historyList');
-      if(!filtered.length){
-        container.innerHTML='<div style="font-size:11px;color:#6B7280;text-align:center;padding:10px;">No transactions found</div>';
-        return;
-      }
-      container.innerHTML=filtered.map(t=>`
-        <div class="glass-card" style="padding:10px;margin-bottom:6px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div style="display:flex;gap:8px;align-items:center;">
-              <div style="font-size:20px;">${categoryEmojis[t.category] || '💸'}</div>
-              <div>
-                <div style="font-size:12px;font-weight:600;">${t.category}</div>
-                <div style="font-size:10px;color:#6B7280;">${t.date}${t.note ? ' · '+t.note : ''}</div>
-              </div>
-            </div>
-            <div style="text-align:right;font-size:12px;font-weight:600;color:${t.type==='income'?'#10B981':'#EF4444'};">
-              ${t.type==='income'?'+':'-'}${currencySymbol}${t.amount.toLocaleString('en-IN')}
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function updateAnalytics(){
-      const currentMonth=new Date().toISOString().substring(0,7);
-      let monthlySpent=0;
-      transactions.forEach(t=>{
-        if(t.type==='expense' && t.date.substring(0,7)===currentMonth){
-          monthlySpent+=t.amount;
-        }
-      });
-      document.getElementById('reportTotalBudget').textContent = currencySymbol+monthlyBudget.toLocaleString('en-IN');
-      document.getElementById('reportMonthlySpent').textContent = currencySymbol+monthlySpent.toLocaleString('en-IN');
-      updateCategoryReport();
-      buildCategoryBudgetList();
-    }
-
-    function updateCategoryReport(){
-      const selectedCategory=document.getElementById('categorySelect').value;
-      const months=[];const monthlyData=[];
-      for(let i=11;i>=0;i--){
-        const d=new Date();d.setMonth(d.getMonth()-i);
-        const key=d.toISOString().substring(0,7);
-        const label=d.toLocaleDateString('en-IN',{month:'short',year:'2-digit'});
-        months.push(label);
-        let total=0;
-        transactions.forEach(t=>{
-          if(t.type==='expense' && t.date.substring(0,7)===key){
-            if(!selectedCategory || t.category===selectedCategory) total+=t.amount;
-          }
-        });
-        monthlyData.push(total);
-      }
-      if(monthlyReportChart) monthlyReportChart.destroy();
-      const ctx=document.getElementById('monthlyReportChart').getContext('2d');
-      monthlyReportChart=new Chart(ctx,{
-        type:'bar',
-        data:{
-          labels:months,
-          datasets:[{
-            label:selectedCategory?selectedCategory+' expenses':'All expenses',
-            data:monthlyData,
-            backgroundColor:'rgba(10,65,116,0.6)',
-            borderColor:'#0A4174',
-            borderWidth:1,
-            borderRadius:4
-          }]
-        },
-        options:{
-          responsive:true,maintainAspectRatio:false,
-          plugins:{legend:{labels:{color:'#374151'}}},
-          scales:{
-            y:{beginAtZero:true,ticks:{color:'#6B7280'},grid:{color:'rgba(209,213,219,0.6)'}},
-            x:{ticks:{color:'#6B7280'},grid:{color:'rgba(229,231,235,0.4)'}}
-          }
-        }
-      });
-    }
-
-    function buildCategoryBudgetList(){
-      const cats=['food','groceries','transport','clothing','debt','savings','shopping','utilities','health','travel','housing','entertainment','education','other'];
-      const container=document.getElementById('categoryBudgetList');
-      container.innerHTML=cats.map(cat=>{
-        const spent=transactions.filter(t=>t.category===cat && t.type==='expense').reduce((s,t)=>s+t.amount,0);
-        const budget=categoryBudgets[cat] || 5000;
-        const percent=spent/budget*100;
-        return `
-          <div style="margin-bottom:8px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-              <span style="font-size:12px;font-weight:600;">${categoryEmojis[cat] || '💸'} ${cat}</span>
-              <span style="font-size:11px;color:#6B7280;">${currencySymbol}${spent.toLocaleString('en-IN')} / ${currencySymbol}${budget.toLocaleString('en-IN')}</span>
-            </div>
-            <div style="height:6px;border-radius:999px;background:#E5E7EB;overflow:hidden;">
-              <div style="height:100%;width:${Math.min(percent,100)}%;background:linear-gradient(90deg,#0A4174,#6EA2B3);"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function drawCharts(){
-      const currentMonth=new Date().toISOString().substring(0,7);
-      const dayMap={},catMap={};
-      transactions.forEach(t=>{
-        if(t.type==='expense'){
-          const day=t.date.split('-')[2];
-          dayMap[day]=(dayMap[day]||0)+t.amount;
-          if(t.date.substring(0,7)===currentMonth){
-            catMap[t.category]=(catMap[t.category]||0)+t.amount;
-          }
-        }
-      });
-      const days=Object.keys(dayMap).sort((a,b)=>a-b);
-      const values=days.map(d=>dayMap[d]);
-
-      if(expenseChart) expenseChart.destroy();
-      const ectx=document.getElementById('expenseChart').getContext('2d');
-      expenseChart=new Chart(ectx,{
-        type:'line',
-        data:{labels:days,datasets:[{label:'Daily Expense',data:values,borderColor:'#0A4174',backgroundColor:'rgba(10,65,116,0.08)',tension:0.4,fill:true}]},
-        options:{
-          responsive:true,maintainAspectRatio:false,
-          plugins:{legend:{display:false}},
-          scales:{
-            y:{beginAtZero:true,ticks:{color:'#6B7280'},grid:{color:'rgba(229,231,235,0.6)'}},
-            x:{ticks:{color:'#6B7280'},grid:{color:'rgba(229,231,235,0.4)'}}
-          }
-        }
-      });
-
-      const labels=Object.keys(catMap).map(c=>(categoryEmojis[c]||'💸')+' '+c);
-      const catValues=Object.values(catMap);
-      if(categoryChart) categoryChart.destroy();
-      const cctx=document.getElementById('categoryChart').getContext('2d');
-      categoryChart=new Chart(cctx,{
-        type:'doughnut',
-        data:{labels:labels,datasets:[{data:catValues,backgroundColor:['#0A4174','#6EA2B3','#10B981','#F59E0B','#EF4444','#6366F1']}]},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#374151',font:{size:10}}}}}
-      });
-    }
-
-    function exportDataTXT(){
-      let content='SPENDING TRACKER REPORT\n\n';
-      content+='Generated: '+new Date().toLocaleDateString('en-IN')+'\n\n';
-      const currentMonth=new Date().toISOString().substring(0,7);
-      let monthlyExpenses=0,totalIncome=0;
-      transactions.forEach(t=>{
-        if(t.type==='income') totalIncome+=t.amount;
-        if(t.type==='expense' && t.date.substring(0,7)===currentMonth) monthlyExpenses+=t.amount;
-      });
-      content+='SUMMARY\n-------\n';
-      content+='Total Income: '+totalIncome.toLocaleString('en-IN')+'\n';
-      content+='Monthly Expenses: '+monthlyExpenses.toLocaleString('en-IN')+'\n';
-      content+='Budget: '+monthlyBudget.toLocaleString('en-IN')+'\n\n';
-      content+='ALL TRANSACTIONS\n-----------------\n';
-      transactions.slice().reverse().forEach(t=>{
-        const type=t.type==='income'?'INCOME':'EXPENSE';
-        const sign=t.type==='income'?'+':'-';
-        content+=`Date: ${t.date}\nCategory: ${t.category.toUpperCase()}\nType: ${type}\nAmount: ${sign}${t.amount.toLocaleString('en-IN')}\n`;
-        if(t.note) content+=`Note: ${t.note}\n`;
-        if(t.tags && t.tags.length) content+=`Tags: ${t.tags.join(', ')}\n`;
-        content+='\n';
-      });
-      const blob=new Blob([content],{type:'text/plain'});
-      const url=URL.createObjectURL(blob);
-      const link=document.createElement('a');
-      link.href=url;
-      link.download='spending-report-'+new Date().toISOString().split('T')[0]+'.txt';
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function exportDataCSV(){
-      let csv='Date,Category,Type,Amount,Note,Tags\n';
-      transactions.forEach(t=>{
-        const tags=Array.isArray(t.tags)?t.tags.join('|'):'';
-        csv+=`${t.date},${t.category},${t.type},${t.amount},${t.note||''},${tags}\n`;
-      });
-      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-      const url=URL.createObjectURL(blob);
-      const link=document.createElement('a');
-      link.href=url;
-      link.download='spending-tracker-'+new Date().toISOString().split('T')[0]+'.csv';
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    // ----- FIREBASE INIT + LOAD DATA -----
-    window.addEventListener('load',()=>{
-      detectCurrency();
-      updateHeaderDate();
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyCLnj8vRLLjgfWFlu9wU0gK8ZccmpA67GI",
-        authDomain: "spendingtracker-a3e9a.firebaseapp.com",
-        projectId: "spendingtracker-a3e9a",
-        storageBucket: "spendingtracker-a3e9a.firebasestorage.app",
-        messagingSenderId: "948139369692",
-        databaseURL: "https://spendingtracker-a3e9a-default-rtdb.asia-southeast1.firebasedatabase.app",
-        appId: "1:948139369692:web:7df339d507716a22864019"
-      }; // same as old file [file:1]
-
-      if(!firebase.apps.length){
-        firebase.initializeApp(firebaseConfig);
-      }
-
-      initRecaptcha(); // important for phone auth [web:2][web:5]
-
-      firebase.auth().onAuthStateChanged(user=>{
-        if(user){
-          currentUser=user;
-          isLoggedIn=true;
-          document.getElementById('authScreen').classList.add('hidden');
-          document.getElementById('app').classList.remove('hidden');
-          loadTransactionsFromFirebase();
-          updateBudgetDisplay();
-          setDefaultDate();
-        }else{
-          isLoggedIn=false;
-          currentUser=null;
-          document.getElementById('authScreen').classList.remove('hidden');
-          document.getElementById('app').classList.add('hidden');
-        }
-      });
-    });
-
-    function loadTransactionsFromFirebase(){
-      if(!isLoggedIn || !currentUser){
-        transactions=[];
-        updateDashboard();
-        renderLastTransactions();
-        updateHistory();
-        return;
-      }
-      const uid=currentUser.uid;
-      firebase.database().ref('users/'+uid+'/transactions')
-        .on('value',snapshot=>{
-          const data=snapshot.val();
-          transactions=data?Object.values(data):[];
-          updateDashboard();
-          renderLastTransactions();
-          updateHistory();
-        });
-    }
-
-    function updateBudgetDisplay(){
-      document.getElementById('settingsBudget').textContent =
-        currencySymbol+monthlyBudget.toLocaleString('en-IN');
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
+
+  <script src="https://www.gstatic.com/firebasejs/
