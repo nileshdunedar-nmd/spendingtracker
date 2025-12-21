@@ -321,18 +321,30 @@ function drawDailyExpenseChart() {
 }
 
 function drawMonthlyExpenseChart() {
-  const ctx = document.getElementById('monthlyExpenseChart');
-  if (!ctx) return;
-
+  const canvas = document.getElementById('monthlyExpenseChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
   const filterSelect = document.getElementById('monthlyCategoryFilter');
   const selectedCategory = filterSelect ? filterSelect.value : '';
 
   const labels = [];
   const data = [];
+
   const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
 
   for (let i = 11; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    let year = currentYear;
+    let month = currentMonth - i;
+
+    // Adjust year if month negative
+    while (month < 0) {
+      month += 12;
+      year -= 1;
+    }
+
+    const d = new Date(year, month, 1);
     const key = d.toISOString().substring(0, 7); // YYYY-MM
     const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
     labels.push(label);
@@ -348,11 +360,13 @@ function drawMonthlyExpenseChart() {
     data.push(monthTotal);
   }
 
-  if (monthlyExpenseChart) monthlyExpenseChart.destroy();
+  if (window.monthlyExpenseChart) {
+    window.monthlyExpenseChart.destroy();
+  }
 
   const labelText = selectedCategory ? `${selectedCategory} expense` : 'All expenses';
 
-  monthlyExpenseChart = new Chart(ctx, {
+  window.monthlyExpenseChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
@@ -383,7 +397,6 @@ function drawMonthlyExpenseChart() {
     }
   });
 }
-
 
 // ✅ INITIALIZE APP (combined)
     setDefaultDate();
