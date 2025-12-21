@@ -323,7 +323,7 @@ function drawDailyExpenseChart() {
 function drawMonthlyExpenseChart() {
   const canvas = document.getElementById('monthlyExpenseChart');
   if (!canvas) return;
-  //const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d');
   const filterSelect = document.getElementById('monthlyCategoryFilter');
   const selectedCategory = filterSelect ? filterSelect.value : '';
 
@@ -360,13 +360,13 @@ function drawMonthlyExpenseChart() {
     data.push(monthTotal);
   }
 
-  if (window.monthlyExpenseChart) {
-    window.monthlyExpenseChart.destroy();
+  if (monthlyExpenseChart) {
+    monthlyExpenseChart.destroy();
   }
 
   const labelText = selectedCategory ? `${selectedCategory} expense` : 'All expenses';
 
-  window.monthlyExpenseChart = new Chart(ctx, {
+  monthlyExpenseChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
