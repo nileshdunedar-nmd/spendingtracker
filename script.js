@@ -324,6 +324,7 @@ function drawMonthlyExpenseChart() {
   const canvas = document.getElementById('monthlyExpenseChart');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
+
   const filterSelect = document.getElementById('monthlyCategoryFilter');
   const selectedCategory = filterSelect ? filterSelect.value : '';
 
@@ -335,28 +336,33 @@ function drawMonthlyExpenseChart() {
   const currentMonth = now.getMonth();
 
   for (let i = 11; i >= 0; i--) {
-    let year = currentYear;
-    let month = currentMonth - i;
+    const d = new Date(currentYear, currentMonth - i, 1);
 
-    // Adjust year if month negative
-    while (month < 0) {
-      month += 12;
-      year -= 1;
-    }
+    const chartYear = d.getFullYear();
+    const chartMonth = d.getMonth();
 
-    const d = new Date(year, month, 1);
-    const key = d.toISOString().substring(0, 7); // YYYY-MM
-    const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
-    labels.push(label);
+    labels.push(
+      d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' })
+    );
 
     let monthTotal = 0;
+
     transactions.forEach(t => {
-      if (t.type === 'expense' && t.date.substring(0, 7) === key) {
+      if (t.type !== 'expense') return;
+
+      const txDate = new Date(t.date);   // 🔥 FIX
+      if (isNaN(txDate)) return;
+
+      if (
+        txDate.getFullYear() === chartYear &&
+        txDate.getMonth() === chartMonth
+      ) {
         if (!selectedCategory || t.category === selectedCategory) {
-          monthTotal += t.amount;
+          monthTotal += Number(t.amount) || 0;
         }
       }
     });
+
     data.push(monthTotal);
   }
 
@@ -364,18 +370,14 @@ function drawMonthlyExpenseChart() {
     monthlyExpenseChart.destroy();
   }
 
-  const labelText = selectedCategory ? `${selectedCategory} expense` : 'All expenses';
-
   monthlyExpenseChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
       datasets: [{
-        label: labelText,
+        label: selectedCategory ? `${selectedCategory} expense` : 'All expenses',
         data,
         backgroundColor: 'rgba(10,132,255,0.7)',
-        borderColor: '#0A84FF',
-        borderWidth: 1,
         borderRadius: 4
       }]
     },
@@ -384,19 +386,13 @@ function drawMonthlyExpenseChart() {
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { color: '#6b7280', font: { size: 10 } },
-          grid: { color: 'rgba(209,213,219,0.5)' }
-        },
-        x: {
-          ticks: { color: '#6b7280', font: { size: 9 } },
-          grid: { display: false }
-        }
+        y: { beginAtZero: true },
+        x: { grid: { display: false } }
       }
     }
   });
 }
+
 
 // ✅ INITIALIZE APP (combined)
     setDefaultDate();
