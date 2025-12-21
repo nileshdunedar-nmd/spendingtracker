@@ -47,6 +47,7 @@ body {
   margin: 0 auto;
   padding: 2px;
   min-height: 100vh;
+  padding-bottom: 64px;
 }
 
 /* HEADER */
@@ -957,3 +958,4 @@ input:focus, select:focus, textarea:focus {
   color: var(--primary);
   transform: translateY(-1px);
 }
+
