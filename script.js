@@ -321,58 +321,45 @@ function drawDailyExpenseChart() {
 }
 
 function drawMonthlyExpenseChart() {
-  const canvas = document.getElementById('monthlyExpenseChart');
-  if (!canvas) return;
+  const ctx = document.getElementById('monthlyExpenseChart');
+  if (!ctx) return;
 
-  const ctx = canvas.getContext('2d');
   const filterSelect = document.getElementById('monthlyCategoryFilter');
   const selectedCategory = filterSelect ? filterSelect.value : '';
 
   const labels = [];
   const data = [];
-
-  // Current month se pichhle 5 months tak (total 6)
   const now = new Date();
 
-  for (let i = 5; i >= 0; i--) {
-    // Har iteration ke liye naye Date object use karo (mutation bug avoid)
+  for (let i = 11; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-
-    // YYYY-MM format jo tum transactions me use kar rahe ho
-    const monthKey = d.toISOString().substring(0, 7);
-    const label = d.toLocaleDateString('en-IN', {
-      month: 'short',
-      year: '2-digit'
-    });
-
+    const key = d.toISOString().substring(0, 7); // YYYY-MM
+    const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
     labels.push(label);
 
     let monthTotal = 0;
     transactions.forEach(t => {
-      if (t.type === 'expense' && t.date.substring(0, 7) === monthKey) {
+      if (t.type === 'expense' && t.date.substring(0, 13) === key) {
         if (!selectedCategory || t.category === selectedCategory) {
           monthTotal += t.amount;
         }
       }
     });
-
     data.push(monthTotal);
   }
 
-  if (window.monthlyExpenseChart) {
-    window.monthlyExpenseChart.destroy();
-  }
+  if (monthlyExpenseChart) monthlyExpenseChart.destroy();
 
   const labelText = selectedCategory ? `${selectedCategory} expense` : 'All expenses';
 
-  window.monthlyExpenseChart = new Chart(ctx, {
+  monthlyExpenseChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
       datasets: [{
         label: labelText,
         data,
-        backgroundColor: 'rgba(10, 132, 255, 0.7)',
+        backgroundColor: 'rgba(10,132,255,0.7)',
         borderColor: '#0A84FF',
         borderWidth: 1,
         borderRadius: 4
@@ -396,6 +383,8 @@ function drawMonthlyExpenseChart() {
     }
   });
 }
+
+
 // ✅ INITIALIZE APP (combined)
     setDefaultDate();
     loadFromLocalStorage();
