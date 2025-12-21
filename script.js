@@ -264,9 +264,9 @@ function updateDashboard() {
     budgetLeftEl.textContent = formatMoney(budgetLeft);
     budgetLeftEl.className = budgetLeft >= 0 ? 'stat-value positive' : 'stat-value negative';
     
-    updateRecentTransactions();
-    drawDailyExpenseChart();
-    drawMonthlyExpenseChart();
+    updateRecentTransactions && updateRecentTransactions();
+    drawDailyExpenseChart && drawDailyExpenseChart();
+    drawMonthlyExpenseChart && drawMonthlyExpenseChart();
 }
 
 function drawDailyExpenseChart() {
@@ -321,45 +321,58 @@ function drawDailyExpenseChart() {
 }
 
 function drawMonthlyExpenseChart() {
-  const ctx = document.getElementById('monthlyExpenseChart');
-  if (!ctx) return;
+  const canvas = document.getElementById('monthlyExpenseChart');
+  if (!canvas) return;
 
+  const ctx = canvas.getContext('2d');
   const filterSelect = document.getElementById('monthlyCategoryFilter');
   const selectedCategory = filterSelect ? filterSelect.value : '';
 
   const labels = [];
   const data = [];
+
+  // Current month se pichhle 5 months tak (total 6)
   const now = new Date();
 
   for (let i = 5; i >= 0; i--) {
+    // Har iteration ke liye naye Date object use karo (mutation bug avoid)
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = d.toISOString().substring(0, 7); // YYYY-MM
-    const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+
+    // YYYY-MM format jo tum transactions me use kar rahe ho
+    const monthKey = d.toISOString().substring(0, 7);
+    const label = d.toLocaleDateString('en-IN', {
+      month: 'short',
+      year: '2-digit'
+    });
+
     labels.push(label);
 
     let monthTotal = 0;
     transactions.forEach(t => {
-      if (t.type === 'expense' && t.date.substring(0, 7) === key) {
+      if (t.type === 'expense' && t.date.substring(0, 7) === monthKey) {
         if (!selectedCategory || t.category === selectedCategory) {
           monthTotal += t.amount;
         }
       }
     });
+
     data.push(monthTotal);
   }
 
-  if (monthlyExpenseChart) monthlyExpenseChart.destroy();
+  if (window.monthlyExpenseChart) {
+    window.monthlyExpenseChart.destroy();
+  }
 
   const labelText = selectedCategory ? `${selectedCategory} expense` : 'All expenses';
 
-  monthlyExpenseChart = new Chart(ctx, {
+  window.monthlyExpenseChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
       datasets: [{
         label: labelText,
         data,
-        backgroundColor: 'rgba(10,132,255,0.7)',
+        backgroundColor: 'rgba(10, 132, 255, 0.7)',
         borderColor: '#0A84FF',
         borderWidth: 1,
         borderRadius: 4
@@ -383,8 +396,6 @@ function drawMonthlyExpenseChart() {
     }
   });
 }
-
-
 // ✅ INITIALIZE APP (combined)
     setDefaultDate();
     loadFromLocalStorage();
