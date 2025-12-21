@@ -264,9 +264,9 @@ function updateDashboard() {
     budgetLeftEl.textContent = formatMoney(budgetLeft);
     budgetLeftEl.className = budgetLeft >= 0 ? 'stat-value positive' : 'stat-value negative';
     
-    updateRecentTransactions && updateRecentTransactions();
-    drawDailyExpenseChart && drawDailyExpenseChart();
-    drawMonthlyExpenseChart && drawMonthlyExpenseChart();
+    updateRecentTransactions();
+    drawDailyExpenseChart();
+    drawMonthlyExpenseChart();
 }
 
 function drawDailyExpenseChart() {
