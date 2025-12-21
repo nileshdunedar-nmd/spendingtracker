@@ -331,7 +331,7 @@ function drawMonthlyExpenseChart() {
   const data = [];
   const now = new Date();
 
-  for (let i = 11; i >= 0; i--) {
+  for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const key = d.toISOString().substring(0, 7); // YYYY-MM
     const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
@@ -339,7 +339,7 @@ function drawMonthlyExpenseChart() {
 
     let monthTotal = 0;
     transactions.forEach(t => {
-      if (t.type === 'expense' && t.date.substring(0, 13) === key) {
+      if (t.type === 'expense' && t.date.substring(0, 7) === key) {
         if (!selectedCategory || t.category === selectedCategory) {
           monthTotal += t.amount;
         }
