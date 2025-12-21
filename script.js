@@ -4,7 +4,6 @@ let monthlyBudget = 0;
 let dailyExpenseChart = null;
 let monthlyExpenseChart = null;
 
-// let categoryBudgets = {};  // Empty initially, loaded from storage
 // ✅ 1. Global variables (TOP PE add karo)
 let categoryBudgets = {
     food: 0, groceries: 0, transport: 0, clothing: 0, 
@@ -13,18 +12,110 @@ let categoryBudgets = {
     education: 0, other: 0
 };
 
+const expenseCategories = [
+    'food','groceries','transport','clothing','debt','shopping',
+    'utilities','health','travel','housing','entertainment','education','other'
+];
+
+const incomeCategories = [
+    'salary','freelance','investment','business','bonus','refund','gift','other'
+];
+
+function getCategoryEmoji(category) {
+    const emojis = {
+            food:'🍔', groceries:'🛒', transport:'🚗', clothing:'👕',
+    debt:'💳', shopping:'🛍️', utilities:'💡', health:'🏥',
+    travel:'✈️', housing:'🏠', entertainment:'🎬', education:'📚',
+    other:'📦',
+
+    salary:'💼', freelance:'💻', investment:'📈', business:'🏢',
+    bonus:'🎁', refund:'↩️', gift:'🎀'
+
+    };
+    return emojis[category] || '📌';
+}
+
 
 // --- PIN PROTECTION (LOCAL STORAGE ONLY) ---
 const PIN_KEY = 'st_local_pin';
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    /* ===============================
+       1️⃣ BASIC INIT
+    =============================== */
+    currentType = 'expense';
+    detectCurrencyAuto();
+    updateCategoryOptions();        // initial category state
+    loadFromLocalStorage();         // load all saved data
+    setDefaultDate();
+    updateDashboard();
+    setFilterMonth();
+    updateBudgetView?.();
+    updateCategoryBudgetUI?.();
+    updateCategoryOptions();
+    initPinLock?.();
+    // detectAndUpdateCurrency();
+
+    /* ===============================
+       2️⃣ MONTHLY CHART FILTER
+    =============================== */
     const monthlyFilter = document.getElementById('monthlyCategoryFilter');
     if (monthlyFilter) {
         monthlyFilter.addEventListener('change', drawMonthlyExpenseChart);
     }
 
-    initPinLock();
+
+    /* ===============================
+       3️⃣ CONFIRM DIALOG EVENTS
+    =============================== */
+    const confirmYes = document.getElementById('confirmYes');
+    const confirmNo  = document.getElementById('confirmNo');
+    const confirmDialog = document.getElementById('confirmDialog');
+
+    if (confirmYes && confirmNo && confirmDialog) {
+
+        confirmYes.onclick = () => {
+            confirmDialog.style.display = 'none';
+            if (confirmResolve) confirmResolve(true);
+        };
+
+        confirmNo.onclick = () => {
+            confirmDialog.style.display = 'none';
+            if (confirmResolve) confirmResolve(false);
+        };
+
+        // ESC key support
+        document.addEventListener('keydown', (e) => {
+            if (
+                e.key === 'Escape' &&
+                confirmDialog.style.display === 'flex'
+            ) {
+                confirmNo.click();
+            }
+        });
+    }
+
+
+    /* ===============================
+       4️⃣ SEARCH & FILTER LISTENERS
+    =============================== */
+    const searchInput = document.getElementById('transactionSearch');
+    const monthFilter = document.getElementById('filterMonth');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', filterTransactions);
+    }
+
+    if (monthFilter) {
+        monthFilter.addEventListener('change', filterTransactions);
+    }
+
+    // Initial filter render
+    filterTransactions();
 });
+
+
 
 function initPinLock() {
   const savedPin = localStorage.getItem(PIN_KEY);
@@ -104,67 +195,63 @@ function resetAllData() {
   });
 }
 
+/************************************
+ * GLOBAL CURRENCY DETECTION
+ ************************************/
 
-// ✅ Initialize on load
-document.addEventListener('DOMContentLoaded', function() {
-    currentType = 'expense';
-    updateCategoryOptions();  // ✅ initial state
-    loadFromLocalStorage();  // Load ALL data first
-    setDefaultDate();
-    updateDashboard();
-    setFilterMonth();
-    updateBudgetView();      // Refresh budgets
-    updateCategoryBudgetUI(); // Show category inputs
-    // ✅ Search events
-    const searchInput = document.getElementById('transactionSearch');
-    const monthFilter = document.getElementById('filterMonth');
-    
-    if (searchInput) {
-        searchInput.addEventListener('input', filterTransactions);
-    }
-    if (monthFilter) {
-        monthFilter.addEventListener('change', filterTransactions);
-    }
-    
-    // Initial load
-    filterTransactions();
-});
+let currencySymbol = '₹'; // default
 
-// Currency functions (TOP PE - FIXED)
-let currencySymbol = getCurrencySymbol();
-
-function getCurrencySymbol() {
-    // Method 1: Check if India timezone/location
-    const isIndia = Intl.DateTimeFormat().resolvedOptions().timeZone.includes('Asia/Kolkata') ||
-                    navigator.language?.includes('IN');
-    
-    if (isIndia) return '₹';
-    
-    // Method 2: Intl automatic detection
+function getCurrencySymbolFromLocale(locale) {
     try {
-        // Try INR first (India), fallback to USD
-        return new Intl.NumberFormat('default', { 
-            style: 'currency', 
-            currency: 'INR' 
-        }).formatToParts(1)[0].value;
+        const currency = new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currencyDisplay: 'symbol',
+            currency: guessCurrency(locale)
+        }).formatToParts(1).find(p => p.type === 'currency').value;
+
+        return currency || '₹';
     } catch (e) {
-        return '$'; // Final fallback
+        return '₹';
     }
+}
+
+function guessCurrency(locale) {
+    const map = {
+        'IN': 'INR',
+        'US': 'USD',
+        'GB': 'GBP',
+        'AE': 'AED',
+        'SA': 'SAR',
+        'EU': 'EUR',
+        'AU': 'AUD',
+        'CA': 'CAD',
+        'JP': 'JPY'
+    };
+
+    const country = locale.split('-')[1];
+    return map[country] || 'USD';
+}
+
+/* ✅ Called from Android WebView */
+function setCurrencyFromAndroid(locale) {
+    currencySymbol = getCurrencySymbolFromLocale(locale);
+    refreshCurrencyUI();
+}
+
+/* ✅ Browser fallback */
+function detectCurrencyAuto() {
+    const locale = navigator.language || 'en-IN';
+    currencySymbol = getCurrencySymbolFromLocale(locale);
+}
+
+function refreshCurrencyUI() {
+    updateDashboard();
+    filterTransactions();
 }
 
 function formatMoney(amount) {
-    const absAmount = Math.abs(amount);
-    
-    // Agar integer hai (.00) to sirf whole number dikhao
-    const formattedAmount = absAmount % 1 === 0 
-        ? Math.round(absAmount).toString() 
-        : absAmount.toFixed(2);
-    
-    const sign = amount < 0 ? '-' : '';
-    return sign + currencySymbol + ' ' + formattedAmount;
+    return `${currencySymbol}${Number(amount).toFixed(2)}`;
 }
-
-
 
 // Toast function
 function showToast(message, type = 'info', duration = 3000) {
@@ -192,37 +279,6 @@ function customConfirm(message) {
     document.getElementById('confirmDialog').style.display = 'flex';
   });
 }
-
-// Dialog event listeners
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('confirmYes').onclick = () =>{
-    document.getElementById('confirmDialog').style.display = 'none';
-    if (confirmResolve) confirmResolve(true);
-  };
-
-  document.getElementById('confirmNo').onclick = () => {
-    document.getElementById('confirmDialog').style.display = 'none';
-    if (confirmResolve) confirmResolve(false);
-  };
-
-  // ESC key support
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.getElementById('confirmDialog').style.display === 'flex') {
-      document.getElementById('confirmNo').click();
-    }
-  });
-
-  // ✅ SEARCH LISTENERS
-    document.getElementById('transactionSearch').addEventListener('input', function() {
-        filterTransactions();
-    });
-    
-    document.getElementById('filterMonth').addEventListener('change', filterTransactions);
-    
-    // Initial load
-    setFilterMonth();
-    filterTransactions();
-});
 
 
 // updateDashboard me ye add karo:
@@ -264,9 +320,9 @@ function updateDashboard() {
     budgetLeftEl.textContent = formatMoney(budgetLeft);
     budgetLeftEl.className = budgetLeft >= 0 ? 'stat-value positive' : 'stat-value negative';
     
-    updateRecentTransactions && updateRecentTransactions();
-    drawDailyExpenseChart && drawDailyExpenseChart();
-    drawMonthlyExpenseChart && drawMonthlyExpenseChart();
+    updateRecentTransactions();
+    drawDailyExpenseChart();
+    drawMonthlyExpenseChart();
 }
 
 function drawDailyExpenseChart() {
@@ -393,24 +449,6 @@ function drawMonthlyExpenseChart() {
   });
 }
 
-
-// ✅ INITIALIZE APP (combined)
-    setDefaultDate();
-    loadFromLocalStorage();
-    updateDashboard();
-    setFilterMonth();
-
-    // Currency check har 2 sec
-    setInterval(detectAndUpdateCurrency, 2000);
-
-// Load data on startup
-window.addEventListener('DOMContentLoaded', () => {
-    setDefaultDate();
-    loadFromLocalStorage();
-    updateDashboard();
-    setFilterMonth();
-});
-
 // Set default date to today
 function setDefaultDate() {
     const today = new Date().toISOString().split('T')[0];
@@ -455,7 +493,6 @@ function switchTab(tabName, event) {
     resetForm && resetForm();
   }
 }
-
 
 function filterTransactions() {
     const searchTerm = document.getElementById('transactionSearch').value.toLowerCase();
@@ -527,21 +564,29 @@ function setType(type) {
 }
 
 function updateCategoryOptions() {
-    const categorySelect = document.getElementById("category");
-    const groups = categorySelect.querySelectorAll("optgroup");
+    const select = document.getElementById('category');
+    if (!select) return;
 
-    // groups[0] = Expenses
-    // groups[1] = Income
+    select.innerHTML = '';
 
-    if (currentType === "income") {
-        groups[0].style.display = "none";   // hide expenses
-        groups[1].style.display = "block";  // show income
-    } else {
-        groups[0].style.display = "block";  // show expenses
-        groups[1].style.display = "none";   // hide income
-    }
+    const list = currentType === 'expense'
+        ? expenseCategories
+        : incomeCategories;
 
-    categorySelect.value = "";
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select category';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    select.appendChild(placeholder);
+
+    list.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent =
+            `${getCategoryEmoji(cat)} ${cat.charAt(0).toUpperCase() + cat.slice(1)}`;
+        select.appendChild(opt);
+    });
 }
 
 
@@ -638,46 +683,6 @@ function updateRecentTransactions() {
 
 }
 
-const categoryEmojis = {
-    food: '🍔',
-    groceries: '🛒', 
-    transport: '🚗',
-    clothing: '👗',
-    debt: '💳',
-    savings: '💰',
-    shopping: '🛍️',
-    utilities: '💡',
-    health: '🏥',
-    travel: '✈️',
-    housing: '🏠',
-    entertainment: '🎬',
-    education: '📚',
-    other: '📌'
-};
-
-function getCategoryEmoji(category) {
-    const emojis = {
-        food: '🍔',
-        groceries: '🛒',
-        transport: '🚗',
-        clothing: '👗',
-        debt: '💳',
-        savings: '💰',
-        shopping: '🛍️',
-        utilities: '💡',
-        health: '🏥',
-        travel: '✈️',
-        housing: '🏠',
-        entertainment: '🎬',
-        education: '📚',
-        other: '📌',
-        salary: '💼',
-        freelance: '💻'
-    };
-    return emojis[category] || '📌';
-}
-
-
 // 2. Load on startup
 loadCategoryBudgets();
 updateCategoryBudgetUI(); // Show UI
@@ -717,13 +722,6 @@ function updateCategoryBudgetUI() {
 function setCategoryBudget(category, budget) {
     categoryBudgets[category] = budget;
     updateTotalBudgetFromCategories();  // yahi total update + UI + save sab karega
-}
-
-function updateCategoryBudget(category, value) {
-    categoryBudgets[category] = parseFloat(value) || 0;
-    // updateTotalBudgetDisplay();
-    updateTotalBudgetFromCategories();   // ✅ har change pe total auto update
-
 }
 
 // Category Budgets Save
@@ -783,7 +781,6 @@ function updateTotalBudgetFromCategories() {
     updateBudgetView();
 }
 
-
 // ✅ 2. Helper function
 function getCategoryMonthlySpent(category) {
     const currentMonth = new Date().toISOString().substring(0, 7);
@@ -793,7 +790,6 @@ function getCategoryMonthlySpent(category) {
         .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 }
 
-// Update budget view
 // ✅ 3. FIXED updateBudgetView()
 function updateBudgetView() {
     const currentMonth = new Date().toISOString().substring(0, 7);
@@ -821,14 +817,14 @@ function updateBudgetView() {
             <div style="padding: 5px; background: var(--md-sys-color-surface-variant); border-radius: 16px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1px;">
                     <span style="font-weight: 500; font-size: 12px">Monthly Budget</span>
-                    <span style="font-weight: 500; font-size: 12px;">
+                    <span style="font-weight: 500; font-size: 12px; margin-top: 3px;">
                         <span class="negative">${formatMoney(monthlyExpenses)}</span> / ${formatMoney(monthlyBudget)}
                     </span>
                 </div>
                 <div class="budget-bar">
                     <div class="budget-fill" style="width: ${percentage}%"></div>
                 </div>
-                <div style="display: flex; font-size: 12px; justify-content: space-between; margin-top: 1px;">
+                <div style="display: flex; font-size: 12px; justify-content: space-between; margin-top: 3px;">
                     <span>${percentage.toFixed(1)}% spent</span>
                     <span class="${percentage > 100 ? 'negative' : percentage > 80 ? 'negative' : 'positive'}">
                         ${monthlyBudget - monthlyExpenses >= 0 ? formatMoney(monthlyBudget - monthlyExpenses) + ' left' : 'over budget'}
@@ -898,68 +894,7 @@ async function deleteTransaction(id) {
         showToast('Transaction deleted successfully!', 'success', 3000);
     }
 }
-// Firebase Firestore Functions
-async function saveTransactionToFirestore(transaction) {
-    if (!firebaseReady) return;
-    try {
-        await db.collection('transactions').doc(String(transaction.id)).set({
-            ...transaction,
-            syncedAt: new Date().toISOString()
-        });
-        console.log('Transaction synced to Firestore');
-    } catch (e) {
-        console.error('Error saving to Firestore:', e);
-    }
-}
-async function deleteTransactionFromFirestore(id) {
-    if (!firebaseReady) return;
-    try {
-        await db.collection('transactions').doc(String(id)).delete();
-        console.log('Transaction deleted from Firestore');
-    } catch (e) {
-        console.error('Error deleting from Firestore:', e);
-    }
-}
-async function loadFromFirestore() {
-    if (!firebaseReady || isSyncingToFirebase) return;
-    isSyncingToFirebase = true;
-    try {
-        const snapshot = await db.collection('transactions').get();
-        if (!snapshot.empty) {
-            const loaded = [];
-            snapshot.forEach(doc => {
-                loaded.push(doc.data());
-            });
-            // Merge with local data (Firebase takes priority)
-            transactions = loaded;
-            saveToLocalStorage();
-            updateDashboard();
-            updateBudgetView();
-            filterByMonth();
-            console.log('Transactions loaded from Firestore');
-        }
-    } catch (e) {
-        console.error('Error loading from Firestore:', e);
-    }
-    isSyncingToFirebase = false;
-}
-async function syncAllToFirebase() {
-    if (!firebaseReady) {
-        // alert('Firebase not connected. Please configure Firebase settings.');
-        showToast('Firebase not connected. Please configure Firebase settings.');
-        return;
-    }
-    try {
-        for (const t of transactions) {
-            await saveTransactionToFirestore(t);
-        }
-        // alert('✅ All data synced to Firebase successfully!');
-        showToast('✅ All data synced to Firebase successfully!');
-    } catch (e) {
-        alert('❌ Error syncing to Firebase: ' + e.message);
-        console.error('Sync error:', e);
-    }
-}
+
 // Get total monthly expenses
 function getTotalMonthlyExpenses() {
     const currentMonth = new Date().toISOString().substring(0, 7);
@@ -1007,16 +942,6 @@ function exportData() {
     link.download = `spending-tracker-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
-}
-
-
-function downloadBlob(filename, blob) {
-    const reader = new FileReader();
-    reader.onload = function () {
-        const base64Data = reader.result.split(',')[1];
-        Android.downloadFile(filename, base64Data);
-    };
-    reader.readAsDataURL(blob);
 }
 
 function blobToBase64(blob, callback) {
@@ -1111,17 +1036,13 @@ function exportDataAsExcel() {
 
 
 // ✅ FIXED: Currency LIVE detect
-function detectAndUpdateCurrency() {
-    const newSymbol = getCurrencySymbol();
-    if (newSymbol !== currencySymbol) {
-        currencySymbol = newSymbol;
-        updateDashboard();
-        updateBudgetView();
-        filterByMonth();
-        updateRecentTransactions();
-    }
-}
-
-
-// Har 2 second me check karo (user location change ho sakti hai)
-setInterval(detectAndUpdateCurrency, 2000);
+// function detectAndUpdateCurrency() {
+//     // const newSymbol = getCurrencySymbol();
+//     if (newSymbol !== currencySymbol) {
+//         currencySymbol = newSymbol;
+//         updateDashboard();
+//         updateBudgetView();
+//         filterByMonth();
+//         updateRecentTransactions();
+//     }
+// }
