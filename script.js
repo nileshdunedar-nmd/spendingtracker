@@ -323,7 +323,7 @@ function drawDailyExpenseChart() {
 function drawMonthlyExpenseChart() {
   const canvas = document.getElementById('monthlyExpenseChart');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  //const ctx = canvas.getContext('2d');
   const filterSelect = document.getElementById('monthlyCategoryFilter');
   const selectedCategory = filterSelect ? filterSelect.value : '';
 
