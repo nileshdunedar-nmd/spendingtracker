@@ -7,7 +7,6 @@ let budgetMessages = [];
 let currentMessageIndex = 0;
 let budgetMessageInterval = null;
 
-
 // ✅ 1. Global variables (TOP PE add karo)
 let categoryBudgets = {
     food: 0, groceries: 0, transport: 0, clothing: 0, 
@@ -17,7 +16,7 @@ let categoryBudgets = {
 };
 
 const expenseCategories = [
-    'food','groceries','transport','clothing','debt','shopping',
+    'food','groceries','transport','clothing','debt', 'savings','shopping',
     'utilities','health','travel','housing','entertainment','education','other'
 ];
 
@@ -28,7 +27,7 @@ const incomeCategories = [
 function getCategoryEmoji(category) {
     const emojis = {
             food:'🍔', groceries:'🛒', transport:'🚗', clothing:'👕',
-    debt:'💳', shopping:'🛍️', utilities:'💡', health:'🏥',
+    debt:'💳', savings:'💰', shopping:'🛍️', utilities:'💡', health:'🏥',
     travel:'✈️', housing:'🏠', entertainment:'🎬', education:'📚',
     other:'📦',
 
@@ -534,6 +533,7 @@ function showTransactions(transactions) {
         `;
         return;
     }
+    
     container.innerHTML = transactions.map(t => {
         const amountClass = t.type === 'income' ? 'positive' : 'negative';
         return `
@@ -564,20 +564,6 @@ function setType(type) {
     event.target.classList.add('selected');
 
     updateCategoryOptions();   // ✅ Ye call hona zaruri hai
-}
-
-function getCategorySpendThisMonth() {
-    const monthKey = new Date().toISOString().substring(0, 7);
-    const categoryTotals = {};
-
-    transactions.forEach(t => {
-        if (t.type === 'expense' && t.date.startsWith(monthKey)) {
-            categoryTotals[t.category] =
-                (categoryTotals[t.category] || 0) + Number(t.amount);
-        }
-    });
-
-    return categoryTotals;
 }
 
 function updateCategoryOptions() {
@@ -807,7 +793,20 @@ function getCategoryMonthlySpent(category) {
         .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 }
 
-// ✅ 3. FIXED updateBudgetView()
+function getCategorySpendThisMonth() {
+    const monthKey = new Date().toISOString().substring(0, 7);
+    const categoryTotals = {};
+
+    transactions.forEach(t => {
+        if (t.type === 'expense' && t.date.startsWith(monthKey)) {
+            categoryTotals[t.category] =
+                (categoryTotals[t.category] || 0) + Number(t.amount);
+        }
+    });
+
+    return categoryTotals;
+}
+
 function updateBudgetView() {
     const el = document.getElementById('budgetOverview');
     if (!el) return;
@@ -867,7 +866,7 @@ function updateBudgetView() {
 
             if (p >= 90) {
                 budgetMessages.push(
-                    `⚠️ ${getCategoryEmoji(cat)} ${cat} category is ${p.toFixed(0)}% used`
+                    `⚠️ Spending on ${cat} is ${p.toFixed(0)}%, be careful!`
                 );
             }
         }
@@ -875,26 +874,37 @@ function updateBudgetView() {
 
     // 🧾 UI STRUCTURE
     el.innerHTML = `
-        <div style="padding:12px;border-radius:16px;background:var(--md-sys-color-surface-variant)">
-            
-            <div style="font-size:28px;font-weight:700">
-                ${formatMoney(monthlyBudget)}
-            </div>
+    <div style="padding:12px;border-radius:16px;
+                background:var(--md-sys-color-surface-variant)">
 
-            <div id="budgetMessage" style="margin:6px 0;font-size:14px;font-weight:500"></div>
-
-            <div style="font-size:12px;color:#6b7280">
-                Allowed till today: <b>${formatMoney(allowedTillToday)}</b><br>
-                Spent: <b>${formatMoney(monthlySpent)}</b>
-            </div>
-
-            <div class="budget-bar" style="margin-top:8px">
-                <div class="budget-fill" style="width:${percent}%"></div>
-            </div>
-
+        <!-- MONTHLY BUDGET -->
+        <div style="font-size:24px;font-weight:700">
+            ${formatMoney(monthlyBudget)}
         </div>
+
+        <!-- FIXED MESSAGE SPACE -->
+        <div id="budgetMessage" class="budget-message-box"></div>
+
+        <!-- INLINE INFO -->
+        <div class="budget-inline-info">
+            <span>
+                Allowed: <b>${formatMoney(allowedTillToday)}</b>
+            </span>
+            <span>
+                Spent: <b>${formatMoney(monthlySpent)}</b>
+                (${percent.toFixed(1)}%)
+            </span>
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div class="budget-bar" style="margin-top:8px">
+            <div class="budget-fill" style="width:${percent}%"></div>
+        </div>
+
+    </div>
     `;
 
+    updateCategoryBreakdown();
     startBudgetMessageRotation();
 }
 
@@ -912,15 +922,17 @@ function startBudgetMessageRotation() {
         currentMessageIndex =
             (currentMessageIndex + 1) % budgetMessages.length;
         el.textContent = budgetMessages[currentMessageIndex];
-    }, 5000);
+    }, 10000);
 }
+
+
 
 
 // 4. Update button handler
 function updateCategoryBudgets() {
     updateTotalBudgetFromCategories();
     saveCategoryBudgets();
-    showToast('✅ Category budgets saved!', 'success');
+    showToast('Category budgets saved!', 'success');
 }
 
 
@@ -1074,7 +1086,7 @@ function exportDataAsPDF() {
         a.href = url;
         a.download = fileName;
         a.click();
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(url);   
         showToast("📄 PDF Downloaded!");
     }
 }
