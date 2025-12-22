@@ -792,18 +792,9 @@ function getCategoryMonthlySpent(category) {
 
 // ✅ 3. FIXED updateBudgetView()
 function updateBudgetView() {
-    const currentMonth = new Date().toISOString().substring(0, 7);
-    let monthlyExpenses = 0;
-    
-    transactions.forEach(t => {
-        if (t.date.substring(0, 7) === currentMonth && t.type === 'expense') {
-            monthlyExpenses += t.amount;
-        }
-    });
-    
     const budgetOverview = document.getElementById('budgetOverview');
-    
-    if (monthlyBudget === 0) {
+
+    if (!monthlyBudget || monthlyBudget <= 0) {
         budgetOverview.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon">💰</div>
@@ -811,32 +802,90 @@ function updateBudgetView() {
                 <div class="empty-subtext">Set a monthly budget to track your spending</div>
             </div>
         `;
-    } else {
-        const percentage = Math.min((monthlyExpenses / monthlyBudget) * 100, 100);
-        budgetOverview.innerHTML = `
-            <div style="padding: 5px; background: var(--md-sys-color-surface-variant); border-radius: 16px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 1px;">
-                    <span style="font-weight: 500; font-size: 12px">Monthly Budget</span>
-                    <span style="font-weight: 500; font-size: 12px; margin-top: 3px;">
-                        <span class="negative">${formatMoney(monthlyExpenses)}</span> / ${formatMoney(monthlyBudget)}
-                    </span>
-                </div>
-                <div class="budget-bar">
-                    <div class="budget-fill" style="width: ${percentage}%"></div>
-                </div>
-                <div style="display: flex; font-size: 12px; justify-content: space-between; margin-top: 3px;">
-                    <span>${percentage.toFixed(1)}% spent</span>
-                    <span class="${percentage > 100 ? 'negative' : percentage > 80 ? 'negative' : 'positive'}">
-                        ${monthlyBudget - monthlyExpenses >= 0 ? formatMoney(monthlyBudget - monthlyExpenses) + ' left' : 'over budget'}
-                    </span>
-                </div>
-            </div>
-        `;
+        return;
     }
-    
-    // ✅ FIXED: Sirf breakdown update
-    updateCategoryBreakdown();
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    const currentDay = now.getDate();
+
+    let monthlyExpenses = 0;
+
+    transactions.forEach(t => {
+        if (
+            t.type === 'expense' &&
+            t.date.substring(0, 7) === now.toISOString().substring(0, 7)
+        ) {
+            monthlyExpenses += Number(t.amount);
+        }
+    });
+
+    const dailyAverage = monthlyBudget / totalDays;
+    const allowedTillToday = dailyAverage * currentDay;
+
+    const percent = Math.min((monthlyExpenses / monthlyBudget) * 100, 100);
+
+    // 🎯 MESSAGE LOGIC (4 CATEGORIES)
+    let message = '';
+    let emoji = '';
+    let statusClass = 'positive';
+
+    if (monthlyExpenses <= allowedTillToday * 0.9) {
+        emoji = '🎉';
+        message = 'Wow! Your budget is under control.';
+    } 
+    else if (monthlyExpenses <= allowedTillToday) {
+        emoji = '👍';
+        message = 'You are spending well. Keep it up!';
+    } 
+    else if (monthlyExpenses <= allowedTillToday * 1.2) {
+        emoji = '⚠️';
+        message = 'Careful! You are spending faster than planned.';
+        statusClass = 'warning';
+    } 
+    else {
+        emoji = '🚨';
+        message = 'Over budget! Try to reduce expenses.';
+        statusClass = 'negative';
+    }
+
+    budgetOverview.innerHTML = `
+        <div style="padding:12px;background:var(--md-sys-color-surface-variant);border-radius:16px;">
+            
+            <!-- 1️⃣ Monthly Budget -->
+            <div style="font-size:26px;font-weight:700;margin-bottom:4px;">
+                ${formatMoney(monthlyBudget)}
+            </div>
+
+            <!-- 2️⃣ Message -->
+            <div style="font-size:14px;font-weight:500;margin-bottom:8px;" class="${statusClass}">
+                ${emoji} ${message}
+            </div>
+
+            <!-- 3️⃣ Allowed till today -->
+            <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">
+                Allowed till today: 
+                <strong>${formatMoney(allowedTillToday)}</strong>
+                <br>
+                Spent: <strong>${formatMoney(monthlyExpenses)}</strong>
+            </div>
+
+            <!-- 4️⃣ Progress Bar -->
+            <div class="budget-bar">
+                <div class="budget-fill" style="width:${percent}%"></div>
+            </div>
+
+            <div style="font-size:11px;margin-top:4px;color:#6b7280;">
+                Daily avg: ${formatMoney(dailyAverage)} × ${currentDay} days
+            </div>
+
+        </div>
+    `;
 }
+
 
 // 4. Update button handler
 function updateCategoryBudgets() {
