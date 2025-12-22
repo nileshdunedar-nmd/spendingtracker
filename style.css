@@ -403,6 +403,21 @@ input:focus, select:focus, textarea:focus {
   color: white;
 }
 
+.positive { color: #16a34a; }
+.warning  { color: #f59e0b; }
+.negative { color: #dc2626; }
+
+.budget-bar {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.budget-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0A84FF, #5AC8FA);
+}
+
 /* BUTTONS */
 .btn {
   border: none;
@@ -958,4 +973,5 @@ input:focus, select:focus, textarea:focus {
   color: var(--primary);
   transform: translateY(-1px);
 }
+
 
