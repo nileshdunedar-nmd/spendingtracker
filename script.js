@@ -3,6 +3,10 @@ let transactions = [];
 let monthlyBudget = 0;
 let dailyExpenseChart = null;
 let monthlyExpenseChart = null;
+let budgetMessages = [];
+let currentMessageIndex = 0;
+let budgetMessageInterval = null;
+
 
 // ✅ 1. Global variables (TOP PE add karo)
 let categoryBudgets = {
@@ -530,7 +534,6 @@ function showTransactions(transactions) {
         `;
         return;
     }
-    
     container.innerHTML = transactions.map(t => {
         const amountClass = t.type === 'income' ? 'positive' : 'negative';
         return `
@@ -561,6 +564,20 @@ function setType(type) {
     event.target.classList.add('selected');
 
     updateCategoryOptions();   // ✅ Ye call hona zaruri hai
+}
+
+function getCategorySpendThisMonth() {
+    const monthKey = new Date().toISOString().substring(0, 7);
+    const categoryTotals = {};
+
+    transactions.forEach(t => {
+        if (t.type === 'expense' && t.date.startsWith(monthKey)) {
+            categoryTotals[t.category] =
+                (categoryTotals[t.category] || 0) + Number(t.amount);
+        }
+    });
+
+    return categoryTotals;
 }
 
 function updateCategoryOptions() {
@@ -792,14 +809,14 @@ function getCategoryMonthlySpent(category) {
 
 // ✅ 3. FIXED updateBudgetView()
 function updateBudgetView() {
-    const budgetOverview = document.getElementById('budgetOverview');
+    const el = document.getElementById('budgetOverview');
+    if (!el) return;
 
     if (!monthlyBudget || monthlyBudget <= 0) {
-        budgetOverview.innerHTML = `
+        el.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon">💰</div>
                 <div class="empty-text">No budget set</div>
-                <div class="empty-subtext">Set a monthly budget to track your spending</div>
             </div>
         `;
         return;
@@ -808,82 +825,94 @@ function updateBudgetView() {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth();
-
     const totalDays = new Date(year, month + 1, 0).getDate();
-    const currentDay = now.getDate();
+    const today = now.getDate();
 
-    let monthlyExpenses = 0;
+    let monthlySpent = 0;
+    const monthKey = now.toISOString().substring(0, 7);
 
     transactions.forEach(t => {
-        if (
-            t.type === 'expense' &&
-            t.date.substring(0, 7) === now.toISOString().substring(0, 7)
-        ) {
-            monthlyExpenses += Number(t.amount);
+        if (t.type === 'expense' && t.date.startsWith(monthKey)) {
+            monthlySpent += Number(t.amount);
         }
     });
 
-    const dailyAverage = monthlyBudget / totalDays;
-    const allowedTillToday = dailyAverage * currentDay;
+    const dailyAvg = monthlyBudget / totalDays;
+    const allowedTillToday = dailyAvg * today;
+    const percent = Math.min((monthlySpent / monthlyBudget) * 100, 100);
 
-    const percent = Math.min((monthlyExpenses / monthlyBudget) * 100, 100);
+    // 🔁 RESET MESSAGES
+    budgetMessages = [];
 
-    // 🎯 MESSAGE LOGIC (4 CATEGORIES)
-    let message = '';
-    let emoji = '';
-    let statusClass = 'positive';
-
-    if (monthlyExpenses <= allowedTillToday * 0.9) {
-        emoji = '🎉';
-        message = 'Wow! Your budget is under control.';
-    } 
-    else if (monthlyExpenses <= allowedTillToday) {
-        emoji = '👍';
-        message = 'You are spending well. Keep it up!';
-    } 
-    else if (monthlyExpenses <= allowedTillToday * 1.2) {
-        emoji = '⚠️';
-        message = 'Careful! You are spending faster than planned.';
-        statusClass = 'warning';
-    } 
-    else {
-        emoji = '🚨';
-        message = 'Over budget! Try to reduce expenses.';
-        statusClass = 'negative';
+    // 🔵 MONTHLY MESSAGE
+    if (monthlySpent <= allowedTillToday * 0.9) {
+        budgetMessages.push("🎉 Wow! Your overall budget is under control.");
+    } else if (monthlySpent <= allowedTillToday) {
+        budgetMessages.push("👍 You're spending well this month.");
+    } else if (monthlySpent <= allowedTillToday * 1.2) {
+        budgetMessages.push("⚠️ Spending is a bit fast. Be careful.");
+    } else {
+        budgetMessages.push("🚨 Over budget! Time to cut expenses.");
     }
 
-    budgetOverview.innerHTML = `
-        <div style="padding:12px;background:var(--md-sys-color-surface-variant);border-radius:16px;">
+    // 🔴 CATEGORY WARNINGS
+    const categoryTotals = getCategorySpendThisMonth();
+
+    Object.keys(categoryBudgets || {}).forEach(cat => {
+        const limit = categoryBudgets[cat];
+        const spent = categoryTotals[cat] || 0;
+
+        if (limit > 0) {
+            const p = (spent / limit) * 100;
+
+            if (p >= 90) {
+                budgetMessages.push(
+                    `⚠️ ${getCategoryEmoji(cat)} ${cat} category is ${p.toFixed(0)}% used`
+                );
+            }
+        }
+    });
+
+    // 🧾 UI STRUCTURE
+    el.innerHTML = `
+        <div style="padding:12px;border-radius:16px;background:var(--md-sys-color-surface-variant)">
             
-            <!-- 1️⃣ Monthly Budget -->
-            <div style="font-size:26px;font-weight:700;margin-bottom:4px;">
+            <div style="font-size:28px;font-weight:700">
                 ${formatMoney(monthlyBudget)}
             </div>
 
-            <!-- 2️⃣ Message -->
-            <div style="font-size:14px;font-weight:500;margin-bottom:8px;" class="${statusClass}">
-                ${emoji} ${message}
+            <div id="budgetMessage" style="margin:6px 0;font-size:14px;font-weight:500"></div>
+
+            <div style="font-size:12px;color:#6b7280">
+                Allowed till today: <b>${formatMoney(allowedTillToday)}</b><br>
+                Spent: <b>${formatMoney(monthlySpent)}</b>
             </div>
 
-            <!-- 3️⃣ Allowed till today -->
-            <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">
-                Allowed till today: 
-                <strong>${formatMoney(allowedTillToday)}</strong>
-                <br>
-                Spent: <strong>${formatMoney(monthlyExpenses)}</strong>
-            </div>
-
-            <!-- 4️⃣ Progress Bar -->
-            <div class="budget-bar">
+            <div class="budget-bar" style="margin-top:8px">
                 <div class="budget-fill" style="width:${percent}%"></div>
-            </div>
-
-            <div style="font-size:11px;margin-top:4px;color:#6b7280;">
-                Daily avg: ${formatMoney(dailyAverage)} × ${currentDay} days
             </div>
 
         </div>
     `;
+
+    startBudgetMessageRotation();
+}
+
+function startBudgetMessageRotation() {
+    clearInterval(budgetMessageInterval);
+
+    if (!budgetMessages.length) return;
+
+    const el = document.getElementById('budgetMessage');
+    currentMessageIndex = 0;
+
+    el.textContent = budgetMessages[0];
+
+    budgetMessageInterval = setInterval(() => {
+        currentMessageIndex =
+            (currentMessageIndex + 1) % budgetMessages.length;
+        el.textContent = budgetMessages[currentMessageIndex];
+    }, 5000);
 }
 
 
