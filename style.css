@@ -792,6 +792,56 @@ input:focus, select:focus, textarea:focus {
     white-space: nowrap;
 }
 
+.budget-card {
+    padding: 14px;
+    border-radius: 18px;
+    background: linear-gradient(135deg,#ffffff,#f4f7fb);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.budget-main-amount {
+    font-size: 32px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+}
+
+.budget-ai-message {
+    height: 42px; /* 🔒 fixed */
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+.budget-stats-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-top: 4px;
+    color: #334155;
+}
+
+.budget-stats-row small {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.budget-progress {
+    height: 10px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.budget-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg,#22c55e,#16a34a);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
 
 /* MODALS */
 #firebaseGuideModal, #githubGuideModal {
@@ -963,3 +1013,4 @@ input:focus, select:focus, textarea:focus {
   color: var(--primary);
   transform: translateY(-1px);
 }
+
