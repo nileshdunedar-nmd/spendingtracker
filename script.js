@@ -904,6 +904,7 @@ function updateBudgetView() {
     <div class="budget-card">
 
         <div class="budget-main-amount">
+            <span>Monthly budget </span>
             ${formatMoney(monthlyBudget)}
         </div>
 
@@ -918,7 +919,7 @@ function updateBudgetView() {
             <span>Spent</span>
             <span>
                 <b>${formatMoney(monthlySpent)}</b>
-                <small>(${percent.toFixed(0)}%)</small>
+                <small>(${percent.toFixed(1)}%)</small>
             </span>
         </div>
 
