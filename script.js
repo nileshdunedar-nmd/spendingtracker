@@ -904,7 +904,6 @@ function updateBudgetView() {
     <div class="budget-card">
 
         <div class="budget-main-amount">
-            <span>Monthly budget </span>
             ${formatMoney(monthlyBudget)}
         </div>
 
