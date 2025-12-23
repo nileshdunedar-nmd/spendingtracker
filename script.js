@@ -843,66 +843,63 @@ function updateBudgetView() {
     // 🔁 RESET MESSAGES
     budgetMessages = [];
 
-    // 🔵 MONTHLY MESSAGE
-    if (monthlySpent <= allowedTillToday * 0.9) {
-        budgetMessages.push("🎉 Wow! Your overall budget is under control.");
-    } else if (monthlySpent <= allowedTillToday) {
-        budgetMessages.push("👍 You're spending well this month.");
-    } else if (monthlySpent <= allowedTillToday * 1.2) {
-        budgetMessages.push("⚠️ Spending is a bit fast. Be careful.");
-    } else {
-        budgetMessages.push("🚨 Over budget! Time to cut expenses.");
+if (monthlySpent <= allowedTillToday * 0.9) {
+    budgetMessages.push("🎯 Great! You're spending smarter than your plan.");
+} else if (monthlySpent <= allowedTillToday) {
+    budgetMessages.push("👍 You're on track. Keep going!");
+} else if (monthlySpent <= allowedTillToday * 1.15) {
+    budgetMessages.push("⚠️ Slightly fast spending. Slow down a bit.");
+} else {
+    budgetMessages.push("🚨 Alert! You're overspending this month.");
+}
+
+// Category AI
+Object.keys(categoryBudgets || {}).forEach(cat => {
+    const spent = categoryTotals[cat] || 0;
+    const limit = categoryBudgets[cat];
+    const p = (spent / limit) * 100;
+
+    if (p >= 90) {
+        budgetMessages.push(
+            `🤖 AI Tip: ${getCategoryEmoji(cat)} ${cat} is almost exhausted`
+        );
     }
+});
 
-    // 🔴 CATEGORY WARNINGS
-    const categoryTotals = getCategorySpendThisMonth();
-
-    Object.keys(categoryBudgets || {}).forEach(cat => {
-        const limit = categoryBudgets[cat];
-        const spent = categoryTotals[cat] || 0;
-
-        if (limit > 0) {
-            const p = (spent / limit) * 100;
-
-            if (p >= 90) {
-                budgetMessages.push(
-                    `⚠️ Spending on ${cat} is ${p.toFixed(0)}%, be careful!`
-                );
-            }
-        }
-    });
 
     // 🧾 UI STRUCTURE
     el.innerHTML = `
-    <div style="padding:12px;border-radius:16px;
-                background:var(--md-sys-color-surface-variant)">
+<div class="budget-card">
 
-        <!-- MONTHLY BUDGET -->
-        <div style="font-size:24px;font-weight:700">
-            ${formatMoney(monthlyBudget)}
-        </div>
-
-        <!-- FIXED MESSAGE SPACE -->
-        <div id="budgetMessage" class="budget-message-box"></div>
-
-        <!-- INLINE INFO -->
-        <div class="budget-inline-info">
-            <span>
-                Allowed: <b>${formatMoney(allowedTillToday)}</b>
-            </span>
-            <span>
-                Spent: <b>${formatMoney(monthlySpent)}</b>
-                (${percent.toFixed(1)}%)
-            </span>
-        </div>
-
-        <!-- PROGRESS BAR -->
-        <div class="budget-bar" style="margin-top:8px">
-            <div class="budget-fill" style="width:${percent}%"></div>
-        </div>
-
+    <!-- BIG MONTHLY BUDGET -->
+    <div class="budget-main-amount">
+        ${formatMoney(monthlyBudget)}
     </div>
-    `;
+
+    <!-- FIXED AI MESSAGE -->
+    <div id="budgetMessage" class="budget-ai-message"></div>
+
+    <!-- INLINE STATS -->
+    <div class="budget-stats-row">
+        <span>Allowed till today</span>
+        <span><b>${formatMoney(allowedTillToday)}</b></span>
+    </div>
+
+    <div class="budget-stats-row">
+        <span>Spent</span>
+        <span>
+            <b>${formatMoney(monthlySpent)}</b>
+            <small>(${percent.toFixed(0)}%)</small>
+        </span>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="budget-progress">
+        <div class="budget-progress-fill" style="width:${percent}%"></div>
+    </div>
+
+</div>
+`;
 
     updateCategoryBreakdown();
     startBudgetMessageRotation();
