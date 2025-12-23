@@ -807,6 +807,25 @@ function getCategorySpendThisMonth() {
     return categoryTotals;
 }
 
+ 
+
+function startBudgetMessageRotation() {
+    clearInterval(budgetMessageInterval);
+
+    if (!budgetMessages.length) return;
+
+    const el = document.getElementById('budgetMessage');
+    currentMessageIndex = 0;
+
+    el.textContent = budgetMessages[0];
+
+    budgetMessageInterval = setInterval(() => {
+        currentMessageIndex =
+            (currentMessageIndex + 1) % budgetMessages.length;
+        el.textContent = budgetMessages[currentMessageIndex];
+    }, 10000);
+}
+
 function updateBudgetView() {
     const el = document.getElementById('budgetOverview');
     if (!el) return;
@@ -830,6 +849,7 @@ function updateBudgetView() {
     let monthlySpent = 0;
     const monthKey = now.toISOString().substring(0, 7);
 
+    // 🔹 MONTHLY SPEND
     transactions.forEach(t => {
         if (t.type === 'expense' && t.date.startsWith(monthKey)) {
             monthlySpent += Number(t.amount);
@@ -838,90 +858,81 @@ function updateBudgetView() {
 
     const dailyAvg = monthlyBudget / totalDays;
     const allowedTillToday = dailyAvg * today;
-    const percent = Math.min((monthlySpent / monthlyBudget) * 100, 100);
+    const percent = (monthlySpent / monthlyBudget) * 100;
+    const progressPercent = Math.min(percent, 100);
 
-    // 🔁 RESET MESSAGES
+    // 🔹 CATEGORY TOTALS
+    const categoryTotals = {};
+    transactions.forEach(t => {
+        if (t.type === 'expense' && t.date.startsWith(monthKey)) {
+            categoryTotals[t.category] =
+                (categoryTotals[t.category] || 0) + Number(t.amount);
+        }
+    });
+
+    // 🔁 RESET AI MESSAGES
     budgetMessages = [];
 
-if (monthlySpent <= allowedTillToday * 0.9) {
-    budgetMessages.push("🎯 Great! You're spending smarter than your plan.");
-} else if (monthlySpent <= allowedTillToday) {
-    budgetMessages.push("👍 You're on track. Keep going!");
-} else if (monthlySpent <= allowedTillToday * 1.15) {
-    budgetMessages.push("⚠️ Slightly fast spending. Slow down a bit.");
-} else {
-    budgetMessages.push("🚨 Alert! You're overspending this month.");
-}
-
-// Category AI
-Object.keys(categoryBudgets || {}).forEach(cat => {
-    const spent = categoryTotals[cat] || 0;
-    const limit = categoryBudgets[cat];
-    const p = (spent / limit) * 100;
-
-    if (p >= 90) {
-        budgetMessages.push(
-            `🤖 AI Tip: ${getCategoryEmoji(cat)} ${cat} is almost exhausted`
-        );
+    // 🧠 MONTHLY AI
+    if (monthlySpent <= allowedTillToday * 0.9) {
+        budgetMessages.push("🎯 Great! You're spending smarter than your plan.");
+    } else if (monthlySpent <= allowedTillToday) {
+        budgetMessages.push("👍 You're on track. Keep going!");
+    } else if (monthlySpent <= allowedTillToday * 1.15) {
+        budgetMessages.push("⚠️ Slightly fast spending. Slow down a bit.");
+    } else {
+        budgetMessages.push("🚨 Alert! You're overspending this month.");
     }
-});
 
+    // 🧠 CATEGORY AI
+    Object.keys(categoryBudgets || {}).forEach(cat => {
+        const limit = categoryBudgets[cat];
+        if (!limit || limit <= 0) return;
 
-    // 🧾 UI STRUCTURE
+        const spent = categoryTotals[cat] || 0;
+        const p = (spent / limit) * 100;
+
+        if (p >= 90) {
+            budgetMessages.push(
+                `🤖 AI Tip: ${getCategoryEmoji(cat)} ${cat} budget is almost exhausted`
+            );
+        }
+    });
+
+    // 🧾 UI
     el.innerHTML = `
-<div class="budget-card">
+    <div class="budget-card">
 
-    <!-- BIG MONTHLY BUDGET -->
-    <div class="budget-main-amount">
-        ${formatMoney(monthlyBudget)}
+        <div class="budget-main-amount">
+            ${formatMoney(monthlyBudget)}
+        </div>
+
+        <div id="budgetMessage" class="budget-ai-message"></div>
+
+        <div class="budget-stats-row">
+            <span>Allowed till today</span>
+            <span><b>${formatMoney(allowedTillToday)}</b></span>
+        </div>
+
+        <div class="budget-stats-row">
+            <span>Spent</span>
+            <span>
+                <b>${formatMoney(monthlySpent)}</b>
+                <small>(${percent.toFixed(0)}%)</small>
+            </span>
+        </div>
+
+        <div class="budget-progress">
+            <div class="budget-progress-fill"
+                 style="width:${progressPercent}%"></div>
+        </div>
+
     </div>
-
-    <!-- FIXED AI MESSAGE -->
-    <div id="budgetMessage" class="budget-ai-message"></div>
-
-    <!-- INLINE STATS -->
-    <div class="budget-stats-row">
-        <span>Allowed till today</span>
-        <span><b>${formatMoney(allowedTillToday)}</b></span>
-    </div>
-
-    <div class="budget-stats-row">
-        <span>Spent</span>
-        <span>
-            <b>${formatMoney(monthlySpent)}</b>
-            <small>(${percent.toFixed(0)}%)</small>
-        </span>
-    </div>
-
-    <!-- PROGRESS -->
-    <div class="budget-progress">
-        <div class="budget-progress-fill" style="width:${percent}%"></div>
-    </div>
-
-</div>
-`;
+    `;
 
     updateCategoryBreakdown();
     startBudgetMessageRotation();
 }
-
-function startBudgetMessageRotation() {
-    clearInterval(budgetMessageInterval);
-
-    if (!budgetMessages.length) return;
-
-    const el = document.getElementById('budgetMessage');
-    currentMessageIndex = 0;
-
-    el.textContent = budgetMessages[0];
-
-    budgetMessageInterval = setInterval(() => {
-        currentMessageIndex =
-            (currentMessageIndex + 1) % budgetMessages.length;
-        el.textContent = budgetMessages[currentMessageIndex];
-    }, 10000);
-}
-
 
 
 
