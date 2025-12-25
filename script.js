@@ -888,7 +888,7 @@ function updateBudgetView() {
         </div>
         
         <!-- FIXED MESSAGE SPACE -->
-        <div style="margin-top: 16px; margin-bottom: 16px;" id="budgetMessage" class="budget-message-box"></div>
+        <div style="margin-top: 24px; margin-bottom: 16px;" id="budgetMessage" class="budget-message-box"></div>
 
         <!-- PROGRESS BAR -->
         <div class="budget-bar" style="margin-top:8px">
