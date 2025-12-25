@@ -39,7 +39,7 @@ body {
   margin: 0 auto;
   padding: 2px;
   min-height: 100vh;
-  margin-bottom: 24px;
+  margin-bottom: 36px;
 }
 
 /* HEADER */
@@ -191,27 +191,14 @@ body {
 
 /* CARDS */
 .card {
-  background: white;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 5px;
-  box-shadow: var(--shadow);
-}
-.card-comman {
-  display: flex;
-  flex-direction: column;
-  /* align-items: center; */
-  padding: 8px 5px;  /* More padding */
   background: rgba(255,255,255,0.15);  /* Glass effect */
   border-radius: 10px;
   backdrop-filter: blur(20px);         /* ✅ Glass morphism */
   border: 1px solid rgba(255,255,255,0.2);
-  
-  /* ✅ Individual box shadow */
-  box-shadow: 
-    0 8px 24px rgba(0,0,0,0.12),
-    inset 0 1px 0 rgba(255,255,255,0.3);
   transition: all 0.2s ease;
+  padding: 10px 12px;
+  margin-bottom: 5px;
+  box-shadow: var(--shadow);;
 }
 
 /* STATS */
@@ -530,7 +517,7 @@ input:focus, select:focus, textarea:focus {
   background: linear-gradient(90deg, 
     var(--success) 0%, 
     #66bb6a 50%, 
-    var(--success) 100%);              /* ✅ Gradient shine */
+    var(--warning) 100%);              /* ✅ Gradient shine */
   
   /* ✅ Glossy highlights */
   position: relative;
@@ -551,7 +538,7 @@ input:focus, select:focus, textarea:focus {
     rgba(255,255,255,0.4) 80%, 
     transparent 100%);  /* ✅ Shine line */
   border-radius: inherit;
-  animation: shine 2s infinite;
+  animation: shine 4s infinite;
 }
 
 @keyframes shine {
@@ -772,19 +759,19 @@ input:focus, select:focus, textarea:focus {
 }
 
 .budget-message-box {
-    height: 40px;              /* 🔒 fixed height */
+    height: 35px;              /* 🔒 fixed height */
     display: flex;
     align-items: center;
     font-size: 14px;
-    font-weight: 500;
-    color: var(--primary);
+    font-weight: 700;
+    color: var(--danger);
     margin: 6px 0;
 }
 
 .budget-inline-info {
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: 11px;
     margin-top: 4px;
 }
 
@@ -792,56 +779,6 @@ input:focus, select:focus, textarea:focus {
     white-space: nowrap;
 }
 
-.budget-card {
-    padding: 14px;
-    border-radius: 18px;
-    background: linear-gradient(135deg,#ffffff,#f4f7fb);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-}
-
-.budget-main-amount {
-    font-size: 32px;
-    font-weight: 800;
-    color: #0f172a;
-    margin-bottom: 6px;
-}
-
-.budget-ai-message {
-    height: 42px; /* 🔒 fixed */
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    font-weight: 600;
-    color: #2563eb;
-}
-
-.budget-stats-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    margin-top: 4px;
-    color: #334155;
-}
-
-.budget-stats-row small {
-    color: #64748b;
-    font-weight: 500;
-}
-
-.budget-progress {
-    height: 10px;
-    border-radius: 999px;
-    background: #e5e7eb;
-    overflow: hidden;
-    margin-top: 10px;
-}
-
-.budget-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg,#22c55e,#16a34a);
-    border-radius: 999px;
-    transition: width 0.4s ease;
-}
 
 /* MODALS */
 #firebaseGuideModal, #githubGuideModal {
@@ -911,6 +848,7 @@ input:focus, select:focus, textarea:focus {
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  
 }
 
 .auth-card {
@@ -1013,4 +951,3 @@ input:focus, select:focus, textarea:focus {
   color: var(--primary);
   transform: translateY(-1px);
 }
-

@@ -807,25 +807,6 @@ function getCategorySpendThisMonth() {
     return categoryTotals;
 }
 
- 
-
-function startBudgetMessageRotation() {
-    clearInterval(budgetMessageInterval);
-
-    if (!budgetMessages.length) return;
-
-    const el = document.getElementById('budgetMessage');
-    currentMessageIndex = 0;
-
-    el.textContent = budgetMessages[0];
-
-    budgetMessageInterval = setInterval(() => {
-        currentMessageIndex =
-            (currentMessageIndex + 1) % budgetMessages.length;
-        el.textContent = budgetMessages[currentMessageIndex];
-    }, 10000);
-}
-
 function updateBudgetView() {
     const el = document.getElementById('budgetOverview');
     if (!el) return;
@@ -849,7 +830,6 @@ function updateBudgetView() {
     let monthlySpent = 0;
     const monthKey = now.toISOString().substring(0, 7);
 
-    // 🔹 MONTHLY SPEND
     transactions.forEach(t => {
         if (t.type === 'expense' && t.date.startsWith(monthKey)) {
             monthlySpent += Number(t.amount);
@@ -858,73 +838,74 @@ function updateBudgetView() {
 
     const dailyAvg = monthlyBudget / totalDays;
     const allowedTillToday = dailyAvg * today;
-    const percent = (monthlySpent / monthlyBudget) * 100;
-    const progressPercent = Math.min(percent, 100);
+    const percent = Math.min((monthlySpent / monthlyBudget) * 100, 100);
+    // const percentage = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+    const status = percent > 100 ? 'danger' : percent > 80 ? 'warning' : '';
 
-    // 🔹 CATEGORY TOTALS
-    const categoryTotals = {};
-    transactions.forEach(t => {
-        if (t.type === 'expense' && t.date.startsWith(monthKey)) {
-            categoryTotals[t.category] =
-                (categoryTotals[t.category] || 0) + Number(t.amount);
-        }
-    });
-
-    // 🔁 RESET AI MESSAGES
+    // 🔁 RESET MESSAGES
     budgetMessages = [];
 
-    // 🧠 MONTHLY AI
+    // 🔵 MONTHLY MESSAGE
     if (monthlySpent <= allowedTillToday * 0.9) {
-        budgetMessages.push("🎯 Great! You're spending smarter than your plan.");
+        budgetMessages.push("🎉 Wow! Your overall budget is under control.");
     } else if (monthlySpent <= allowedTillToday) {
-        budgetMessages.push("👍 You're on track. Keep going!");
-    } else if (monthlySpent <= allowedTillToday * 1.15) {
-        budgetMessages.push("⚠️ Slightly fast spending. Slow down a bit.");
+        budgetMessages.push("👍 You're spending well this month.");
+    } else if (monthlySpent <= allowedTillToday * 1.2) {
+        budgetMessages.push("⚠️ Spending is a bit fast. Be careful.");
     } else {
-        budgetMessages.push("🚨 Alert! You're overspending this month.");
+        budgetMessages.push("🚨 Over budget! Time to cut expenses.");
     }
 
-    // 🧠 CATEGORY AI
+    // 🔴 CATEGORY WARNINGS
+    const categoryTotals = getCategorySpendThisMonth();
+
     Object.keys(categoryBudgets || {}).forEach(cat => {
         const limit = categoryBudgets[cat];
-        if (!limit || limit <= 0) return;
-
         const spent = categoryTotals[cat] || 0;
-        const p = (spent / limit) * 100;
-
-        if (p >= 90) {
-            budgetMessages.push(
-                `🤖 AI Tip: ${getCategoryEmoji(cat)} ${cat} budget is almost exhausted`
-            );
+        if (limit > 0) {
+            const p = (spent / limit) * 100;
+            
+            if (p >= 90) {
+                budgetMessages.push(
+                    `⚠️ Spending on ${cat} is ${p.toFixed(0)}%, be careful!`
+                );
+            }
         }
     });
-
-    // 🧾 UI
+    
+    // 🧾 UI STRUCTURE
     el.innerHTML = `
-    <div class="budget-card">
+    <div style="padding:1px;border-radius:16px;
+                background:var(--md-sys-color-surface-variant)">
 
-        <div class="budget-main-amount">
+        <!-- MONTHLY BUDGET -->
+        <div style="font-size:24px;font-weight:700; display: flex; justify-content: space-between; align-items: center">
+            <div style="font-size:11px;font-weight:500;"> Monthly Budget:</div>
             ${formatMoney(monthlyBudget)}
         </div>
 
-        <div id="budgetMessage" class="budget-ai-message"></div>
+        <!-- FIXED MESSAGE SPACE -->
+        <div id="budgetMessage" class="budget-message-box"></div>
 
-        <div class="budget-stats-row">
-            <span>Allowed till today</span>
-            <span><b>${formatMoney(allowedTillToday)}</b></span>
-        </div>
-
-        <div class="budget-stats-row">
-            <span>Spent</span>
+        <!-- INLINE INFO -->
+        <div class="budget-inline-info">
             <span>
-                <b>${formatMoney(monthlySpent)}</b>
-                <small>(${percent.toFixed(1)}%)</small>
+                Allowed: <b>${formatMoney(allowedTillToday)}</b>
+            </span>
+            <span style="font-size: 11px; color: ${status === 'danger' ? '#f44336' : status === 'warning' ? '#f44336' : '#4caf50'};">
+                Spent: <b>${formatMoney(monthlySpent)}</b>
             </span>
         </div>
 
-        <div class="budget-progress">
-            <div class="budget-progress-fill"
-                 style="width:${progressPercent}%"></div>
+        <!-- PROGRESS BAR -->
+        <div class="budget-bar" style="margin-top:8px">
+            <div class="budget-fill ${status}" style="width: ${percent}%"></div>
+        </div>
+        <div style="display: flex; font-size: 12px; justify-content: space-between; margin-top: 1px;">
+        <span>${percent.toFixed(1)}% spent</span>
+            <span class="${percent > 100 ? 'negative' : percent > 80 ? 'negative' : 'positive'}">
+                ${monthlyBudget - monthlySpent >= 0 ? formatMoney(monthlyBudget - monthlySpent) + ' left' : 'over budget'}
+            </span>
         </div>
 
     </div>
@@ -933,6 +914,24 @@ function updateBudgetView() {
     updateCategoryBreakdown();
     startBudgetMessageRotation();
 }
+
+function startBudgetMessageRotation() {
+    clearInterval(budgetMessageInterval);
+
+    if (!budgetMessages.length) return;
+
+    const el = document.getElementById('budgetMessage');
+    currentMessageIndex = 0;
+
+    el.textContent = budgetMessages[0];
+
+    budgetMessageInterval = setInterval(() => {
+        currentMessageIndex =
+            (currentMessageIndex + 1) % budgetMessages.length;
+        el.textContent = budgetMessages[currentMessageIndex];
+    }, 10000);
+}
+
 
 
 

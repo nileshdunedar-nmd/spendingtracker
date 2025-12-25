@@ -57,8 +57,8 @@
 
 
         <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content active">
-            <div class="card">
+        <div id="dashboard" class="tab-content active" style="padding: 12px;">
+            <!-- <div class="card"> -->
                 <div class="stat-box">
                     <div class="stat-label">Total Balance</div>
                     <div class="stat-value" style="font-size: 20px" id="totalBalance">₹0.00</div>
@@ -86,7 +86,7 @@
                     </div>
                 </div>
                 
-                <div class="card-comman">
+                <div class="card">
                     <h3 style="margin-bottom: 5px; font-size: 12px;">Budget Overview</h3>
                     <div id="budgetOverview">
                         <div class="empty-state">
@@ -96,16 +96,16 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            <!-- </div> -->
 
-            <div class="card" style="height:220px;">
+            <div class="card" style="height:220px; margin-top: 12px;">
             <h3 style="font-size:12px;margin-bottom:4px;">Daily Expense (Current Month)</h3>
             <div style="height:170px;">
                 <canvas id="dailyExpenseChart"></canvas>
             </div>
             </div>
 
-            <div class="card">
+            <div class="card" style="margin-top: 12px;">
             <h3 style="font-size:12px;margin-bottom:4px;">Monthly Expense</h3>
 
             <!-- Category filter -->
@@ -135,8 +135,8 @@
             </div>
 
 
-            <div class="card">
-            <div class="card-comman">
+            <div class="card" style="margin-top: 12px;">
+            <!-- <div class="card"> -->
                 <h3 style="margin-bottom: 5px; font-size: 12px;">Category Breakdown</h3>
                 <div id="categoryBreakdown">
                     <div class="empty-state">
@@ -144,14 +144,14 @@
                         <div class="empty-text">No expenses yet</div>
                     </div>
                 </div>
-            </div>
+            <!-- </div> -->
             </div>
         </div>
 
         <!-- Add Expense Tab -->
-        <div id="add" class="tab-content">
-            <div class="card">
-                <div class="card-comman">
+        <div id="add" class="tab-content" style="padding: 12px;">
+            <!-- <div class="card"> -->
+                <div class="card">
                 <h3 style="margin-bottom: 5px; font-size: 12px;">Add Transaction</h3>
 
                 <div class="form-group">
@@ -190,10 +190,10 @@
                     <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
                 </div>
                 </div>
-            </div>
+            <!-- </div> -->
 
-            <div class="card">
-                <div class="card-comman">
+            <!-- <div class="card"> -->
+                <div class="card" style="margin-top: 12px;">
                 <h3 style="margin-bottom: 5px; font-size: 12px;">Recent Transactions</h3>
                 <div id="recentTransactions">
                     <div class="empty-state">
@@ -203,14 +203,14 @@
                     </div>
                 </div>
                 </div>
-            </div>
+            <!-- </div> -->
         </div>
 
         <!-- Category Budget Tab -->
             <div id="budget" class="tab-content">
             <!-- Existing Total Budget -->
-            <div class="card">
-                <div class="card-comman">
+            <!-- <div class="card"> -->
+                <div class="card" style="padding: 12px;">
                 <h3 style="margin-bottom: 5px; font-size: 12px;">Set Monthly Budget</h3>
                     <div class="form-group">
                         <!-- <label style="font-size: 12px;">Total Monthly Budget Limit</label> -->
@@ -218,22 +218,22 @@
                     </div>
                     <button class="btn btn-primary" onclick="setBudget()">Set Total Budget</button>
                 </div>
-            </div>
+            <!-- </div> -->
 
             <!-- Category Budgets - Sirf Budget Input -->
-            <div class="card">
+            <div class="card" style="padding: 12px;">
                 <h3 style='margin-bottom: 5px; font-size: 12px;'>Category Budgets</h3>
                     <div id="categoryBudgetList">
                     <!-- Dynamic inputs here -->
                 </div>
-                <button class="btn btn-primary" onclick="saveCategoryBudgets()">Set All Budgets</button>
+                <!-- <button class="btn btn-primary" onclick="saveCategoryBudgets()">Set All Budgets</button> -->
             </div>
         
         </div>
 
         <!-- History Tab - sirf SEARCH INPUT add karo -->
         <div id="history" class="tab-content">
-            <div class="card">
+            <div class="card" style="padding: 12px;">
                 <h3 style='margin-bottom: 5px; font-size: 12px;'>All Transactions</h3>
                 
                 <!-- ✅ NEW SEARCH BAR -->
@@ -254,7 +254,7 @@
 
         <!-- Settings Tab -->
         <div id="settings" class="tab-content">
-            <div class="card">
+            <div class="catd" style="padding: 12px;">
                 <h3 style="margin-bottom: 5px; font-size: 12px;">Settings</h3>
 
                 <div class="settings-item">
@@ -284,9 +284,9 @@
                 </div>
             </div>
 
-            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                <h3 style="color: white;font-size: 14px; margin-bottom: 12px;">About Spending Tracker</h3>
-                <p style="font-size: 12px; padding: 10px 10px; line-height: 1.6; margin: 0;">
+            <div class="stat-box" style="padding: 12px; align-items:flex-start;">
+                <h3 style="color: white;font-size: 14px;">About Spending Tracker</h3>
+                <p style="font-size: 12px; padding: 10px 10px; line-height: 1.6; margin: 0; text-align: left;">
                     <strong>Version 1.0</strong><br>
                     Track your expenses efficiently with a beautiful, intuitive interface.<br><br>
                     ✓ Budget Management<br>
