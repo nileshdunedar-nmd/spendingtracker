@@ -888,13 +888,13 @@ function updateBudgetView() {
         </div>
         
         <!-- FIXED MESSAGE SPACE -->
-        <div id="budgetMessage" class="budget-message-box"></div>
+        <div style="margin-top: 8px; margin-bottom: 8px;" id="budgetMessage" class="budget-message-box"></div>
 
         <!-- PROGRESS BAR -->
         <div class="budget-bar" style="margin-top:8px">
             <div class="budget-fill ${status}" style="width: ${percent}%"></div>
         </div>
-        <div style="display: flex; font-size: 12px; justify-content: space-between; margin-top: 6px;">
+        <div style="display: flex; font-size: 12px; justify-content: space-between; margin-top: 6px; margin-bottom: 12px;">
         <span>${percent.toFixed(1)}% spent</span>
             <span class="${percent > 100 ? 'negative' : percent > 80 ? 'negative' : 'positive'}">
                 ${monthlyBudget - monthlySpent >= 0 ? formatMoney(monthlyBudget - monthlySpent) + ' left' : 'over budget'}
