@@ -839,7 +839,6 @@ function updateBudgetView() {
     const dailyAvg = monthlyBudget / totalDays;
     const allowedTillToday = dailyAvg * today;
     const percent = Math.min((monthlySpent / monthlyBudget) * 100, 100);
-    // const percentage = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
     const status = percent > 100 ? 'danger' : percent > 80 ? 'warning' : '';
 
     // 🔁 RESET MESSAGES
@@ -875,40 +874,34 @@ function updateBudgetView() {
     
     // 🧾 UI STRUCTURE
     el.innerHTML = `
-    <div style="padding:1px;border-radius:16px;
-                background:var(--md-sys-color-surface-variant)">
-
+    
         <!-- MONTHLY BUDGET -->
-        <div style="font-size:24px;font-weight:700; display: flex; justify-content: space-between; align-items: center">
-            <div style="font-size:11px;font-weight:500;"> Monthly Budget:</div>
-            ${formatMoney(monthlyBudget)}
+        <div class="stat-row">
+            <div class="stat-small">
+                <div class="stat-small-label">Monthly Budget</div>
+                <div class="stat-small-value" style="color: black;">${formatMoney(monthlyBudget)}</div>
+            </div>
+            <div class="stat-small">
+                <div class="stat-small-label">Allowed till today</div>
+                <div class="stat-small-value" style="color: black;">${formatMoney(allowedTillToday)}</div>
+            </div>
         </div>
-
+        
         <!-- FIXED MESSAGE SPACE -->
         <div id="budgetMessage" class="budget-message-box"></div>
-
-        <!-- INLINE INFO -->
-        <div class="budget-inline-info">
-            <span>
-                Allowed: <b>${formatMoney(allowedTillToday)}</b>
-            </span>
-            <span style="font-size: 11px; color: ${status === 'danger' ? '#f44336' : status === 'warning' ? '#f44336' : '#4caf50'};">
-                Spent: <b>${formatMoney(monthlySpent)}</b>
-            </span>
-        </div>
 
         <!-- PROGRESS BAR -->
         <div class="budget-bar" style="margin-top:8px">
             <div class="budget-fill ${status}" style="width: ${percent}%"></div>
         </div>
-        <div style="display: flex; font-size: 12px; justify-content: space-between; margin-top: 1px;">
+        <div style="display: flex; font-size: 12px; justify-content: space-between; margin-top: 6px;">
         <span>${percent.toFixed(1)}% spent</span>
             <span class="${percent > 100 ? 'negative' : percent > 80 ? 'negative' : 'positive'}">
                 ${monthlyBudget - monthlySpent >= 0 ? formatMoney(monthlyBudget - monthlySpent) + ' left' : 'over budget'}
             </span>
         </div>
 
-    </div>
+
     `;
 
     updateCategoryBreakdown();
