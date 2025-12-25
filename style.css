@@ -191,7 +191,7 @@ body {
 
 /* CARDS */
 .card {
-  background: rgba(255,255,255,0.15);  /* Glass effect */
+  background: rgba(255, 255, 255, 0.8);  /* Glass effect */
   border-radius: 10px;
   backdrop-filter: blur(20px);         /* ✅ Glass morphism */
   border: 1px solid rgba(255,255,255,0.2);
