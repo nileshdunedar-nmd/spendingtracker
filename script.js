@@ -180,23 +180,69 @@ function verifyPin() {
   showToast('Unlocked');
 }
 
+// function resetAllData() {
+//   customConfirm('Reset all data and PIN?').then(ok => {
+//     if (!ok) return;
+//     localStorage.clear();
+//     transactions = [];
+//     monthlyBudget = 0;
+//     updateDashboard();
+//     categoryBreakdown();
+//     updateCategoryBreakdown && updateCategoryBreakdown();
+//     updateBudgetView && updateBudgetView();
+//     updateCategoryBudgetUI && updateCategoryBudgetUI();
+//     document.getElementById('loginPin').value = '';
+//     document.getElementById('newPin').value = '';
+//     document.getElementById('confirmPin').value = '';
+//     localStorage.removeItem(PIN_KEY);
+//     initPinLock();
+//     showToast('App reset. Set new PIN.');
+//   });
+// }
+
 function resetAllData() {
   customConfirm('Reset all data and PIN?').then(ok => {
     if (!ok) return;
+
+    // Clear storage
     localStorage.clear();
+
+    // Reset core data
     transactions = [];
     monthlyBudget = 0;
+
+    // ✅ THE REAL FIX (MOST IMPORTANT)
+    if (typeof categoryBudgets !== 'undefined') {
+      Object.keys(categoryBudgets).forEach(cat => {
+        categoryBudgets[cat] = 0;
+      });
+    }
+
+    // Update UI
     updateDashboard();
-    updateBudgetView && updateBudgetView();
-    updateCategoryBudgetUI && updateCategoryBudgetUI();
+
+    if (typeof updateBudgetView === 'function') {
+      updateBudgetView();
+    }
+
+    if (typeof updateCategoryBudgetUI === 'function') {
+      updateCategoryBudgetUI();
+    }
+
+    // ✅ FORCE CATEGORY BREAKDOWN REFRESH
+    updateCategoryBreakdown();
+
+    // Reset PIN fields
     document.getElementById('loginPin').value = '';
     document.getElementById('newPin').value = '';
     document.getElementById('confirmPin').value = '';
     localStorage.removeItem(PIN_KEY);
+
     initPinLock();
     showToast('App reset. Set new PIN.');
   });
 }
+
 
 /************************************
  * GLOBAL CURRENCY DETECTION
@@ -699,7 +745,18 @@ function updateCategoryBudgetUI() {
     const container = document.getElementById('categoryBudgetList');
     if (!container) return;
 
-    container.innerHTML = Object.entries(categoryBudgets).map(([cat, budget]) => `
+    const totalBudgetHTML = `
+        <div class="total-budget-row">
+            <div class="category-name"><strong>Total Budget</strong></div>
+            <div class="budget-input-wrapper">
+                <strong id="totalCategoryBudget" style="font-size:12px;">
+                    ${formatMoney(monthlyBudget)}
+                </strong>
+            </div>
+        </div>
+    `;
+
+    const categoryRowsHTML = Object.entries(categoryBudgets).map(([cat, budget]) => `
         <div class="category-budget-row">
             <div class="category-name">${getCategoryEmoji(cat)} ${cat}</div>
             <div class="budget-input-wrapper">
@@ -712,14 +769,10 @@ function updateCategoryBudgetUI() {
                 <span class="currency-symbol">${currencySymbol}</span>
             </div>
         </div>
-    `).join('') + `
-        <div class="total-budget-row">
-            <div class="category-name"><strong>Total Budget</strong></div>
-            <div class="budget-input-wrapper">
-                <strong id="totalCategoryBudget" style='font-size: 12px;'>${formatMoney(monthlyBudget)}</strong>
-            </div>
-        </div>
-    `;
+    `).join('');
+
+    // ✅ Total budget on TOP
+    container.innerHTML = totalBudgetHTML + categoryRowsHTML;
 }
 
 function setCategoryBudget(category, budget) {
@@ -1123,16 +1176,3 @@ function exportDataAsExcel() {
         showToast("📊 Excel Downloaded!");
     }
 }
-
-
-// ✅ FIXED: Currency LIVE detect
-// function detectAndUpdateCurrency() {
-//     // const newSymbol = getCurrencySymbol();
-//     if (newSymbol !== currencySymbol) {
-//         currencySymbol = newSymbol;
-//         updateDashboard();
-//         updateBudgetView();
-//         filterByMonth();
-//         updateRecentTransactions();
-//     }
-// }
