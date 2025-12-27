@@ -207,7 +207,7 @@
         </div>
 
         <!-- Category Budget Tab -->
-            <div id="budget" class="tab-content">
+            <div id="budget" class="tab-content" style="padding: 12px;">
             <!-- Existing Total Budget -->
             <!-- <div class="card"> -->
                 <div class="card" style="padding: 12px;">
@@ -232,7 +232,7 @@
         </div>
 
         <!-- History Tab - sirf SEARCH INPUT add karo -->
-        <div id="history" class="tab-content">
+        <div id="history" class="tab-content" style="padding: 12px;">
             <div class="card" style="padding: 12px;">
                 <h3 style='margin-bottom: 5px; font-size: 12px;'>All Transactions</h3>
                 
@@ -253,8 +253,8 @@
 
 
         <!-- Settings Tab -->
-        <div id="settings" class="tab-content">
-            <div class="card" style="padding: 12px; margin: 6px;">
+        <div id="settings" class="tab-content" style="padding: 12px;">
+            <div class="card" style="padding: 12px;">
                 <h3 style="margin-bottom: 5px; font-size: 12px;">Settings</h3>
 
                 <div class="settings-item">
@@ -284,7 +284,7 @@
                 </div>
             </div>
 
-            <div class="stat-box" style="padding: 12px; align-items:flex-start;">
+            <div class="stat-box" style="padding: 12px; align-items:flex-start; margin-top: 12px;">
                 <h3 style="color: white;font-size: 14px;">About Spending Tracker</h3>
                 <p style="font-size: 12px; padding: 10px 10px; line-height: 1.6; margin: 0; text-align: left;">
                     <strong>Version 1.0</strong><br>
@@ -295,90 +295,6 @@
                     ✓ Data Export<br><br>
                     Made by SharweenSoft with ❤️ for smart spenders
                 </p>
-            </div>
-
-            <div id="firebaseGuideModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; padding: 16px;">
-                <div style="background: white; border-radius: 8px; padding: 20px; max-width: 500px; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h2 style="margin: 0; font-size: 18px; color: #2196F3;">Firebase Setup</h2>
-                        <button onclick="closeFirebaseGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
-                    </div>
-                    
-                    <div style="font-size: 13px; line-height: 1.8; color: #212121;">
-                        <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 14px;">Step 1: Go to Firebase Console</h3>
-                        <p style="margin: 0 0 8px 0;">Visit <strong>console.firebase.google.com</strong> with Google account</p>
-
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 2: Create New Project</h3>
-                        <p style="margin: 0 0 4px 0;">• Click <strong>Create Project</strong></p>
-                        <p style="margin: 0 0 4px 0;">• Project name: <strong>Spending Tracker</strong></p>
-                        <p style="margin: 0 0 8px 0;">• Select region & create</p>
-
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 3: Add Web App</h3>
-                        <p style="margin: 0 0 4px 0;">• Click <strong>&lt;/&gt;</strong> icon to add web app</p>
-                        <p style="margin: 0 0 4px 0;">• App nickname: <strong>Spending Tracker Web</strong></p>
-                        <p style="margin: 0 0 8px 0;">• Copy the config object (apiKey, projectId, etc.)</p>
-
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 4: Get Firebase Config</h3>
-                        <p style="margin: 0 0 4px 0;">Config keys needed:</p>
-                        <p style="margin: 0 0 4px 0;">✓ apiKey</p>
-                        <p style="margin: 0 0 4px 0;">✓ authDomain</p>
-                        <p style="margin: 0 0 4px 0;">✓ projectId</p>
-                        <p style="margin: 0 0 8px 0;">✓ storageBucket</p>
-
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 5: Setup Firestore Database</h3>
-                        <p style="margin: 0 0 4px 0;">• Go to <strong>Firestore Database</strong></p>
-                        <p style="margin: 0 0 4px 0;">• Click <strong>Create Database</strong></p>
-                        <p style="margin: 0 0 4px 0;">• Start in <strong>Test Mode</strong></p>
-                        <p style="margin: 0 0 8px 0;">• Select region & enable</p>
-
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 6: Update App Code</h3>
-                        <p style="margin: 0;">Replace YOUR_API_KEY, YOUR_PROJECT_ID etc. in the app's script section with values from Step 4</p>
-                    </div>
-
-                    <button class="btn btn-primary" onclick="closeFirebaseGuide()" style="margin-top: 16px;">Understood!</button>
-                </div>
-            </div>
-
-            <div id="githubGuideModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; padding: 16px;">
-                <div style="background: white; border-radius: 8px; padding: 20px; max-width: 500px; margin: 40px auto; max-height: 80vh; overflow-y: auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h2 style="margin: 0; font-size: 18px; color: #2196F3;">GitHub Pages Setup</h2>
-                        <button onclick="closeGitHubGuide()" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
-                    </div>
-                    
-                    <div style="font-size: 13px; line-height: 1.8; color: #212121;">
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 1: Create GitHub Account</h3>
-                        <p style="margin: 0 0 8px 0;">Go to <strong>github.com</strong> and create a free account</p>
-
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 2: Create New Repository</h3>
-                        <p style="margin: 0 0 4px 0;">• Click <strong>+</strong> icon → <strong>New repository</strong></p>
-                        <p style="margin: 0 0 4px 0;">• Repository name: <strong>spending-tracker</strong></p>
-                        <p style="margin: 0 0 8px 0;">• Check: <strong>Add a README file</strong></p>
-
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 3: Upload HTML File</h3>
-                        <p style="margin: 0 0 4px 0;">• Click <strong>Add file</strong> → <strong>Upload files</strong></p>
-                        <p style="margin: 0 0 4px 0;">• Rename to: <strong>index.html</strong></p>
-                        <p style="margin: 0 0 8px 0;">• Paste the entire app code</p>
-
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 4: Enable GitHub Pages</h3>
-                        <p style="margin: 0 0 4px 0;">• Go to <strong>Settings</strong> tab</p>
-                        <p style="margin: 0 0 4px 0;">• Scroll to <strong>Pages</strong> section</p>
-                        <p style="margin: 0 0 4px 0;">• Source: Select <strong>main branch</strong></p>
-                        <p style="margin: 0 0 8px 0;">• Save ✓</p>
-
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">Step 5: Get Your Link!</h3>
-                        <p style="margin: 0 0 4px 0;">Link format:</p>
-                        <p style="margin: 0; padding: 8px; background: #F5F5F5; border-radius: 4px; font-family: monospace; font-size: 12px; word-break: break-all;">
-                            https://yourusername.github.io/spending-tracker
-                        </p>
-                        <p style="margin: 8px 0 0 0; font-size: 12px; color: #757575;">⏱️ Takes 5-10 minutes to go live</p>
-
-                        <h3 style="margin-top: 12px; margin-bottom: 8px; font-size: 14px;">💡 Share With Anyone!</h3>
-                        <p style="margin: 0;">Once live, share the link with friends/family. They can use it directly without installing anything.</p>
-                    </div>
-
-                    <button class="btn btn-primary" onclick="closeGitHubGuide()" style="margin-top: 16px;">Got it!</button>
-                </div>
             </div>
         </div>
     </div>

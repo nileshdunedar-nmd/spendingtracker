@@ -19,7 +19,7 @@
 /* BASE STYLES */
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #ffffff 0%, #e0f2ff 50%, #ffe4e6 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #63bdfd69 50%, #f8909765 100%);
   min-height: 100vh;
   color: #111827;
   line-height: 1.6;

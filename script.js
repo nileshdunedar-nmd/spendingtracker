@@ -482,7 +482,29 @@ function drawMonthlyExpenseChart() {
       datasets: [{
         label: selectedCategory ? `${selectedCategory} expense` : 'All expenses',
         data,
-        backgroundColor: 'rgba(10,132,255,0.7)',
+        backgroundColor: function (context) {
+          const chart = context.chart;
+          const { ctx, chartArea } = chart;
+
+          // Initial render pe chartArea undefined hota hai
+          if (!chartArea) return null;
+
+          // Vertical gradient (niche se upar)
+          const gradient = ctx.createLinearGradient(
+            0,
+            chartArea.bottom,
+            0,
+            chartArea.top
+          );
+
+          gradient.addColorStop(1, '#f7090948');   // bottom color
+          gradient.addColorStop(0, '#5008f7bb');   // top color
+
+          return gradient;
+        },
+        borderColor: '#f7090948',
+        borderWidth: 2,
+
         borderRadius: 4
       }]
     },
