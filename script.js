@@ -1200,7 +1200,7 @@ function exportDataAsExcel() {
 }
 
 function shareApp() {
-    const url = "https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker";
+    const url = "https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker&pcampaignid=web_share";
     const text = "💰 Smart Spending ke liye ye app try karo 👇";
 
     if (navigator.share) {

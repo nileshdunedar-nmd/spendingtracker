@@ -21,14 +21,14 @@
 
         <!-- NEW PIN (first time) -->
         <div id="pinSetupArea">
-            <input type="password" id="newPin" class="auth-input" maxlength="4" placeholder="Set 4-digit PIN">
-            <input type="password" id="confirmPin" class="auth-input" maxlength="4" placeholder="Confirm PIN">
+            <input type="password" id="newPin" class="auth-input" inputmode="numeric" maxlength="4" placeholder="Set 4-digit PIN">
+            <input type="password" id="confirmPin" class="auth-input" inputmode="numeric" maxlength="4" placeholder="Confirm PIN">
             <button class="auth-btn" onclick="setPin()">Set PIN</button>
         </div>
 
         <!-- LOGIN PIN (after set) -->
         <div id="pinLoginArea" class="hidden">
-            <input type="password" id="loginPin" class="auth-input" maxlength="4" placeholder="Enter PIN">
+            <input type="password" id="loginPin" class="auth-input" inputmode="numeric" maxlength="4" placeholder="Enter PIN">
             <button class="auth-btn" onclick="verifyPin()">Unlock</button>
             <button class="auth-btn auth-btn-secondary" onclick="resetAllData()">Reset App</button>
         </div>
