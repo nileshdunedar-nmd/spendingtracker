@@ -1198,3 +1198,24 @@ function exportDataAsExcel() {
         showToast("📊 Excel Downloaded!");
     }
 }
+
+function shareApp() {
+    const url = "https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker";
+    const text = "💰 Smart Spending ke liye ye app try karo 👇";
+
+    if (navigator.share) {
+        navigator.share({
+            title: "Spending Tracker",
+            text: text,
+            url: url
+        });
+    } else {
+        // Fallback
+        prompt("Copy this link and share:", url);
+    }
+}
+
+function rateApp() {
+    const url = "https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker&reviewId=0";
+    window.open(url, "_blank");
+}
