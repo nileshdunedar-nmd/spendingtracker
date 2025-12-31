@@ -38,10 +38,6 @@ function getCategoryEmoji(category) {
     return emojis[category] || '📌';
 }
 
-
-// --- PIN PROTECTION (LOCAL STORAGE ONLY) ---
-const PIN_KEY = 'st_local_pin';
-
 document.addEventListener('DOMContentLoaded', () => {
 
     /* ===============================
@@ -119,130 +115,122 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+/* ===============================
+    SET & FORGET RESET PIN
+    =============================== */
+const PIN_KEY = "app_pin";
+const SEC_Q = "sec_q";
+const SEC_A = "sec_a";
 
 function initPinLock() {
   const savedPin = localStorage.getItem(PIN_KEY);
-  const lockScreen = document.getElementById('pinLockScreen');
-  const setupArea = document.getElementById('pinSetupArea');
-  const loginArea = document.getElementById('pinLoginArea');
-  const subtitle = document.getElementById('pinSubtitle');
 
-  if (!lockScreen) return;
+  const lock = document.getElementById("pinLockScreen");
+  const setup = document.getElementById("pinSetupArea");
+  const login = document.getElementById("pinLoginArea");
+  const subtitle = document.getElementById("pinSubtitle");
+
+  if (!lock) return;
+
+  lock.style.display = "flex";
 
   if (savedPin) {
-    // PIN already set → show login
-    setupArea.classList.add('hidden');
-    loginArea.classList.remove('hidden');
-    subtitle.textContent = 'Enter your PIN to unlock';
+    setup.classList.add("hidden");
+    login.classList.remove("hidden");
+    subtitle.textContent = "Enter your PIN to unlock";
   } else {
-    // First time → set PIN
-    setupArea.classList.remove('hidden');
-    loginArea.classList.add('hidden');
-    subtitle.textContent = 'Set a 4-digit PIN to protect your data';
+    setup.classList.remove("hidden");
+    login.classList.add("hidden");
+    subtitle.textContent = "Set a 4-digit PIN to protect your data";
   }
 }
 
 function setPin() {
-  const pin1 = document.getElementById('newPin').value.trim();
-  const pin2 = document.getElementById('confirmPin').value.trim();
+  const pin = newPin.value.trim();
+  const confirm = confirmPin.value.trim();
+  const q = securityQuestion.value;
+  const a = securityAnswer.value.trim().toLowerCase();
 
-  if (!pin1 || !pin2 || pin1.length !== 4 || pin2.length !== 4 || isNaN(pin1) || isNaN(pin2)) {
-    showToast('Enter valid 4-digit PIN in both fields');
+  if (!/^\d{4}$/.test(pin) || pin !== confirm) {
+    showToast("Enter matching 4-digit PIN");
     return;
   }
-  if (pin1 !== pin2) {
-    showToast('PINs do not match');
+
+  if (!q || !a) {
+    showToast("Set security question");
     return;
   }
 
-  localStorage.setItem(PIN_KEY, pin1);
-  showToast('PIN set successfully');
-  document.getElementById('newPin').value = '';
-  document.getElementById('confirmPin').value = '';
+  localStorage.setItem(PIN_KEY, pin);
+  localStorage.setItem(SEC_Q, q);
+  localStorage.setItem(SEC_A, a);
 
-  initPinLock(); // switch to login view
+  showToast("PIN set successfully");
+  initPinLock();
 }
 
 function verifyPin() {
   const savedPin = localStorage.getItem(PIN_KEY);
-  const entered = document.getElementById('loginPin').value.trim();
+  const entered = loginPin.value.trim();
 
-  if (!entered || entered.length !== 4) {
-    showToast('Enter your 4-digit PIN');
-    return;
-  }
   if (entered !== savedPin) {
-    showToast('Wrong PIN');
+    showToast("Wrong PIN");
     return;
   }
 
-  document.getElementById('pinLockScreen').classList.add('hidden');
-  showToast('Unlocked');
+  document.getElementById("pinLockScreen").style.display = "none";
+  showToast("Unlocked");
 }
 
-// function resetAllData() {
-//   customConfirm('Reset all data and PIN?').then(ok => {
-//     if (!ok) return;
-//     localStorage.clear();
-//     transactions = [];
-//     monthlyBudget = 0;
-//     updateDashboard();
-//     categoryBreakdown();
-//     updateCategoryBreakdown && updateCategoryBreakdown();
-//     updateBudgetView && updateBudgetView();
-//     updateCategoryBudgetUI && updateCategoryBudgetUI();
-//     document.getElementById('loginPin').value = '';
-//     document.getElementById('newPin').value = '';
-//     document.getElementById('confirmPin').value = '';
-//     localStorage.removeItem(PIN_KEY);
-//     initPinLock();
-//     showToast('App reset. Set new PIN.');
-//   });
-// }
+function showForgotPin() {
+  const q = localStorage.getItem(SEC_Q);
+  if (!q) {
+    showToast("No security question set");
+    return;
+  }
+
+  const map = {
+    pet: "Your first pet name?",
+    city: "Your birth city?",
+    school: "Your first school name?"
+  };
+
+  document.getElementById("selectedQuestion").innerText = map[q];
+  pinLockScreen.style.display = "none";
+  forgotPinScreen.classList.remove("hidden");
+}
+
+function verifySecurityAnswer() {
+  const saved = localStorage.getItem(SEC_A);
+  const input = forgotAnswer.value.trim().toLowerCase();
+
+  if (input !== saved) {
+    showToast("Wrong answer");
+    return;
+  }
+
+  localStorage.removeItem(PIN_KEY);
+  showToast("Verified! Set new PIN");
+  location.reload();
+}
 
 function resetAllData() {
-  customConfirm('Reset all data and PIN?').then(ok => {
+  customConfirm("Reset all data & PIN?").then(ok => {
     if (!ok) return;
 
-    // Clear storage
     localStorage.clear();
-
-    // Reset core data
     transactions = [];
     monthlyBudget = 0;
 
-    // ✅ THE REAL FIX (MOST IMPORTANT)
-    if (typeof categoryBudgets !== 'undefined') {
-      Object.keys(categoryBudgets).forEach(cat => {
-        categoryBudgets[cat] = 0;
-      });
-    }
-
-    // Update UI
     updateDashboard();
-
-    if (typeof updateBudgetView === 'function') {
-      updateBudgetView();
-    }
-
-    if (typeof updateCategoryBudgetUI === 'function') {
-      updateCategoryBudgetUI();
-    }
-
-    // ✅ FORCE CATEGORY BREAKDOWN REFRESH
-    updateCategoryBreakdown();
-
-    // Reset PIN fields
-    document.getElementById('loginPin').value = '';
-    document.getElementById('newPin').value = '';
-    document.getElementById('confirmPin').value = '';
-    localStorage.removeItem(PIN_KEY);
+    updateBudgetView?.();
+    updateCategoryBudgetUI?.();
+    updateCategoryBreakdown?.();
 
     initPinLock();
-    showToast('App reset. Set new PIN.');
+    showToast("App reset");
   });
 }
-
 
 /************************************
  * GLOBAL CURRENCY DETECTION
@@ -299,7 +287,7 @@ function refreshCurrencyUI() {
 }
 
 function formatMoney(amount) {
-    return `${currencySymbol}${Number(amount).toFixed(2)}`;
+    return `${currencySymbol} ${Number(amount).toFixed(2)}`;
 }
 
 // Toast function
@@ -345,7 +333,6 @@ function updateDashboard() {
     });
     
     const totalBalance = totalIncome - totalExpenses;
-    const budgetLeft = Math.max(0, monthlyBudget - monthlyExpenses);
     
     // ✅ TOTAL BALANCE (Green/Red)
     const totalBalanceEl = document.getElementById('totalBalance');
@@ -359,15 +346,6 @@ function updateDashboard() {
     // ✅ EXPENSES (Always Red)
     const totalExpensesEl = document.getElementById('totalExpenses');
     totalExpensesEl.innerHTML = `<span class="negative">${formatMoney(totalExpenses)}</span>`;
-    
-    // ✅ MONTHLY EXPENSE (Always Red)
-    const monthlyExpenseEl = document.getElementById('monthlyExpense');
-    monthlyExpenseEl.innerHTML = `<span class="negative">${formatMoney(monthlyExpenses)}</span>`;
-    
-    // ✅ BUDGET LEFT (Green/Red)
-    const budgetLeftEl = document.getElementById('budgetLeft');
-    budgetLeftEl.textContent = formatMoney(budgetLeft);
-    budgetLeftEl.className = budgetLeft >= 0 ? 'stat-value positive' : 'stat-value negative';
     
     updateRecentTransactions();
     drawDailyExpenseChart();
@@ -767,39 +745,118 @@ function updateCategoryBudgetUI() {
     const container = document.getElementById('categoryBudgetList');
     if (!container) return;
 
-    const totalBudgetHTML = `
-        <div class="total-budget-row">
-            <div class="category-name"><strong>Total Budget</strong></div>
-            <div class="budget-input-wrapper">
-                <strong id="totalCategoryBudget" style="font-size:12px;">
-                    ${formatMoney(monthlyBudget)}
-                </strong>
+    const total = Object.values(categoryBudgets)
+        .reduce((a, b) => a + b, 0);
+
+    // 🔵 TOP TOTAL + PIE
+    const totalHTML = `
+        <div class="total-budget-row split" >
+            <div class="total-budget-left">
+                <div class="label">Monthly Budget</div>
+
+                <div class="amount-hint" style="font-weight: 600;">${formatMoney(monthlyBudget)}</div>
+            </div>
+
+            <div class="total-budget-right">
+                <canvas id="categoryBudgetPie" width="120" height="120"></canvas>
             </div>
         </div>
     `;
 
-    const categoryRowsHTML = Object.entries(categoryBudgets).map(([cat, budget]) => `
-        <div class="category-budget-row">
-            <div class="category-name">${getCategoryEmoji(cat)} ${cat}</div>
-            <div class="budget-input-wrapper">
-                <input type="number"
-                    value="${budget}"
-                    min="0"
-                    step="100"
-                    class="budget-input"
-                    onchange="setCategoryBudget('${cat}', parseFloat(this.value) || 0)">
-                <span class="currency-symbol">${currencySymbol}</span>
-            </div>
-        </div>
-    `).join('');
+    // 🔵 CATEGORY ROWS WITH %
+    const rowsHTML = Object.entries(categoryBudgets).map(([cat, budget]) => {
+        const percent = total > 0 ? Math.round((budget / total) * 100) : 0;
 
-    // ✅ Total budget on TOP
-    container.innerHTML = totalBudgetHTML + categoryRowsHTML;
+        return `
+            <div class="category-budget-row">
+                <div class="category-name">
+                    ${getCategoryEmoji(cat)} ${cat}
+                    <small class="cat-percent">(${percent}%)</small>
+                </div>
+
+                <div class="budget-input-wrapper">
+                    <input
+                        type="number"
+                        value="${budget}"
+                        min="0"
+                        step="100"
+                        class="budget-input"
+                        onchange="setCategoryBudget('${cat}', this.value)"
+                    />
+                    <span class="currency-symbol">${currencySymbol}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = totalHTML + rowsHTML;
+
+    drawCategoryBudgetPie();
 }
 
-function setCategoryBudget(category, budget) {
-    categoryBudgets[category] = budget;
-    updateTotalBudgetFromCategories();  // yahi total update + UI + save sab karega
+function drawCategoryBudgetPie() {
+    const ctx = document.getElementById('categoryBudgetPie');
+    if (!ctx) return;
+
+    let total = Object.values(categoryBudgets).reduce((a, b) => a + b, 0);
+    if (total <= 0) return;
+
+    const labels = [];
+    const data = [];
+    const colors = [];
+
+    Object.entries(categoryBudgets).forEach(([cat, val]) => {
+        if (val > 0) {
+            const percent = ((val / total) * 100).toFixed(0);
+            labels.push(`${getCategoryEmoji(cat)} ${percent}%`);
+            data.push(val);
+            colors.push(`hsl(${Math.random() * 360},70%,60%)`);
+        }
+    });
+
+    if (window.categoryBudgetChart) {
+        window.categoryBudgetChart.destroy();
+    }
+
+    window.categoryBudgetChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels,
+            datasets: [{ data, backgroundColor: colors }]
+        },
+        options: {
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+
+function setCategoryBudget(cat, value) {
+    categoryBudgets[cat] = parseFloat(value) || 0;
+
+    // 🔥 TOTAL RECALCULATE
+    monthlyBudget = Object.values(categoryBudgets)
+        .reduce((sum, v) => sum + (Number(v) || 0), 0);
+
+    saveToLocalStorage();
+
+    // 🔥 FULL UI REFRESH
+    updateCategoryBudgetUI();
+    updateDashboard();
+    updateBudgetView();
+    updateCategoryBreakdown();
+}
+
+function setMonthlyBudgetFromCategory(value) {
+    monthlyBudget = parseFloat(value) || 0;
+
+    saveToLocalStorage();
+
+    updateDashboard();
+    updateBudgetView();
+    updateCategoryBudgetUI();
 }
 
 // Category Budgets Save
@@ -845,19 +902,13 @@ function updateCategoryBreakdown() {
 // Auto-calculate total budget from categories
 function updateTotalBudgetFromCategories() {
     const total = Object.values(categoryBudgets)
-        .reduce((sum, budget) => sum + budget, 0);
+        .reduce((sum, v) => sum + (Number(v) || 0), 0);
 
     monthlyBudget = total;
-    
-    const budgetInput = document.getElementById('budgetAmount');
-    const totalLabel = document.getElementById('totalCategoryBudget');
-
-    if (budgetInput) budgetInput.value = total.toFixed(0);
-    if (totalLabel) totalLabel.textContent = formatMoney(total);
 
     saveToLocalStorage();
-    updateBudgetView();
 }
+
 
 // ✅ 2. Helper function
 function getCategoryMonthlySpent(category) {
@@ -913,21 +964,30 @@ function updateBudgetView() {
 
     const dailyAvg = monthlyBudget / totalDays;
     const allowedTillToday = dailyAvg * today;
-    const percent = Math.min((monthlySpent / monthlyBudget) * 100, 100);
-    const status = percent > 100 ? 'danger' : percent > 80 ? 'warning' : '';
+    const percentRaw = (monthlySpent / monthlyBudget) * 100;
+    const percent = Math.min(percentRaw, 100);
+
+    const statusText =
+        percentRaw < 70 ? "Good" :
+        percentRaw < 90 ? "Careful" :
+        percentRaw <= 100 ? "Warning" :
+        "Overbudget";
+
+    const statusColor =
+        percentRaw < 60 ? "#22c55e" :
+        percentRaw < 90 ? "#f59e0b" :
+        percentRaw <= 100 ? "#ef4444" :
+        "#a10808ff";
 
     // 🔁 RESET MESSAGES
     budgetMessages = [];
 
-    // 🔵 MONTHLY MESSAGE
-    if (monthlySpent <= allowedTillToday * 0.9) {
-        budgetMessages.push("🎉 Wow! Your overall budget is under control.");
-    } else if (monthlySpent <= allowedTillToday) {
-        budgetMessages.push("👍 You're spending well this month.");
-    } else if (monthlySpent <= allowedTillToday * 1.2) {
-        budgetMessages.push("⚠️ Spending is a bit fast. Be careful.");
+    if (monthlySpent <= allowedTillToday) {
+        budgetMessages.push("🎉 You're managing your budget well!");
+    } else if (monthlySpent <= allowedTillToday * 1.1) {
+        budgetMessages.push("⚠️ Spending is slightly fast.");
     } else {
-        budgetMessages.push("🚨 Over budget! Time to cut expenses.");
+        budgetMessages.push("🚨 You're overspending this month!");
     }
 
     // 🔴 CATEGORY WARNINGS
@@ -946,41 +1006,54 @@ function updateBudgetView() {
             }
         }
     });
-    
-    // 🧾 UI STRUCTURE
+
     el.innerHTML = `
-    
-        <!-- MONTHLY BUDGET -->
-        <div class="stat-row">
-            <div class="stat-small">
-                <div class="stat-small-label">Monthly Budget</div>
-                <div class="stat-small-value" style="color: black;">${formatMoney(monthlyBudget)}</div>
+        <div class="total-budget-row split">
+            <div class="budget-left">
+                <div class="progress-circle" style="
+                    background: conic-gradient(
+                        ${statusColor} ${percent}%,
+                        #e5e7eb 0
+                    );
+                ">
+                    <div class="progress-inner">
+                        <div class="progress-percent">${percentRaw.toFixed(0)}%</div>
+                        <div class="progress-label" 
+                            style="color:${statusColor}">
+                            ${statusText}
+                        </div>
+
+                    </div>
+                </div>
             </div>
-            <div class="stat-small">
-                <div class="stat-small-label">Allowed till today</div>
-                <div class="stat-small-value" style="color: black;">${formatMoney(allowedTillToday)}</div>
+
+            <div class="budget-right">
+                <div class="row">
+                    <span class="label">Monthly Budget</span>
+                    <strong class="value">${formatMoney(monthlyBudget)}</strong>
+                </div>
+                <div class="row">
+                    <span class="label">Spent</span>
+                    <strong class="value">${formatMoney(monthlySpent)}</strong>
+                </div>
+                <div class="row">
+                    <span class="label">Left</span>
+                    <strong class="value">${formatMoney(monthlyBudget - monthlySpent)}</strong>
+                </div>
+                <div class="row">
+                    <span class="label">Allowed till today</span>
+                    <strong class="value">${formatMoney(allowedTillToday)}</strong>
+                </div>
             </div>
-        </div>
-        
-        <!-- FIXED MESSAGE SPACE -->
-        <div style="margin-top: 24px; margin-bottom: 16px;" id="budgetMessage" class="budget-message-box"></div>
 
-        <!-- PROGRESS BAR -->
-        <div class="budget-bar" style="margin-top:8px">
-            <div class="budget-fill ${status}" style="width: ${percent}%"></div>
         </div>
-        <div style="display: flex; font-size: 12px; justify-content: space-between; margin-top: 6px; margin-bottom: 12px;">
-        <span>${percent.toFixed(1)}% spent</span>
-            <span class="${percent > 100 ? 'negative' : percent > 80 ? 'negative' : 'positive'}">
-                ${monthlyBudget - monthlySpent >= 0 ? formatMoney(monthlyBudget - monthlySpent) + ' left' : 'over budget'}
-            </span>
+        <div class="card" style="min-height: 44px; margin-top: 16px; padding: 16px; border-radius: 6px; background: #fd7302;">
+            <div class="budget-message highlight" id="budgetMessage"></div>
         </div>
-
-
     `;
 
-    updateCategoryBreakdown();
     startBudgetMessageRotation();
+    updateCategoryBreakdown();
 }
 
 function startBudgetMessageRotation() {

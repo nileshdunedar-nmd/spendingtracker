@@ -12,28 +12,112 @@
 
 </head>
 <body>
-
     <!-- PIN LOCK SCREEN -->
     <div id="pinLockScreen" class="auth-screen">
-        <div class="auth-card">
+    <div class="auth-card">
         <h2>Spending Tracker</h2>
         <p id="pinSubtitle">Set a 4-digit PIN to protect your data</p>
 
-        <!-- NEW PIN (first time) -->
+        <!-- 🔐 FIRST TIME PIN SETUP -->
         <div id="pinSetupArea">
-            <input type="password" id="newPin" class="auth-input" inputmode="numeric" maxlength="4" placeholder="Set 4-digit PIN">
-            <input type="password" id="confirmPin" class="auth-input" inputmode="numeric" maxlength="4" placeholder="Confirm PIN">
-            <button class="auth-btn" onclick="setPin()">Set PIN</button>
+
+        <input
+            type="password"
+            id="newPin"
+            class="auth-input"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="4"
+            placeholder="Set 4-digit PIN"
+        />
+
+        <input
+            type="password"
+            id="confirmPin"
+            class="auth-input"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="4"
+            placeholder="Confirm PIN"
+        />
+
+        <!-- 🔐 SECURITY QUESTION -->
+        <select id="securityQuestion" class="auth-input">
+            <option value="">Select a security question</option>
+            <option value="pet">Your first pet name?</option>
+            <option value="city">Your birth city?</option>
+            <option value="school">Your first school name?</option>
+        </select>
+
+        <input
+            type="text"
+            id="securityAnswer"
+            class="auth-input"
+            placeholder="Your answer"
+        />
+
+        <button class="auth-btn" onclick="setPin()">Set PIN</button>
         </div>
 
-        <!-- LOGIN PIN (after set) -->
+        <!-- 🔓 LOGIN AFTER PIN SET -->
         <div id="pinLoginArea" class="hidden">
-            <input type="password" id="loginPin" class="auth-input" inputmode="numeric" maxlength="4" placeholder="Enter PIN">
-            <button class="auth-btn" onclick="verifyPin()">Unlock</button>
-            <button class="auth-btn auth-btn-secondary" onclick="resetAllData()">Reset App</button>
+
+        <input
+            type="password"
+            id="loginPin"
+            class="auth-input"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="4"
+            placeholder="Enter PIN"
+        />
+
+        <button class="auth-btn" onclick="verifyPin()">Unlock</button>
+
+        <button
+            class="auth-link"
+            type="button"
+            onclick="showForgotPin()"
+        >
+            Forgot PIN?
+        </button>
+
+        <button
+            class="auth-btn auth-btn-secondary"
+            onclick="resetAllData()"
+        >
+            Reset App
+        </button>
         </div>
-        </div>
+
     </div>
+    </div>
+
+    <!-- FORGOT PIN SCREEN -->
+    <div id="forgotPinScreen" class="auth-screen hidden">
+    <div class="auth-card">
+        <h2>Recover PIN</h2>
+
+        <p id="selectedQuestion"></p>
+
+        <input
+        type="text"
+        id="forgotAnswer"
+        class="auth-input"
+        placeholder="Enter your answer"
+        />
+
+        <button class="auth-btn" onclick="verifySecurityAnswer()">Verify</button>
+
+        <button
+        class="auth-btn auth-btn-secondary"
+        onclick="goBackToPin()"
+        >
+        Back
+        </button>
+    </div>
+    </div>
+
 
     <div class="container">
         <!-- Header -->
@@ -58,38 +142,28 @@
 
         <!-- Dashboard Tab -->
         <div id="dashboard" class="tab-content active" style="padding: 12px;">
-            <!-- <div class="card"> -->
+            <div class="card" style="margin-bottom: 12px;">
                 <div class="stat-box">
                     <div class="stat-label">Total Balance</div>
                     <div class="stat-value" style="font-size: 20px" id="totalBalance">₹0.00</div>
+                    
                 </div>
+                    <div class="stat-row">
+                        <div class="stat-small">
+                            <div class="stat-small-label">Total Income</div>
+                            <div class="stat-small-value" id="totalIncome">₹0.00</div>
+                        </div>
+                        <div class="stat-small">
+                            <div class="stat-small-label">Total Expenses</div>
+                            <div class="stat-small-value" id="totalExpenses">₹0.00</div>
+                        </div>
+                    </div>
+            </div>
 
-                <div class="stat-row">
-                    <div class="stat-small">
-                        <div class="stat-small-label">Total Income</div>
-                        <div class="stat-small-value" id="totalIncome">₹0.00</div>
-                    </div>
-                    <div class="stat-small">
-                        <div class="stat-small-label">Total Expenses</div>
-                        <div class="stat-small-value" id="totalExpenses">₹0.00</div>
-                    </div>
-                </div>
-
-                <div class="stat-row">
-                    <div class="stat-small">
-                        <div class="stat-small-label">Monthly Expenses</div>
-                        <div class="stat-small-value" id="monthlyExpense">₹0.00</div>
-                    </div>
-                    <div class="stat-small">
-                        <div class="stat-small-label">Budget Left</div>
-                        <div class="stat-small-value" id="budgetLeft">₹0.00</div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3 style="margin-bottom: 5px; font-size: 12px;">Budget Overview</h3>
-                    <div id="budgetOverview">
-                        <div class="empty-state">
+            <div class="card">
+                <h3 style="margin-bottom: 12px; font-size: 12px;">Budget Overview</h3>
+                <div id="budgetOverview">
+                    <div class="empty-state">
                             <div class="empty-icon">📊</div>
                             <div class="empty-text">No budget set</div>
                             <div class="empty-subtext">Set a monthly budget to track your spending</div>
@@ -207,19 +281,8 @@
         </div>
 
         <!-- Category Budget Tab -->
-            <div id="budget" class="tab-content" style="padding: 12px;">
-            <!-- Existing Total Budget -->
-            <!-- <div class="card"> -->
-                <div class="card" style="padding: 12px;">
-                <h3 style="margin-bottom: 5px; font-size: 12px;">Set Monthly Budget</h3>
-                    <div class="form-group">
-                        <!-- <label style="font-size: 12px;">Total Monthly Budget Limit</label> -->
-                        <input type="number" id="budgetAmount" placeholder="e.g., 50000" step="100" min="0">
-                    </div>
-                    <button class="btn btn-primary" onclick="setBudget()">Set Total Budget</button>
-                </div>
-            <!-- </div> -->
-
+        <div id="budget" class="tab-content" style="padding: 12px;">
+            
             <!-- Category Budgets - Sirf Budget Input -->
             <div class="card" style="padding: 12px;">
                 <h3 style='margin-bottom: 5px; font-size: 12px;'>Category Budgets</h3>
@@ -247,8 +310,8 @@
                     <input type="month" id="filterMonth">
                 </div>
                 
-                <div id="allTransactions"></div>
             </div>
+            <div id="allTransactions"></div>
         </div>
 
 
