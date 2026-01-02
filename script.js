@@ -880,7 +880,7 @@ function updateCategoryBreakdown() {
             const status = percentage > 100 ? 'danger' : percentage > 80 ? 'warning' : '';
             
             return `
-                <div style="margin-bottom: 5px; border: 1px solid var(--primary); padding: 8px; border-radius: 12px;">
+                <div class="card" style="margin-bottom: 5px; border: 1px solid var(--primary); padding: 8px; border-radius: 12px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <span style="font-weight: 500;">${getCategoryEmoji(cat)} ${cat}</span>
                         <div style="text-align: right;">
