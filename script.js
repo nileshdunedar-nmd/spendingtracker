@@ -1296,7 +1296,7 @@ function shareApp() {
         alert("Share text copied!");
     }
 }
-
+//https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker
 function rateUs() {
     const pkg = "com.sharweensoft.spendingtracker";
     const playUrl = "https://play.google.com/store/apps/details?id=" + pkg;
