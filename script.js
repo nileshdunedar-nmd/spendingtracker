@@ -1273,22 +1273,40 @@ function exportDataAsExcel() {
 }
 
 function shareApp() {
-    const url = "https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker&pcampaignid=web_share";
-    const text = "💰 Smart Spending ke liye ye app try karo 👇";
+    const text =
+        "💰 Spending Tracker App\n\n" +
+        "Track expenses, set budgets & save smartly.\n\n" +
+        "📲 Download:\n" +
+        "https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker";
 
+    // ✅ Android WebView
+    if (window.Android && Android.shareText) {
+        Android.shareText(text);
+        return;
+    }
+
+    // ✅ Browser fallback
     if (navigator.share) {
         navigator.share({
             title: "Spending Tracker",
-            text: text,
-            url: url
+            text: text
         });
     } else {
-        // Fallback
-        prompt("Copy this link and share:", url);
+        navigator.clipboard.writeText(text);
+        alert("Share text copied!");
     }
 }
 
-function rateApp() {
-    const url = "https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker&reviewId=0";
-    window.open(url, "_blank");
+function rateUs() {
+    const pkg = "com.sharweensoft.spendingtracker";
+    const playUrl = "https://play.google.com/store/apps/details?id=" + pkg;
+
+    // ✅ Android WebView → Open Play Store App
+    if (window.Android && Android.rateApp) {
+        Android.rateApp(pkg);
+        return;
+    }
+
+    // Browser fallback
+    window.open(playUrl, "_blank");
 }

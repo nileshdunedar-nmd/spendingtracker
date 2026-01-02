@@ -182,7 +182,7 @@ body {
 }
 
 .card:hover {
-  transform: translateY(-4px);  /* Lift on hover */
+  transform: translateY(-2px);  /* Lift on hover */
   box-shadow: 
     0 30px 60px rgba(0,0,0,0.25),    /* Bigger shadow */
     0 12px 24px rgba(0,0,0,0.15),    /* Secondary */
