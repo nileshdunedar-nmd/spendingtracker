@@ -1029,7 +1029,7 @@ function updateBudgetView() {
 
             <div class="budget-right">
                 <div class="row">
-                    <span class="label">Monthly Budget</span>
+                    <span class="label">Budget</span>
                     <strong class="value">${formatMoney(monthlyBudget)}</strong>
                 </div>
                 <div class="row">
@@ -1041,7 +1041,7 @@ function updateBudgetView() {
                     <strong class="value">${formatMoney(monthlyBudget - monthlySpent)}</strong>
                 </div>
                 <div class="row">
-                    <span class="label">Allowed till today</span>
+                    <span class="label">Allowed</span>
                     <strong class="value">${formatMoney(allowedTillToday)}</strong>
                 </div>
             </div>
