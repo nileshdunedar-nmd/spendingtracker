@@ -1289,3 +1289,9 @@ function toggleAddPanel() {
   const panel = document.getElementById('add');
   panel.classList.toggle('show');
 }
+
+document.getElementById('add').addEventListener('click', e => {
+  if (e.target.id === 'add') {
+    toggleAddPanel();
+  }
+});
