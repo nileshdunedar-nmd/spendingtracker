@@ -140,9 +140,10 @@
         </div>
 
 
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content active" style="padding: 12px;">
-            <div class="card" style="margin-bottom: 12px;">
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="tab-content active" style="padding:12px;">
+
+            <<div class="card" style="margin-bottom: 12px;">
                 <div class="stat-box">
                     <div class="stat-label">Total Balance</div>
                     <div class="stat-value" style="font-size: 20px" id="totalBalance">₹0.00</div>
@@ -171,6 +172,27 @@
                     </div>
                 </div>
             <!-- </div> -->
+
+        </div>
+
+
+        
+        <!-- CATEGORY BUDGET -->
+        <div id="budget" class="tab-content" style="padding:12px;">
+            <!-- Category Budgets - Sirf Budget Input -->
+            <div class="card" style="padding: 12px;">
+                <h3 style='margin-bottom: 5px; font-size: 12px;'>Category Budgets</h3>
+                    <div id="categoryBudgetList">
+                    <!-- Dynamic inputs here -->
+                </div>
+                <!-- <button class="btn btn-primary" onclick="saveCategoryBudgets()">Set All Budgets</button> -->
+            </div>
+        </div>
+
+
+
+        <!-- ANALYSIS -->
+        <div id="analysis" class="tab-content" style="padding:12px;">
 
             <div class="card" style="height:220px; margin-top: 12px;">
             <h3 style="font-size:12px;margin-bottom:4px;">Daily Expense (Current Month)</h3>
@@ -220,10 +242,14 @@
                 </div>
             <!-- </div> -->
             </div>
+
         </div>
 
-        <!-- Add Expense Tab -->
-        <div id="add" class="tab-content" style="padding: 12px;">
+
+        
+        <!-- ADD TRANSACTION -->
+        <div id="add" class="tab-content" style="padding:12px;">
+
             <!-- <div class="card"> -->
                 <div class="card">
                 <h3 style="margin-bottom: 5px; font-size: 12px;">Add Transaction</h3>
@@ -278,24 +304,15 @@
                 </div>
                 </div>
             <!-- </div> -->
+
         </div>
 
-        <!-- Category Budget Tab -->
-        <div id="budget" class="tab-content" style="padding: 12px;">
-            
-            <!-- Category Budgets - Sirf Budget Input -->
-            <div class="card" style="padding: 12px;">
-                <h3 style='margin-bottom: 5px; font-size: 12px;'>Category Budgets</h3>
-                    <div id="categoryBudgetList">
-                    <!-- Dynamic inputs here -->
-                </div>
-                <!-- <button class="btn btn-primary" onclick="saveCategoryBudgets()">Set All Budgets</button> -->
-            </div>
-        
-        </div>
 
-        <!-- History Tab - sirf SEARCH INPUT add karo -->
-        <div id="history" class="tab-content" style="padding: 12px;">
+
+
+        <!-- HISTORY -->
+        <div id="history" class="tab-content" style="padding:12px;">
+
             <div class="card" style="padding: 12px;">
                 <h3 style='margin-bottom: 5px; font-size: 12px;'>All Transactions</h3>
                 
@@ -312,7 +329,9 @@
                 
             </div>
             <div id="allTransactions"></div>
+
         </div>
+
 
 
         <!-- Settings Tab -->
@@ -348,7 +367,7 @@
             </div>
 
             <div class="stat-box" style="padding: 12px; align-items:flex-start; margin-top: 12px;">
-                <h3 style="color: white;font-size: 14px;">About Spending Tracker</h3>
+                <h3 style="color: black;font-size: 14px;">About Spending Tracker</h3>
                 <p style="font-size: 12px; padding: 10px 10px; line-height: 1.6; margin: 0; text-align: left;">
                     <strong>Version 1.0</strong><br>
                     Track your expenses efficiently with a beautiful, intuitive interface.<br><br>
@@ -388,25 +407,31 @@
 
     <div class="bottom-nav">
         <button class="nav-btn active" onclick="switchTab('dashboard', event)">
-            <img src="asset/dashboard.png" alt="Dashboard">
+            <img src="asset/dashboard.png">
             <span class="nav-btn-label">Dashboard</span>
         </button>
 
-        <button class="nav-btn" onclick="switchTab('add', event)">
-            <img src="asset/add.png" alt="Add">
-            <span class="nav-btn-label">Add</span>
-        </button>
-
         <button class="nav-btn" onclick="switchTab('budget', event)">
-            <img src="asset/graph.png" alt="Budget">
+            <img src="asset/transaction.png">
             <span class="nav-btn-label">Budget</span>
         </button>
 
+        <!-- 🔥 BIG ADD BUTTON -->
+        <button class="nav-btn nav-btn-add" onclick="switchTab('add', event)">
+            <img src="asset/add.png">
+        </button>
+
+        <button class="nav-btn" onclick="switchTab('analysis', event)">
+            <img src="asset/graph.png">
+            <span class="nav-btn-label">Analysis</span>
+        </button>
+
         <button class="nav-btn" onclick="switchTab('history', event)">
-            <img src="asset/watch.png" alt="History">
+            <img src="asset/watch.png">
             <span class="nav-btn-label">History</span>
         </button>
     </div>
+
 
   <script src="script.js"></script>
 </body>
