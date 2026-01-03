@@ -1284,3 +1284,8 @@ function rateApp() {
         );
     }
 }
+
+function toggleAddPanel() {
+  const panel = document.getElementById('add');
+  panel.classList.toggle('show');
+}
