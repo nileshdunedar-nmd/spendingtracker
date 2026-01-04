@@ -1192,14 +1192,14 @@ function blobToBase64(blob, callback) {
 }
 
 function exportDataAsExcel() {
-    let csv = "Date,Category,Description,Type,Amount\n";
+    let csv = `Date,Category,Description,Type,Amount(${currencySymbol})\n`;
 
     transactions.slice().reverse().forEach(t => {
         const date = new Date(t.date).toLocaleDateString("en-IN");
         const amount =
             t.type === "income"
-                ? formatMoney(t.amount)
-                : "-" + formatMoney(t.amount);
+                ? (t.amount)
+                : "-" + (t.amount);
 
         csv += `"${date}","${t.category}","${t.description}","${t.type.toUpperCase()}","${amount}"\n`;
     });
@@ -1220,41 +1220,83 @@ function exportDataAsExcel() {
     }
 }
 
-function exportDataAsPDF() {
-    let html = `
-    <html>
-    <head>
-      <style>
-        body { font-family: Arial; padding: 16px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #444; padding: 6px; font-size: 12px; }
-        th { background: #f2f2f2; }
-      </style>
-    </head>
-    <body>
-      <h2>Spending Tracker Report</h2>
-      <p>Date: ${new Date().toLocaleDateString("en-IN")}</p>
+async function exportDataAsPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-      <table>
-        <tr>
-          <th>Date</th>
-          <th>Category</th>
-          <th>Description</th>
-          <th>Amount</th>
-        </tr>
-        ${transactions.map(t => `
-          <tr>
-            <td>${new Date(t.date).toLocaleDateString("en-IN")}</td>
-            <td>${t.category}</td>
-            <td>${t.description}</td>
-            <td>${formatMoney(t.amount)}</td>
-          </tr>
-        `).join("")}
-      </table>
-    </body>
-    </html>`;
+    // ===== TITLE =====
+    doc.setFontSize(14);
+    doc.text("SPENDING TRACKER REPORT", 14, 15);
 
-    Android.createPdfFromHtml(html);
+    doc.setFontSize(10);
+    doc.text(
+        `Generated: ${new Date().toLocaleDateString('en-IN')}`,
+        14,
+        22
+    );
+
+    // ===== SUMMARY =====
+    let totalIncome = 0, totalExpenses = 0;
+    transactions.forEach(t => {
+        t.type === "income"
+            ? totalIncome += t.amount
+            : totalExpenses += t.amount;
+    });
+
+    doc.autoTable({
+        startY: 28,
+        head: [[`Total Income (${currencySymbol})`, `Total Expenses (${currencySymbol})`, `Balance (${currencySymbol})`]],
+        body: [[
+            `${totalIncome}`,
+            `${totalExpenses}`,
+            `${totalIncome - totalExpenses}`
+        ]],
+        styles: { halign: "center", fontSize: 10 },
+        headStyles: { fillColor: [37, 99, 235] }
+    });
+
+    // ===== TRANSACTION TABLE =====
+    const tableData = transactions
+        .slice()
+        .reverse()
+        .map(t => [
+            new Date(t.date).toLocaleDateString("en-IN"),
+            t.category,
+            t.description || "-",
+            t.type.toUpperCase(),
+            t.type === "expense"
+                ? `-${t.amount}`
+                : `${t.amount}`
+        ]);
+
+
+    doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [[
+            "Date",
+            "Category",
+            "Description",
+            "Type",
+            `Amount (${currencySymbol})`
+        ]],
+        body: tableData,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [79, 70, 229] },
+        columnStyles: {
+            4: { halign: "right" }
+        }
+    });
+
+    // ===== EXPORT =====
+    const fileName = `spending-report-${Date.now()}.pdf`;
+
+    if (window.Android && Android.downloadFile) {
+        const base64 = doc.output("datauristring").split(",")[1];
+        Android.downloadFile(fileName, base64, "application/pdf");
+        showToast("📄 PDF downloading...");
+    } else {
+        doc.save(fileName);
+    }
 }
 
 
