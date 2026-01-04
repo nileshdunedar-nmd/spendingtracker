@@ -1194,12 +1194,18 @@ function blobToBase64(blob, callback) {
 function exportDataAsExcel() {
     let csv = "Date,Category,Description,Type,Amount\n";
 
-    transactions.forEach(t => {
-        csv += `${new Date(t.date).toLocaleDateString("en-IN")},${t.category},${t.description},${t.type},${t.amount}\n`;
+    transactions.slice().reverse().forEach(t => {
+        const date = new Date(t.date).toLocaleDateString("en-IN");
+        const amount =
+            t.type === "income"
+                ? formatMoney(t.amount)
+                : "-" + formatMoney(t.amount);
+
+        csv += `"${date}","${t.category}","${t.description}","${t.type.toUpperCase()}","${amount}"\n`;
     });
 
-    const blob = new Blob([csv], { type: "text/csv" });
-    const fileName = `spending-data-${Date.now()}.csv`;
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const fileName = `spending-tracker-${new Date().toISOString().split("T")[0]}.csv`;
 
     if (window.Android && Android.downloadFile) {
         blobToBase64(blob, base64 => {
@@ -1215,39 +1221,42 @@ function exportDataAsExcel() {
 }
 
 function exportDataAsPDF() {
-    let content = "";
-    content += "SPENDING TRACKER REPORT\n";
-    content += "==============================\n\n";
-    content += `Generated: ${new Date().toLocaleDateString('en-IN')}\n\n`;
+    let html = `
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial; padding: 16px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #444; padding: 6px; font-size: 12px; }
+        th { background: #f2f2f2; }
+      </style>
+    </head>
+    <body>
+      <h2>Spending Tracker Report</h2>
+      <p>Date: ${new Date().toLocaleDateString("en-IN")}</p>
 
-    let totalIncome = 0, totalExpenses = 0;
-    transactions.forEach(t => {
-        t.type === 'income' ? totalIncome += t.amount : totalExpenses += t.amount;
-    });
+      <table>
+        <tr>
+          <th>Date</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Amount</th>
+        </tr>
+        ${transactions.map(t => `
+          <tr>
+            <td>${new Date(t.date).toLocaleDateString("en-IN")}</td>
+            <td>${t.category}</td>
+            <td>${t.description}</td>
+            <td>${formatMoney(t.amount)}</td>
+          </tr>
+        `).join("")}
+      </table>
+    </body>
+    </html>`;
 
-    content += `Total Income: ₹${totalIncome}\n`;
-    content += `Total Expenses: ₹${totalExpenses}\n`;
-    content += `Balance: ₹${totalIncome - totalExpenses}\n\n`;
-
-    transactions.slice().reverse().forEach(t => {
-        content += `${new Date(t.date).toLocaleDateString('en-IN')} | ${t.category} | ${t.description} | ₹${t.amount}\n`;
-    });
-
-    const blob = new Blob([content], { type: "application/pdf" });
-    const fileName = `spending-report-${Date.now()}.pdf`;
-
-    if (window.Android && Android.downloadFile) {
-        blobToBase64(blob, base64 => {
-            Android.downloadFile(fileName, base64, "application/pdf");
-            showToast("📄 PDF downloading...");
-        });
-    } else {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = fileName;
-        a.click();
-    }
+    Android.createPdfFromHtml(html);
 }
+
 
 function shareApp() {
     const text =
@@ -1274,13 +1283,14 @@ function shareApp() {
     }
 }
 
-function rateApp() {
-    if (window.Android && Android.rateUs) {
-        Android.rateUs();
+function rateUs() {
+    if (window.Android && Android.rateApp) {
+        Android.rateApp();   // 📱 Android app → Play Store
     } else {
+        // 🌐 Browser fallback
         window.open(
-          "https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker",
-          "_blank"
+            "https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker",
+            "_blank"
         );
     }
 }
