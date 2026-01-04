@@ -1325,10 +1325,15 @@ function shareApp() {
     }
 }
 
+
 function rateUs() {
-    if (window.Android && Android.rateApp) {
-        Android.rateApp();   // 📱 Android app → Play Store
-    } else {
+    try {
+        if (window.Android && typeof Android.rateApp === "function") {
+            Android.rateApp();   // 📱 Android App → Play Store
+        } else {
+            throw "Not Android";
+        }
+    } catch (e) {
         // 🌐 Browser fallback
         window.open(
             "https://play.google.com/store/apps/details?id=com.sharweensoft.spendingtracker",
