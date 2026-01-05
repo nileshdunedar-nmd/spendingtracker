@@ -1191,17 +1191,40 @@ function blobToBase64(blob, callback) {
     reader.readAsDataURL(blob);
 }
 
+function getExportTransactions() {
+    const from = document.getElementById("exportFromDate")?.value;
+    const to = document.getElementById("exportToDate")?.value;
+
+    return transactions.filter(t => {
+        const d = t.date.substring(0, 10);
+
+        if (from && d < from) return false;
+        if (to && d > to) return false;
+
+        return true;
+    });
+}
+
 function exportDataAsExcel() {
+
+    const data = getExportTransactions();
+
+    if (!data.length) {
+        showToast("No data in selected date range");
+        return;
+    }
+
     let csv = `Date,Category,Description,Type,Amount(${currencySymbol})\n`;
 
-    transactions.slice().reverse().forEach(t => {
+    data.slice().reverse().forEach(t => {
         const date = new Date(t.date).toLocaleDateString("en-IN");
+
         const amount =
             t.type === "income"
-                ? (t.amount)
-                : "-" + (t.amount);
+                ? t.amount
+                : `-${t.amount}`;
 
-        csv += `"${date}","${t.category}","${t.description}","${t.type.toUpperCase()}","${amount}"\n`;
+        csv += `"${date}","${t.category}","${t.description || "-"}","${t.type.toUpperCase()}","${amount}"\n`;
     });
 
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -1221,6 +1244,14 @@ function exportDataAsExcel() {
 }
 
 async function exportDataAsPDF() {
+
+    const data = getExportTransactions();
+
+    if (!data.length) {
+        showToast("No data in selected date range");
+        return;
+    }
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
@@ -1230,14 +1261,15 @@ async function exportDataAsPDF() {
 
     doc.setFontSize(10);
     doc.text(
-        `Generated: ${new Date().toLocaleDateString('en-IN')}`,
+        `Generated: ${new Date().toLocaleDateString("en-IN")}`,
         14,
         22
     );
 
-    // ===== SUMMARY =====
+    // ===== SUMMARY (FILTERED DATA) =====
     let totalIncome = 0, totalExpenses = 0;
-    transactions.forEach(t => {
+
+    data.forEach(t => {
         t.type === "income"
             ? totalIncome += t.amount
             : totalExpenses += t.amount;
@@ -1245,18 +1277,22 @@ async function exportDataAsPDF() {
 
     doc.autoTable({
         startY: 28,
-        head: [[`Total Income (${currencySymbol})`, `Total Expenses (${currencySymbol})`, `Balance (${currencySymbol})`]],
+        head: [[
+            `Total Income (${currencySymbol})`,
+            `Total Expenses (${currencySymbol})`,
+            `Balance (${currencySymbol})`
+        ]],
         body: [[
-            `${totalIncome}`,
-            `${totalExpenses}`,
-            `${totalIncome - totalExpenses}`
+            totalIncome.toFixed(2),
+            totalExpenses.toFixed(2),
+            (totalIncome - totalExpenses).toFixed(2)
         ]],
         styles: { halign: "center", fontSize: 10 },
         headStyles: { fillColor: [37, 99, 235] }
     });
 
     // ===== TRANSACTION TABLE =====
-    const tableData = transactions
+    const tableData = data
         .slice()
         .reverse()
         .map(t => [
@@ -1268,7 +1304,6 @@ async function exportDataAsPDF() {
                 ? `-${t.amount}`
                 : `${t.amount}`
         ]);
-
 
     doc.autoTable({
         startY: doc.lastAutoTable.finalY + 10,
@@ -1296,6 +1331,31 @@ async function exportDataAsPDF() {
         showToast("📄 PDF downloading...");
     } else {
         doc.save(fileName);
+    }
+}
+
+function onRewardGranted(type) {
+    if (type === "excel") {
+        exportDataAsExcel();
+    }
+    if (type === "pdf") {
+        exportDataAsPDF();
+    }
+}
+
+function exportExcelWithAd() {
+    if (window.Android && Android.showRewardedAd) {
+        Android.showRewardedAd("excel");
+    } else {
+        exportDataAsExcel();
+    }
+}
+
+function exportPDFWithAd() {
+    if (window.Android && Android.showRewardedAd) {
+        Android.showRewardedAd("pdf");
+    } else {
+        exportDataAsPDF();
     }
 }
 

@@ -360,12 +360,28 @@
 
                 <div class="settings-item">
                     <div>
-                        <div class="settings-label">Export Data</div>
-                        <div class="settings-value">Download as PDF or Excel</div>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportDataAsPDF()">PDF</button>
-                        <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportDataAsExcel()">Excel</button>
+                        <div class="settings-label"style="margin-bottom:12px;">Export Data</div>                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>From</label>
+                                    <input type="date" id="exportFromDate">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>To</label>
+                                    <input type="date" id="exportToDate">
+                                </div>
+                            </div>
+                            
+                            <small style="font-size:10px;opacity:.7; ">
+                                Leave empty to export all data
+                            </small>
+                        <!-- </div> -->
+                        
+                        <div style="display: flex; gap: 8px; margin-top:16px;">
+                            <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportPDFWithAd()">PDF</button>
+                            <button class="btn btn-secondary" style="width: auto; padding: 8px 12px; flex: 1; margin: 0;" onclick="exportExcelWithAd()">Excel</button>
+                        </div>
                     </div>
                 </div>
             </div>
